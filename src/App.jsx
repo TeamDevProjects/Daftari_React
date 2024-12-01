@@ -2,16 +2,17 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import {
-Home,
-Login,
-SignUp,
-Clients,
-Suppliers,
-SuppliersTransactions,
-ClientsTransactions,
-SuppliersPaymentDates,
-ClientsPaymentDates 
-} from "./Pages"
+  Home,
+  Login,
+  SignUp,
+  Clients,
+  Suppliers,
+  SuppliersTransactions,
+  ClientsTransactions,
+  SuppliersPaymentDates,
+  ClientsPaymentDates,
+  Error,
+} from './Pages'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,31 +24,31 @@ const queryClient = new QueryClient({
 
 const router = createBrowserRouter([
   {
-    path: "/Home",
-    element: <Home/>,
-    errorElement: <Error/> ,
+    path: '/',
+    element: <Home />,
+    errorElement: <Error />,
     children: [
       {
-        index: true,
-        element:,
-        errorElement: ,
-        loader: ,
+        path: '/Clients',
+        element: <Clients />,
+        children: [
+          { path: '/ClientsTransactions', element: <ClientsTransactions /> },
+          { path: '/ClientsPaymentDates', element: <ClientsPaymentDates /> },
+        ],
       },
       {
-        path: ,
-        errorElement: ,
-        loader: ,
-        element: ,
-      },
-      {
-        path: ,
-        element: ,
-        action: ,
-        errorElement: ,
-      },
-      {
-        path: ,
-        element: ,
+        path: '/Suppliers',
+        element: <Suppliers />,
+        children: [
+          {
+            path: '/SuppliersTransactions',
+            element: <SuppliersTransactions />,
+          },
+          {
+            path: '/SuppliersPaymentDates',
+            element: <SuppliersPaymentDates />,
+          },
+        ],
       },
     ],
   },
