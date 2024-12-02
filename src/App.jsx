@@ -2,7 +2,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import {
-  Home,
+  HomeLayout,
   Login,
   SignUp,
   Clients,
@@ -25,27 +25,27 @@ const queryClient = new QueryClient({
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Home />,
+    element: <HomeLayout />,
     errorElement: <Error />,
     children: [
       {
-        path: '/Clients',
+        path: 'Clients',
         element: <Clients />,
         children: [
-          { path: '/ClientsTransactions', element: <ClientsTransactions /> },
-          { path: '/ClientsPaymentDates', element: <ClientsPaymentDates /> },
+          { path: 'ClientsTransactions', element: <ClientsTransactions /> },
+          { path: 'ClientsPaymentDates', element: <ClientsPaymentDates /> },
         ],
       },
       {
-        path: '/Suppliers',
+        path: 'Suppliers',
         element: <Suppliers />,
         children: [
           {
-            path: '/SuppliersTransactions',
+            path: 'SuppliersTransactions',
             element: <SuppliersTransactions />,
           },
           {
-            path: '/SuppliersPaymentDates',
+            path: 'SuppliersPaymentDates',
             element: <SuppliersPaymentDates />,
           },
         ],
