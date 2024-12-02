@@ -1,4 +1,4 @@
 const Clients = () => {
-  return <div>Clients</div>
+  return <h2>Clients</h2>
 }
 export default Clients
