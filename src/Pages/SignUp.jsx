@@ -13,9 +13,9 @@ const SignUp = () => {
           <SubmitBtn text="Register" />
         </div>
 
-        <p className="login-link">
+        <p className="form-link">
           Already a member?
-          <Link to="/SignIn" className="login-text">
+          <Link to="/SignIn" className="form-text">
             Login
           </Link>
         </p>

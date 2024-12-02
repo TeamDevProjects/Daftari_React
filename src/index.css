@@ -253,79 +253,6 @@ ul {
 }
 /* ============= PROJECT CSS =============== */
 
-/* Login css */
-
-.section-container {
-  display: grid;
-  place-items: center;
-  height: 100vh;
-}
-
-.form-container {
-  width: 24rem; /* equivalent to w-96 */
-  padding: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Shadow */
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.form-input {
-  margin-bottom: 1rem;
-}
-
-.form-input label {
-  display: block;
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
-}
-
-.form-input input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 0.375rem;
-  font-size: 1rem;
-}
-
-.submit-btn {
-  padding: 1rem;
-  background-color: #4caf50; /* Green */
-  color: white;
-  border: none;
-  border-radius: 0.375rem;
-  width: 100%;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-.submit-btn:hover {
-  background-color: #45a049;
-}
-
-.guest-btn {
-  padding: 1rem;
-  background-color: #6c757d; /* Secondary color */
-  color: white;
-  border: none;
-  border-radius: 0.375rem;
-  width: 100%;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-.guest-btn:hover {
-  background-color: #5a636a;
-}
-
-.link {
-  color: #007bff;
-  text-decoration: none;
-}
-
-.link:hover {
-  text-decoration: underline;
-}
 
 /* Form Input */
 
@@ -401,6 +328,11 @@ ul {
   transition: background-color 0.3s;
 }
 
+
+.submit-btn:hover {
+  background-color: #45a049;
+}
+
 .submit-btn:disabled {
   background-color: #cbd5e0; /* equivalent to disabled:bg-gray-400 */
   cursor: not-allowed;
@@ -426,7 +358,7 @@ ul {
   }
 }
 
-/* SignUp  */
+/* Regester  */
 
 .register-container {
   height: 100vh;
@@ -453,16 +385,16 @@ ul {
   margin-top: 1rem;
 }
 
-.login-link {
+.form-link {
   text-align: center;
 }
 
-.login-text {
+.form-text {
   margin-left: 0.5rem; /* equivalent to ml-2 */
   text-decoration: underline;
   color: #3b82f6; /* equivalent to link-primary */
 }
 
-.login-text:hover {
+.form-text:hover {
   text-decoration: none;
 }
