@@ -3,8 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import {
   HomeLayout,
-  Login,
   SignUp,
+  SignIn,
   Clients,
   Suppliers,
   SuppliersTransactions,
@@ -51,6 +51,14 @@ const router = createBrowserRouter([
         ],
       },
     ],
+  },
+  {
+    path: '/signup',
+    element: <SignUp />,
+  },
+  {
+    path: '/signin',
+    element: <SignIn />,
   },
 ])
 

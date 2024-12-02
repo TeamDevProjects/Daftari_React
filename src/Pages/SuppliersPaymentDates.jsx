@@ -1,10 +1,4 @@
-
 const SuppliersPaymentDates = () => {
-  return (
-    <div>
-      SuppliersPaymentDates
-    </div>
-  )
+  return <div>SuppliersPaymentDates</div>
 }
-
 export default SuppliersPaymentDates

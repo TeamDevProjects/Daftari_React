@@ -1,10 +1,4 @@
-
 const ClientsTransactions = () => {
-  return (
-    <div>
-      ClientsTransactions
-    </div>
-  )
+  return <div>ClientsTransactions</div>
 }
-
 export default ClientsTransactions
