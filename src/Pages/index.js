@@ -1,4 +1,5 @@
 export { default as HomeLayout } from './HomeLayout'
+export { default as User } from './User'
 export { default as SignIn } from './SignIn'
 export { default as SignUp } from './SignUp'
 export { default as Clients } from './Clients'

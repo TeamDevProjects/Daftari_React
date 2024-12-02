@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import {
   HomeLayout,
+  User,
   SignUp,
   SignIn,
   Clients,
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
     element: <HomeLayout />,
     errorElement: <Error />,
     children: [
+      {
+        index: true,
+        element: <User />,
+      },
       {
         path: 'Clients',
         element: <Clients />,
