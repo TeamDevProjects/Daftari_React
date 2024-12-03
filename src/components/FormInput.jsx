@@ -1,5 +1,16 @@
+/* eslint-disable react/prop-types */
 // eslint-disable-next-line react/prop-types
-const FormInput = ({ label, name, type, defaultValue, size }) => {
+const FormInput = ({
+  label,
+  name,
+  type,
+  defaultValue,
+  size,
+  Error,
+  TextError,
+  onChange,
+  onKeyPress,
+}) => {
   return (
     <div className="form-control">
       <label htmlFor={name} className="label">
@@ -9,8 +20,11 @@ const FormInput = ({ label, name, type, defaultValue, size }) => {
         type={type}
         name={name}
         defaultValue={defaultValue}
-        className={`input input-bordered ${size}`}
+        className={`input input-bordered ${Error && 'input-error'} ${size}`}
+        onChange={onChange}
+        onKeyPress={onKeyPress}
       />
+      {Error && <p className="text-error">{TextError}</p>}
     </div>
   )
 }
