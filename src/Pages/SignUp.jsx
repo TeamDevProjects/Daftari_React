@@ -1,4 +1,4 @@
-import React,{ useEffect, useState, useReducer, useCallback } from 'react'
+import React, { useEffect, useState, useReducer, useCallback } from 'react'
 import { FormInput, FormSelect, SubmitBtn } from '../components/index'
 import { Form, Link, useNavigate } from 'react-router-dom'
 import { GetBusinessTypes, GetSectors } from '../Apis/businessTypes'
@@ -57,7 +57,6 @@ const validate = (state) => {
 
   if (!state.phone) errors.phone = 'Phone is require'
   if (!validatePhone(state.phone)) errors.phone = 'must be more than 11 digits'
-  
 
   return errors
 }
@@ -151,7 +150,6 @@ const SignUp = () => {
   }
   const [businessTypes, setBusinessTypes] = useState([])
   const [sectors, setSectors] = useState([])
-
 
   useEffect(() => {
     const FetchBusinessTypes = async () => {
@@ -273,7 +271,7 @@ const SignUp = () => {
         <p className="form-link">
           Already a member?
           <Link to="/SignIn" className="form-text">
-            Login
+            SignIn
           </Link>
         </p>
       </Form>
@@ -281,4 +279,4 @@ const SignUp = () => {
   )
 }
 
-export default React.memo(SignUp) ;
+export default React.memo(SignUp)
