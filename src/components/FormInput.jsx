@@ -10,6 +10,7 @@ const FormInput = ({
   onChange,
   onKeyDown,
   required,
+  Error,
 }) => {
   return (
     <div className="form-control">
