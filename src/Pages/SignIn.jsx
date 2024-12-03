@@ -71,7 +71,7 @@ const SignIn = () => {
           <SubmitBtn text="Login" />
         </div>
         <p className="form-link">
-          Not a member yet?{' '}
+          Not a member yet?
           <Link to="/SignUp" className="form-text">
             Register
           </Link>
