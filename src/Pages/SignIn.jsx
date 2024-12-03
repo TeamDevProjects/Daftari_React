@@ -7,21 +7,23 @@ const SignIn = () => {
   return (
     <section className="register-container">
       <Form method="POST" className="register-form">
-        <h4 className="form-title">Login</h4>
+        <h4 className="form-title">SignIn</h4>
         <FormInput
-          type="email"
-          label="Email"
+          type="text"
+          label="UserName"
           name="identifier"
-          defaultValue="test@test.com"
+          defaultValue="AhmedEid"
+          required={true}
         />
         <FormInput
           type="password"
           label="Password"
           name="password"
-          defaultValue="secret"
+          defaultValue="AhmedEid"
+          required={true}
         />
         <div className="submit-btn-container">
-          <SubmitBtn text="Login" />
+          <SubmitBtn text="SignIn" />
         </div>
 
         <p className="form-link">

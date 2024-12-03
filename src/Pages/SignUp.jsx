@@ -1,4 +1,4 @@
-import { useEffect, useState, useReducer } from 'react'
+import React,{ useEffect, useState, useReducer, useCallback } from 'react'
 import { FormInput, FormSelect, SubmitBtn } from '../components/index'
 import { Form, Link, useNavigate } from 'react-router-dom'
 import { GetBusinessTypes, GetSectors } from '../Apis/businessTypes'
@@ -23,7 +23,7 @@ const reducer = (state, action) => {
       return {
         ...state,
         [action.field]: action.value,
-        errors: { ...state.errors, [action.field]: '' }, // set ex: usename error ""
+        errors: { ...state.errors, [action.field]: '' }, // set ex: username error ""
       }
     case 'SET_ERROR':
       return {
@@ -89,14 +89,15 @@ const SignUp = () => {
     })
   }
 
-  const handlePhonekeyPress = (e) => {
+  const handlePhoneOnkeyDown = (e) => {
     const charCode = e.charCode
     if (charCode < 48 || charCode > 57) {
       e.preventDefault()
     }
   }
 
-  const checkIsValidForm = () => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const checkIsValidForm = useCallback(() => {
     if (
       !state.phone ||
       !state.city ||
@@ -111,7 +112,7 @@ const SignUp = () => {
       return false
     }
     return true
-  }
+  })
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -138,11 +139,11 @@ const SignUp = () => {
       console.log('Error', state.errors)
     } else {
       // Handle form submission
-      // tell use that form submated succefuly (use Model)
+      // tell use that form submitted successfully (use Model)
       console.log('Form submitted successfully', User)
       //UserDispatch(signupUser(User))
 
-      // after Sucess Sigin up navegate to Login Page
+      // after Success Sign up navigate to Login Page
       setTimeout(() => {
         navigate('/Signin')
       }, 200)
@@ -174,7 +175,7 @@ const SignUp = () => {
     return () => {
       false
     }
-  }, [state])
+  }, [checkIsValidForm, state])
 
   return (
     <section className="register-container">
@@ -195,7 +196,7 @@ const SignUp = () => {
             label="phone"
             name="phone"
             onChange={handleChange}
-            onKeyPress={handlePhonekeyPress}
+            onKeyDown={handlePhoneOnkeyDown}
             Error={!!state.errors.phone}
             TextError={state.errors.phone}
           />
@@ -280,4 +281,4 @@ const SignUp = () => {
   )
 }
 
-export default SignUp
+export default React.memo(SignUp) ;
