@@ -23,6 +23,8 @@ const queryClient = new QueryClient({
   },
 })
 
+import { action as SignInAction } from './Pages/SignIn'
+
 const router = createBrowserRouter([
   {
     path: '/',
@@ -64,13 +66,14 @@ const router = createBrowserRouter([
   {
     path: '/signin',
     element: <SignIn />,
+    action: SignInAction,
   },
 ])
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />;
+      <RouterProvider router={router} />
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   )
