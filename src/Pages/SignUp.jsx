@@ -1,7 +1,10 @@
 import React, { useEffect, useState, useReducer, useCallback } from 'react'
 import { FormInput, FormSelect, SubmitBtn } from '../components/index'
 import { Form, Link, useNavigate } from 'react-router-dom'
-import { GetBusinessTypes, GetSectors } from '../Apis/businessTypes'
+import { GetBusinessTypes } from '../Services/businessType'
+import { GetSectors } from '../Services/sector'
+import userServices from '../Services/user'
+
 // Initial state for the form
 const initialState = {
   phone: '',
@@ -137,10 +140,9 @@ const SignUp = () => {
       }
       console.log('Error', state.errors)
     } else {
-      // Handle form submission
-      // tell use that form submitted successfully (use Model)
       console.log('Form submitted successfully', User)
       //UserDispatch(signupUser(User))
+      userServices.UserSignUp(User)
 
       // after Success Sign up navigate to Login Page
       setTimeout(() => {
@@ -148,6 +150,7 @@ const SignUp = () => {
       }, 200)
     }
   }
+
   const [businessTypes, setBusinessTypes] = useState([])
   const [sectors, setSectors] = useState([])
 
@@ -168,6 +171,7 @@ const SignUp = () => {
       false
     }
   }, [])
+
   useEffect(() => {
     checkIsValidForm()
     return () => {
@@ -194,7 +198,7 @@ const SignUp = () => {
             label="phone"
             name="phone"
             onChange={handleChange}
-            onKeyDown={handlePhoneOnkeyDown}
+            onKeyPress={handlePhoneOnkeyDown}
             Error={!!state.errors.phone}
             TextError={state.errors.phone}
           />
@@ -261,7 +265,7 @@ const SignUp = () => {
             optionId={'sectorId'}
             optionValue={'sectorName'}
             onChange={handleSectorChange}
-            Error={!!state.errors.sectorId} // '', 0 == false   !'', !0 => true    !!'', !!0 false
+            Error={!!state.errors.sectorId}
             TextError={state.errors.sectorId}
           />
         </div>

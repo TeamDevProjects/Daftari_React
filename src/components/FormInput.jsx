@@ -10,7 +10,7 @@ const FormInput = ({
   Error,
   TextError,
   onChange,
-  onKeyDown,
+  onKeyPress,
 }) => {
   return (
     <div className="form-control">
@@ -23,7 +23,7 @@ const FormInput = ({
         defaultValue={defaultValue}
         className={`input input-bordered ${Error && 'input-error'} ${size}`}
         onChange={onChange}
-        onKeyDown={onKeyDown}
+        onKeyPress={onKeyPress}
         required={required}
       />
       {Error && <p className="text-error">{TextError}</p>}

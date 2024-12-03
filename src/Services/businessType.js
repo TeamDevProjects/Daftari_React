@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const URL = 'https://localhost:7264'
+import {URL} from "./constants"
 
 export const GetBusinessTypes = async () => {
   try {
@@ -11,11 +11,3 @@ export const GetBusinessTypes = async () => {
   }
 }
 
-export const GetSectors = async () => {
-  try {
-    const response = await axios.get(`${URL}/api/Sectors`)
-    return response.data
-  } catch (error) {
-    //throw error;
-  }
-}
