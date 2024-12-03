@@ -48,13 +48,15 @@ export const action = async ({ request }) => {
 
 // SignIn Component
 const SignIn = () => {
+
+
   return (
     <section className="register-container">
       <Form method="POST" className="register-form">
-        <h4 className="form-title">Sign In</h4>
+        <h4 className="form-title">Login</h4>
         <FormInput
-          type="text"
-          label="Username"
+          type="email"
+          label="Email"
           name="identifier"
           defaultValue="AhmedEid"
           required={true}
@@ -64,10 +66,9 @@ const SignIn = () => {
           label="Password"
           name="password"
           defaultValue="secret"
-          required={true}
         />
         <div className="submit-btn-container">
-          <SubmitBtn text="Sign In" />
+          <SubmitBtn text="Login" />
         </div>
         <p className="form-link">
           Not a member yet?{' '}
