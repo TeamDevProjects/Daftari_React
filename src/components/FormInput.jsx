@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 // eslint-disable-next-line react/prop-types
-const FormInput = ({ label, name, type, defaultValue, size }) => {
+const FormInput = ({ label, name, type, defaultValue, size, TextError }) => {
   return (
     <div className="form-control">
       <label htmlFor={name} className="label">
