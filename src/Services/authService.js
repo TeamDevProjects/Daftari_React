@@ -18,9 +18,7 @@ const authService = {
 
   refreshAccessToken: async () => {
     const refreshToken = authService.getRefreshToken()
-    if (!refreshToken) throw new Error('No refresh token available')
-
-    const response = await axios.post(`${URL}/auth/refresh-token`, {
+    const response = await axios.post(`${URL}/api/Users/refresh-token`, {
       refreshToken,
     })
 

@@ -1,8 +1,10 @@
 import { Outlet, useNavigation, useNavigate } from 'react-router-dom'
 import { Navbar } from '../components'
 import { useEffect } from 'react'
-import { jwtDecode } from 'jwt-decode'
+import userServices from '../Services/user'
 
+import authService from '../Services/authService'
+import React from 'react'
 const HomeLayout = () => {
   const navigation = useNavigation()
 
@@ -11,18 +13,17 @@ const HomeLayout = () => {
   const navigate = useNavigate()
 
   const isTokenValid = () => {
-    const token = localStorage.getItem('accessToken')
+    const token = authService.getAccessToken()
     if (!token) return false
-    const decoded = jwtDecode(token)
 
-    // check token expire date
-    return decoded.exp * 1000 > Date.now() // true or false
+    return true
   }
 
   useEffect(() => {
     if (!isTokenValid()) {
       navigate('/SignIn')
     }
+    console.log(userServices.GetClients())
   }, [navigate])
   return (
     <>
@@ -33,4 +34,4 @@ const HomeLayout = () => {
     </>
   )
 }
-export default HomeLayout
+export default React.memo(HomeLayout)

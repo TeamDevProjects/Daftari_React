@@ -174,6 +174,7 @@ const SignUp = () => {
 
   useEffect(() => {
     checkIsValidForm()
+    console.log(userServices.GetClients())
     return () => {
       false
     }
