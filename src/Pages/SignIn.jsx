@@ -2,9 +2,9 @@ import { FormInput, SubmitBtn } from '../components/index'
 import { Form, Link, redirect } from 'react-router-dom'
 import axios from 'axios'
 import { toast } from 'react-toastify'
-
+import { URL } from '../Services/constants'
 // Define the API endpoint
-const LoginUrl = 'https://localhost:7264/api/Users/login'
+const LoginUrl = `${URL}/api/Users/login`
 
 // Action function for form submission
 // eslint-disable-next-line react-refresh/only-export-components
