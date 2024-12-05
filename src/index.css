@@ -422,3 +422,12 @@ option {
 .form-text:hover {
   text-decoration: none;
 }
+
+/* ==============[ ........ ]=============== */
+.logout-btn {
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: #ddd !important;
+  display: inline-flex;
+}

@@ -1,6 +1,13 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import Wrapper from '../assets/wrappers/Navbar'
+import authService from '../Services/authService'
 const Navbar = () => {
+  const navigate = useNavigate()
+
+  const handelLogout = () => {
+    authService.clearTokens()
+    navigate('/SignIn')
+  }
   return (
     <Wrapper>
       <div className="nav-center">
@@ -15,6 +22,9 @@ const Navbar = () => {
           <NavLink to="/Suppliers" className="nav-link">
             Suppliers
           </NavLink>
+          <button className="nav-link logout-btn" onClick={handelLogout}>
+            Logout
+          </button>
         </div>
       </div>
     </Wrapper>

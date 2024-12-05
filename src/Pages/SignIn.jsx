@@ -30,7 +30,7 @@ export const action = async ({ request }) => {
     }
 
     toast.success(response.data.msg || 'Login successful!')
-    return redirect('/User')
+    return redirect('/')
   } catch (error) {
     // Show a user-friendly error message
     const errorMsg =
