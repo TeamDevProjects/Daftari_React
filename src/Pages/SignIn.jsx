@@ -25,20 +25,16 @@ export const action = async ({ request }) => {
       localStorage.setItem('accessToken', accessToken)
       localStorage.setItem('refreshToken', refreshToken)
     } else {
-      toast.error('Access and refresh token  not provided by the server.')
+      toast.error('Access and refresh token are not provided by the server.')
       return null
     }
 
     toast.success(response.data.msg || 'Login successful!')
     return redirect('/')
   } catch (error) {
-    // Log the error for debugging
-    console.error('Error:', error)
-    console.error('Error Response:', error?.response)
-
     // Show a user-friendly error message
     const errorMsg =
-      error?.response?.data?.msg || 'An error occurred. Please try again.'
+      error?.response?.data?.msg || 'Check, Username and Password'
     toast.error(errorMsg)
 
     return error // Returning error if needed for further handling
