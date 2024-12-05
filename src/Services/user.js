@@ -11,15 +11,15 @@ const userServices = {
       return response.data
     } catch (error) {
       //
-       throw error
+      throw error
     }
   },
   GetClients: async () => {
     try {
-      const token = authService.getAccessToken() 
+      const token = authService.getAccessToken()
       const response = await apiService.get(`/api/Clients`, {
         headers: {
-          Authorization: `Bearer ${token}`, 
+          Authorization: `Bearer ${token}`,
         },
       })
       return response.data

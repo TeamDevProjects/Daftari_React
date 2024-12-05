@@ -20,6 +20,7 @@ const Error = () => {
     <Wrapper>
       <div>
         <h3>something went wrong </h3>
+        <Link to="/">back home</Link>
       </div>
     </Wrapper>
   )
