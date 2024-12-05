@@ -24,6 +24,8 @@ const queryClient = new QueryClient({
 })
 
 import { action as SignInAction } from './Pages/SignIn'
+import { loader as LoaderSuppliers } from './Pages/Suppliers'
+import { loader as LoaderClients } from './Pages/Clients'
 
 const router = createBrowserRouter([
   {
@@ -39,6 +41,8 @@ const router = createBrowserRouter([
       {
         path: 'Clients',
         element: <Clients />,
+        loader: LoaderClients,
+
         children: [
           { path: 'ClientsTransactions', element: <ClientsTransactions /> },
           { path: 'ClientsPaymentDates', element: <ClientsPaymentDates /> },
@@ -47,6 +51,7 @@ const router = createBrowserRouter([
       {
         path: 'Suppliers',
         element: <Suppliers />,
+        loader: LoaderSuppliers,
         children: [
           {
             path: 'SuppliersTransactions',
