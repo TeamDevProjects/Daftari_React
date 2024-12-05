@@ -32,12 +32,11 @@ export const action = async ({ request }) => {
     toast.success(response.data.msg || 'Login successful!')
     return redirect('/')
   } catch (error) {
-    // Show a user-friendly error message
-    const errorMsg =
-      error?.response?.data?.msg || 'Check, Username and Password'
-    toast.error(errorMsg)
+    if (error?.response?.data) {
+      toast.error(error.response.data)
+    } else toast.error(error?.message)
 
-    return error // Returning error if needed for further handling
+    return error
   }
 }
 
