@@ -1,10 +1,7 @@
 import { FormInput, SubmitBtn } from '../components/index'
 import { Form, Link, redirect } from 'react-router-dom'
-import axios from 'axios'
 import { toast } from 'react-toastify'
-import { URL } from '../Services/constants'
-// Define the API endpoint
-const LoginUrl = `${URL}/api/Users/login`
+import userServices from '../Services/user'
 
 // Action function for form submission
 // eslint-disable-next-line react-refresh/only-export-components
@@ -14,11 +11,11 @@ export const action = async ({ request }) => {
 
   try {
     // Sending POST request to login API
-    const response = await axios.post(LoginUrl, data)
+    const response = await userServices.UserSignIN(data)
 
     // Check if accessToken exists in response
-    const accessToken = response.data?.accessToken
-    const refreshToken = response.data?.refreshToken
+    const accessToken = response?.accessToken
+    const refreshToken = response?.refreshToken
 
     if (accessToken && refreshToken) {
       // Store token securely (use sessionStorage if preferred)
@@ -29,7 +26,7 @@ export const action = async ({ request }) => {
       return null
     }
 
-    toast.success(response.data.msg || 'Login successful!')
+    toast.success(response.msg || 'Login successful!')
     return redirect('/')
   } catch (error) {
     if (error?.response?.data) {

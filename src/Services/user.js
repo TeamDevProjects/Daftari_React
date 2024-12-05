@@ -14,6 +14,17 @@ const userServices = {
       throw error
     }
   },
+  UserSignIN: async (userData) => {
+    try {
+      const response = await axios.post(`${URL}/api/Users/login`, userData)
+      return response.data
+    } catch (error) {
+      //
+      throw error
+    }
+  },
+
+
   GetClients: async () => {
     try {
       const token = authService.getAccessToken()
