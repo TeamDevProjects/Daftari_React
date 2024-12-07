@@ -1,6 +1,8 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { UserProvider } from './Context/userContext'
+
 import {
   HomeLayout,
   User,
@@ -28,6 +30,15 @@ import { loader as LoaderSuppliers } from './Pages/Suppliers'
 import { loader as LoaderClients } from './Pages/Clients'
 
 const router = createBrowserRouter([
+  {
+    path: '/signup',
+    element: <SignUp />,
+  },
+  {
+    path: '/signin',
+    element: <SignIn />,
+    action: SignInAction,
+  },
   {
     path: '/',
     element: <HomeLayout />,
@@ -65,23 +76,16 @@ const router = createBrowserRouter([
       },
     ],
   },
-  {
-    path: '/signup',
-    element: <SignUp />,
-  },
-  {
-    path: '/signin',
-    element: <SignIn />,
-    action: SignInAction,
-  },
 ])
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
+    <UserProvider>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
+    </UserProvider>
   )
 }
 

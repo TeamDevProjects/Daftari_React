@@ -2,24 +2,37 @@ import { Outlet, useNavigation, useNavigate } from 'react-router-dom'
 import { Navbar } from '../components'
 import { useEffect, useState } from 'react'
 import userServices from '../Services/user'
+import { useUser } from '../Context/userContext'
 
 import authService from '../Services/authService'
 import React from 'react'
 const HomeLayout = () => {
   const navigation = useNavigation()
+  const { setUser } = useUser()
   const [isUser, setIsUser] = useState(false)
   const isPageLoading = navigation.state === 'loading'
   // is login before in localstorage and token is valid redirect to page
   const navigate = useNavigate()
 
+  const fetchCurrentUserInf = async () => {
+    try {
+      const currentUserInf = await userServices.GetUserInfo()
+
+      if (currentUserInf) {
+        setUser(currentUserInf)
+        console.log(currentUserInf)
+        setIsUser(true)
+      }
+    } catch (error) {
+      setIsUser(false)
+      console.log(error)
+    }
+  }
   const isTokenValid = () => {
     const token = authService.getAccessToken()
     if (!token) {
-      setIsUser(false)
       return false
     }
-
-    setIsUser(true)
 
     return true
   }
@@ -28,11 +41,12 @@ const HomeLayout = () => {
     if (!isTokenValid()) {
       navigate('/SignIn')
     }
-    console.log(userServices.GetClients())
+
+    fetchCurrentUserInf()
   }, [navigate])
 
   if (!isUser) {
-    return <div className="loading" />
+    return <div className="" />
   }
 
   return (

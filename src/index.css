@@ -424,10 +424,117 @@ option {
 }
 
 /* ==============[ ........ ]=============== */
+.page {
+  width: 80%;
+  background: #fff;
+  margin: 1rem auto;
+  box-shadow: 0px 0px 7px -1px #cfcfcf;
+  padding: 2rem 1rem;
+  height: calc(100vh - 8rem);
+}
 .logout-btn {
   cursor: pointer;
   background: none;
   border: none;
   color: #ddd !important;
   display: inline-flex;
+}
+
+.center {
+  text-align: center;
+  width: 100%;
+  padding-top: 3rem;
+}
+/* General Styling */
+.transaction-container {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  background-color: #f9f9f9; /* Light gray background for transactions */
+  padding: 1rem;
+  margin: 0.3rem auto; /* Space between transactions */
+  width: 100%;
+  max-width: 22rem; /* Constrain width for better UX */
+  border: 1px solid #ddd; /* Subtle border for separation */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+}
+.transaction-content {
+  justify-content: space-between;
+  width: FIT-CONTENT;
+  flex: 3;
+}
+/* Circle Button */
+.circle {
+  background-color: var(--primary-300);
+  color: var(--primary-700);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  font-weight: bold;
+  /* cursor: pointer; */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  border: none; /* Remove button border */
+  transition: transform 0.2s, background-color 0.2s;
+}
+.circle span {
+  /* transform: translateY(-0.1rem); */
+}
+
+/* .circle:hover {
+  background-color: var(--primary-400);
+  transform: scale(1.1); 
+} 
+*/
+
+/* Transaction Amount */
+.transaction-amount {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333; /* Dark text for readability */
+  margin-right: 1rem;
+}
+
+/* Transaction Info */
+.transaction-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem; /* Space between info items */
+  align-items: start;
+}
+
+.transaction-date {
+  font-size: 0.9rem;
+  color: #666; /* Subtle color for secondary information */
+}
+
+.transaction-type {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #007bff; /* Highlight transaction type */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .transaction-container {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+  }
+
+  .transaction-info {
+    align-items: flex-start;
+    margin-top: 0.5rem;
+  }
+
+  .circle {
+    align-self: flex-end;
+    margin-top: 0.5rem;
+  }
+}
+.page-header {
+  justify-content: center;
+  flex-direction: column;
+  margin: 2rem 0;
 }
