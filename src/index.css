@@ -431,3 +431,68 @@ option {
   color: #ddd !important;
   display: inline-flex;
 }
+
+/* Table css */
+/* Table Wrapper for Responsive Design */
+.table-wrapper {
+  margin: 20px auto;
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Table Styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Arial', sans-serif;
+  background-color: #f2f2f2;
+}
+
+thead {
+  background-color: var(--primary-400); /* Header background color */
+  color: white;
+}
+
+thead th {
+  padding: 12px 15px;
+  text-align: left;
+  font-weight: bold;
+}
+
+tbody tr {
+  border-bottom: 1px solid #ddd;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f2f2f2; /* Alternate row background */
+}
+
+tbody td {
+  padding: 12px 15px;
+  text-align: left;
+  color: #333;
+  text-align: center;
+}
+
+/* Hover Effect for Rows */
+tbody tr:hover {
+  background-color: #f1f7f4;
+}
+
+/* Responsive Table Adjustments */
+table {
+  min-width: 600px; /* Minimum width for the table */
+}
+
+@media screen and (max-width: 768px) {
+  table {
+    font-size: 14px;
+  }
+}
+
+/* Add Borders to Table */
+th,
+td {
+  border: 1px solid #ddd;
+}

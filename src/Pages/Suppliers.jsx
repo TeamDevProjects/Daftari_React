@@ -23,9 +23,79 @@ export const loader = async () => {
 
 const Suppliers = () => {
   const { suppliers } = useLoaderData()
+  const columns = [
+    'ClientId',
+    'Name',
+    'Country',
+    'City',
+    'Address',
+    'Phone',
+    'Date of payment',
+    'Total amount',
+    'Payment Method Name',
+    /* 'Notes', */
+    'Action',
+  ]
 
   // Render suppliers if data is available
-  return <div>{suppliers.map((supplier) => console.log(supplier))}</div>
+  return (
+    <div className="table-wrapper">
+      {suppliers && suppliers.length > 0 ? (
+        <table border="1" style={{ width: '100%', textAlign: 'left' }}>
+          <thead>
+            <tr>
+              {columns.map((col, index) => (
+                <th key={index}>{col}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {suppliers.map((supplier) => (
+              <tr key={supplier.supplierId || '-'}>
+                <td>{supplier.supplierId || '-'}</td>
+                <td>{supplier.name || '-'}</td>
+                <td>{supplier.country || '-'}</td>
+                <td>{supplier.city || '-'}</td>
+                <td>{supplier.address || '-'}</td>
+                <td>{supplier.phone || '-'}</td>
+                <td>{supplier.dateOfPayment || '-'}</td>
+                <td>{supplier.totalAmount || '-'}</td>
+                <td>{supplier.paymentMethodName || '-'}</td>
+                {/* <td>{supplier.notes || '-'}</td> */}
+                <td>
+                  <button
+                    /* onClick={} */
+                    style={{
+                      marginRight: '5px',
+                      backgroundColor: '#00b894',
+                      color: 'white',
+                      border: 'none',
+                      padding: '5px 10px',
+                    }}
+                  >
+                    Update
+                  </button>
+                  <button
+                    /*  onClick={} */
+                    style={{
+                      backgroundColor: '#d63031',
+                      color: 'white',
+                      border: 'none',
+                      padding: '5px 10px',
+                    }}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>No Suppliers found.</p>
+      )}
+    </div>
+  )
 }
 
 export default Suppliers
