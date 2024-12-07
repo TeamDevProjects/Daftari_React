@@ -11,11 +11,16 @@ const User = () => {
 
   useEffect(() => {
     const fetchTransactions = async () => {
-      const results = await userTransactionServices.GetAll()
-      console.log(results)
-      setTransactions(results)
-      if (!results) {
-        toast.error('can`t load user transactions')
+      try {
+        const results = await userTransactionServices.GetAll()
+        console.log(results)
+        setTransactions(results)
+        if (!results) {
+          toast.error('can`t load user transactions')
+        }
+      } catch (error) {
+        console.log(error)
+        setTransactions([])
       }
     }
 
@@ -24,14 +29,14 @@ const User = () => {
     console.log(transactions)
   }, [])
 
-  if (transactions.length == 0)
+  if (transactions?.length == 0)
     return <div className="center">No transactions Founded</div>
   return (
     <div className="page-content">
       <div className="flex page-header">
-        <h3>store : {user.storeName}</h3>
+        <h3>store : {user?.storeName}</h3>
         <h2 className="transaction-amount">
-          total amount: ${user.totalAmount}
+          total amount: ${user?.totalAmount}
         </h2>
       </div>
       {transactions.map((t) => (

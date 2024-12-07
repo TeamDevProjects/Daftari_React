@@ -8,7 +8,7 @@ import authService from '../Services/authService'
 import React from 'react'
 const HomeLayout = () => {
   const navigation = useNavigation()
-  const { setUser } = useUser()
+  const { setUser } = useUser(null)
   const [isUser, setIsUser] = useState(false)
   const isPageLoading = navigation.state === 'loading'
   // is login before in localstorage and token is valid redirect to page
@@ -19,12 +19,14 @@ const HomeLayout = () => {
       const currentUserInf = await userServices.GetUserInfo()
 
       if (currentUserInf) {
-        setUser(currentUserInf)
+        // setUser(currentUserInf)
+        setUser(null)
         console.log(currentUserInf)
         setIsUser(true)
       }
     } catch (error) {
       setIsUser(false)
+      setUser(null)
       console.log(error)
     }
   }
