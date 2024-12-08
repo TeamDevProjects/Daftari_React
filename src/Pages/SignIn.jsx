@@ -1,7 +1,14 @@
-import { FormInput, SubmitBtn } from '../components/index'
-import { Form, Link, redirect } from 'react-router-dom'
+import {
+  Form,
+  Link,
+  redirect,
+} from 'react-router-dom'
+import { useEffect } from 'react'
 import { toast } from 'react-toastify'
+import { useUser } from '../Context/userContext'
 import userServices from '../Services/user'
+import authService from '../Services/authService'
+import { FormInput, SubmitBtn } from '../components/index'
 
 // Action function for form submission
 // eslint-disable-next-line react-refresh/only-export-components
@@ -19,15 +26,14 @@ export const action = async ({ request }) => {
 
     if (accessToken && refreshToken) {
       // Store token securely (use sessionStorage if preferred)
-      localStorage.setItem('accessToken', accessToken)
-      localStorage.setItem('refreshToken', refreshToken)
+      authService.saveTokens(accessToken, refreshToken, true)
     } else {
       toast.error('Access and refresh token are not provided by the server.')
       return null
     }
 
     toast.success(response.msg || 'Login successful!')
-    return redirect('/')
+    return redirect('/user')
   } catch (error) {
     if (error?.response?.data) {
       toast.error(error.response.data)
@@ -39,6 +45,31 @@ export const action = async ({ request }) => {
 
 // SignIn Component
 const SignIn = () => {
+
+  const { setUser } = useUser(null)
+  // is login before in localstorage and token is valid redirect to page
+
+  const fetchCurrentUserInf = async () => {
+    try {
+      const currentUserInf = await userServices.GetUserInfo()
+
+      if (!currentUserInf) {
+        setUser(null)
+      }
+      setUser(currentUserInf)
+      // setUser(null)
+      console.log(currentUserInf)
+    } catch (error) {
+      setUser(null)
+      console.log(error)
+    }
+  }
+ 
+
+  useEffect(() => {
+    fetchCurrentUserInf()
+  }, [])
+
   return (
     <section className="register-container">
       <Form method="POST" className="register-form">

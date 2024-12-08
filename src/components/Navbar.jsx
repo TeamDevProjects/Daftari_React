@@ -6,14 +6,14 @@ const Navbar = () => {
 
   const handelLogout = () => {
     authService.clearTokens()
-    navigate('/SignIn')
+    navigate('/')
   }
   return (
     <Wrapper>
       <div className="nav-center">
         <span className="logo">Daftari</span>
         <div className="nav-links">
-          <NavLink to="/" className="nav-link">
+          <NavLink to="/User" className="nav-link">
             Home
           </NavLink>
           <NavLink to="/Clients" className="nav-link">

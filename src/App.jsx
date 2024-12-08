@@ -1,4 +1,4 @@
-import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { UserProvider } from './Context/userContext'
@@ -28,16 +28,26 @@ const queryClient = new QueryClient({
 import { action as SignInAction } from './Pages/SignIn'
 import { loader as LoaderSuppliers } from './Pages/Suppliers'
 import { loader as LoaderClients } from './Pages/Clients'
+import authService from './Services/authService'
 
+const checkIsLogin = () => {
+  const isLogin = authService.getIsLogin()
+  if (isLogin == null) {
+    return false
+  }
+
+  return isLogin
+}
 const router = createBrowserRouter([
   {
-    path: '/signup',
-    element: <SignUp />,
+    path: '/',
+    index: true,
+    element: checkIsLogin() ? <Navigate to="/user" /> : <SignIn />,
+    action: SignInAction,
   },
   {
-    path: '/signin',
-    element: <SignIn />,
-    action: SignInAction,
+    path: '/signUp',
+    element: <SignUp />,
   },
   {
     path: '/',
@@ -45,8 +55,8 @@ const router = createBrowserRouter([
     errorElement: <Error />,
     children: [
       {
-        path: '/',
-        index: true,
+        path: '/user',
+
         element: <User />,
       },
       {
