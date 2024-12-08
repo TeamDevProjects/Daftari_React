@@ -1,12 +1,12 @@
 import { Outlet, useNavigation, useNavigate } from 'react-router-dom'
-import { Navbar } from '../components'
+import { Modal, Navbar } from '../components'
 import { useEffect, useState } from 'react'
 import userServices from '../Services/user'
 import { useUser } from '../Context/userContext'
-
 import authService from '../Services/authService'
-import React from 'react'
 const HomeLayout = () => {
+  const { isOpenModal } = useUser()
+
   const navigation = useNavigation()
   const { setUser } = useUser(null)
   const [isUser, setIsUser] = useState(false)
@@ -54,10 +54,11 @@ const HomeLayout = () => {
   return (
     <>
       <Navbar />
+      {isOpenModal && <Modal />}
       <section className="page">
         {isPageLoading ? <div className="loading" /> : <Outlet context={{}} />}
       </section>
     </>
   )
 }
-export default React.memo(HomeLayout)
+export default HomeLayout

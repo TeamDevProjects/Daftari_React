@@ -1,5 +1,8 @@
 import axios from 'axios'
 import { useLoaderData } from 'react-router-dom'
+import { SearchForm } from '../components'
+import { useUser } from '../Context/userContext'
+import { handelDateTimeFormate } from '../assets/Utilities/date'
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const loader = async () => {
@@ -23,6 +26,7 @@ export const loader = async () => {
 
 const Suppliers = () => {
   const { suppliers } = useLoaderData()
+  const { OpenModal } = useUser()
   const columns = [
     'ClientId',
     'Name',
@@ -39,62 +43,72 @@ const Suppliers = () => {
 
   // Render suppliers if data is available
   return (
-    <div className="table-wrapper">
-      {suppliers && suppliers.length > 0 ? (
-        <table border="1" style={{ width: '100%', textAlign: 'left' }}>
-          <thead>
-            <tr>
-              {columns.map((col, index) => (
-                <th key={index}>{col}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {suppliers.map((supplier) => (
-              <tr key={supplier.supplierId || '-'}>
-                <td>{supplier.supplierId || '-'}</td>
-                <td>{supplier.name || '-'}</td>
-                <td>{supplier.country || '-'}</td>
-                <td>{supplier.city || '-'}</td>
-                <td>{supplier.address || '-'}</td>
-                <td>{supplier.phone || '-'}</td>
-                <td>{supplier.dateOfPayment || '-'}</td>
-                <td>{supplier.totalAmount || '-'}</td>
-                <td>{supplier.paymentMethodName || '-'}</td>
-                {/* <td>{supplier.notes || '-'}</td> */}
-                <td>
-                  <button
-                    /* onClick={} */
-                    style={{
-                      marginRight: '5px',
-                      backgroundColor: '#00b894',
-                      color: 'white',
-                      border: 'none',
-                      padding: '5px 10px',
-                    }}
-                  >
-                    Update
-                  </button>
-                  <button
-                    /*  onClick={} */
-                    style={{
-                      backgroundColor: '#d63031',
-                      color: 'white',
-                      border: 'none',
-                      padding: '5px 10px',
-                    }}
-                  >
-                    Delete
-                  </button>
-                </td>
+    <>
+      <SearchForm />
+      <div className="table-wrapper">
+        {suppliers && suppliers.length > 0 ? (
+          <table border="1" style={{ width: '100%', textAlign: 'left' }}>
+            <thead>
+              <tr>
+                {columns.map((col, index) => (
+                  <th key={index}>{col}</th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <p>No Suppliers found.</p>
-      )}
-    </div>
+            </thead>
+            <tbody>
+              {suppliers.map((supplier) => (
+                <tr key={supplier.supplierId || '-'}>
+                  <td>{supplier.supplierId || '-'}</td>
+                  <td>{supplier.name || '-'}</td>
+                  <td>{supplier.country || '-'}</td>
+                  <td>{supplier.city || '-'}</td>
+                  <td>{supplier.address || '-'}</td>
+                  <td>{supplier.phone || '-'}</td>
+                  <td>
+                    {handelDateTimeFormate(supplier.dateOfPayment) || '-'}
+                  </td>
+                  <td>{supplier.totalAmount || '-'}</td>
+                  <td>{supplier.paymentMethodName || '-'}</td>
+                  {/* <td>{supplier.notes || '-'}</td> */}
+                  <td>
+                    <button
+                      /* onClick={} */
+                      style={{
+                        marginRight: '5px',
+                        backgroundColor: '#00b894',
+                        color: 'white',
+                        border: 'none',
+                        padding: '5px 10px',
+                      }}
+                    >
+                      Update
+                    </button>
+                    <button
+                      /*  onClick={} */
+                      style={{
+                        backgroundColor: '#d63031',
+                        color: 'white',
+                        border: 'none',
+                        padding: '5px 10px',
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>No Suppliers found.</p>
+        )}
+      </div>
+      <div className="center">
+        <button className="btn clear-btn" onClick={() => OpenModal()}>
+          Add Client
+        </button>
+      </div>
+    </>
   )
 }
 
