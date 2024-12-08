@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useReducer, useCallback } from 'react'
+import { useEffect, useState, useReducer, useCallback } from 'react'
 import { FormInput, FormSelect, SubmitBtn } from '../components/index'
 import { Form, Link, useNavigate } from 'react-router-dom'
 import { GetBusinessTypes } from '../Services/businessType'
@@ -284,4 +284,4 @@ const SignUp = () => {
   )
 }
 
-export default React.memo(SignUp)
+export default SignUp

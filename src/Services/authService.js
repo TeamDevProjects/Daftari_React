@@ -3,17 +3,20 @@ import axios from 'axios'
 import { URL } from './constants'
 
 const authService = {
-  saveTokens: (accessToken, refreshToken) => {
+  saveTokens: (accessToken, refreshToken, IsLogin = true) => {
     localStorage.setItem('accessToken', accessToken)
     localStorage.setItem('refreshToken', refreshToken)
+    localStorage.setItem('IsLogin', IsLogin)
   },
 
   getAccessToken: () => localStorage.getItem('accessToken'),
   getRefreshToken: () => localStorage.getItem('refreshToken'),
+  getIsLogin: () => localStorage.getItem('IsLogin'),
 
   clearTokens: () => {
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
+    localStorage.removeItem('IsLogin')
   },
 
   refreshAccessToken: async () => {
