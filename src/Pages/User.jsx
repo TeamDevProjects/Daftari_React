@@ -6,18 +6,18 @@ import { useUser } from '../Context/userContext'
 
 const User = () => {
   const { user } = useUser()
-
   const [transactions, setTransactions] = useState([])
 
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
         const results = await userTransactionServices.GetAll()
-        console.log(results)
-        setTransactions(results)
         if (!results) {
-          toast.error('can`t load user transactions')
+          toast.error("Can't load user transactions")
+          return
         }
+        console.log(results) // You can keep this for debugging, but be aware of its use in production
+        setTransactions(results)
       } catch (error) {
         console.log(error)
         setTransactions([])
@@ -25,12 +25,11 @@ const User = () => {
     }
 
     fetchTransactions()
+  }, []) // Empty dependency array ensures that the effect only runs once on mount
 
-    console.log(transactions)
-  }, [])
+  if (transactions.length === 0)
+    return <div className="center">No transactions Found</div>
 
-  if (transactions?.length == 0)
-    return <div className="center">No transactions Founded</div>
   return (
     <div className="page-content">
       <div className="flex page-header">
@@ -42,7 +41,7 @@ const User = () => {
       {transactions.map((t) => (
         <div key={t?.userTransactionId} className="flex transaction-container">
           <button className="flex circle">
-            <span>{t?.transactionTypeName == 'Withdrawal' ? '+' : '-'}</span>
+            <span>{t?.transactionTypeName === 'Withdrawal' ? '+' : '-'}</span>
           </button>
           <div className="flex transaction-content">
             <div className="transaction-info">
@@ -58,4 +57,5 @@ const User = () => {
     </div>
   )
 }
+
 export default User

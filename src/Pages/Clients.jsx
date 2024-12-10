@@ -1,8 +1,10 @@
-import axios from 'axios'
 import { useLoaderData } from 'react-router-dom'
-import { SearchForm } from '../components'
-import { useUser } from '../Context/userContext'
+import { Modal, SearchForm } from '../components'
 import { handelDateTimeFormate } from '../assets/Utilities/date'
+import clientServices from '../Services/client.js'
+import { useState } from 'react'
+import AddEditPaymentDateForm from '../components/Forms/AddEditPaymentDateForm'
+import { toast } from 'react-toastify'
 // eslint-disable-next-line react-refresh/only-export-components
 export const loader = async () => {
   const accessToken = localStorage.getItem('accessToken')
@@ -11,13 +13,9 @@ export const loader = async () => {
   }
 
   try {
-    const response = await axios.get('https://localhost:7264/api/Clients', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
+    const results = await clientServices.GetAll()
 
-    return { Clients: response.data } // Returning Clients data from API
+    return { Clients: results } // Returning Clients data from API
   } catch {
     throw new Response('Failed to fetch Clients')
   }
@@ -25,7 +23,38 @@ export const loader = async () => {
 
 const Clients = () => {
   const { Clients } = useLoaderData()
-  const { OpenModal } = useUser()
+  const [isModalOpen, setModalOpen] = useState(false)
+
+  const [mode, setMode] = useState('Add')
+
+  const handelAddClientModal = () => {
+    setMode('Add')
+    handleOpenModal()
+  }
+
+  const handelUpdateClientModal = () => {
+    setMode('Update')
+    handleOpenModal()
+  }
+  const handleOpenModal = () => {
+    setModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setModalOpen(false)
+  }
+
+  const handleSubmit = (client) => {
+    if (mode == 'Add') {
+      console.log('Add Client', client)
+      toast.success('Client Added Successfully')
+      return
+    }
+    // Update
+    console.log('Edit Client', client)
+    toast.success('Client Updated Successfully')
+    setModalOpen(false)
+  }
 
   const columns = [
     'ClientId',
@@ -43,6 +72,15 @@ const Clients = () => {
   // Render suppliers if data is available
   return (
     <>
+      <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
+        <AddEditPaymentDateForm
+          onSubmit={handleSubmit}
+          title={'client'}
+          buttonText={'Client'}
+          mode={mode} // 'Add' 'Update'
+        />
+      </Modal>
+
       <SearchForm />
       <div className="table-wrapper">
         {Clients && Clients.length > 0 ? (
@@ -76,6 +114,7 @@ const Clients = () => {
                         border: 'none',
                         padding: '5px 10px',
                       }}
+                      onClick={handelUpdateClientModal}
                     >
                       Update
                     </button>
@@ -100,7 +139,7 @@ const Clients = () => {
         )}
       </div>
       <div className="center">
-        <button className="btn clear-btn" onClick={() => OpenModal()}>
+        <button className="btn " onClick={handelAddClientModal}>
           Add Client
         </button>
       </div>

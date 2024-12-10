@@ -1,11 +1,5 @@
-import {
-  Form,
-  Link,
-  redirect,
-} from 'react-router-dom'
-import { useEffect } from 'react'
+import { Form, Link, redirect } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { useUser } from '../Context/userContext'
 import userServices from '../Services/user'
 import authService from '../Services/authService'
 import { FormInput, SubmitBtn } from '../components/index'
@@ -45,31 +39,7 @@ export const action = async ({ request }) => {
 
 // SignIn Component
 const SignIn = () => {
-
-  const { setUser } = useUser(null)
-  // is login before in localstorage and token is valid redirect to page
-
-  const fetchCurrentUserInf = async () => {
-    try {
-      const currentUserInf = await userServices.GetUserInfo()
-
-      if (!currentUserInf) {
-        setUser(null)
-      }
-      setUser(currentUserInf)
-      // setUser(null)
-      console.log(currentUserInf)
-    } catch (error) {
-      setUser(null)
-      console.log(error)
-    }
-  }
- 
-
-  useEffect(() => {
-    fetchCurrentUserInf()
-  }, [])
-
+  
   return (
     <section className="register-container">
       <Form method="POST" className="register-form">
