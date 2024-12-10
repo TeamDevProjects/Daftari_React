@@ -1,8 +1,10 @@
-import axios from 'axios'
 import { useLoaderData } from 'react-router-dom'
-import { SearchForm } from '../components'
-import { useUser } from '../Context/userContext'
+import { Modal, SearchForm } from '../components'
 import { handelDateTimeFormate } from '../assets/Utilities/date'
+import { useState } from 'react'
+import { toast } from 'react-toastify'
+import AddEditPersonForm from '../components/Forms/AddEditPersonForm'
+import supplierServices from '../Services/supplier'
 import { MdDelete } from 'react-icons/md'
 import { FaUserEdit } from 'react-icons/fa'
 
@@ -14,13 +16,9 @@ export const loader = async () => {
   }
 
   try {
-    const response = await axios.get('https://localhost:7264/api/Suppliers', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
+    const results = await supplierServices.GetAll()
 
-    return { suppliers: response.data } // Returning suppliers data from API
+    return { suppliers: results } // Returning suppliers data from API
   } catch {
     throw new Response('Failed to fetch suppliers')
   }
@@ -28,7 +26,40 @@ export const loader = async () => {
 
 const Suppliers = () => {
   const { suppliers } = useLoaderData()
-  const { OpenModal } = useUser()
+  const [isModalOpen, setModalOpen] = useState(false)
+
+  const [mode, setMode] = useState('Add')
+
+  const handelAddSupplierModal = () => {
+    setMode('Add')
+    handleOpenModal()
+  }
+
+  const handelUpdateSupplierModal = () => {
+    setMode('Update')
+    handleOpenModal()
+  }
+
+  const handleOpenModal = () => {
+    setModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setModalOpen(false)
+  }
+
+  const handleSubmit = (supplier) => {
+    if (mode == 'Add') {
+      console.log('Add Supplier', supplier)
+      toast.success('Supplier Added Successfully')
+      return
+    }
+    // Update
+    console.log('Edit Supplier', supplier)
+    toast.success('Supplier Updated Successfully')
+    setModalOpen(false)
+  }
+
   const columns = [
     'ClientId',
     'Name',
@@ -46,6 +77,14 @@ const Suppliers = () => {
   // Render suppliers if data is available
   return (
     <>
+      <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
+        <AddEditPersonForm
+          onSubmit={handleSubmit}
+          title={'Supplier'}
+          buttonText={'Supplier'}
+          mode={mode}
+        />
+      </Modal>
       <SearchForm />
       <div className="table-wrapper">
         {suppliers && suppliers.length > 0 ? (
@@ -82,6 +121,7 @@ const Suppliers = () => {
                         border: 'none',
                         padding: '5px 10px',
                       }}
+                      onClick={handelUpdateSupplierModal}
                     >
                       <FaUserEdit />
                     </button>
@@ -106,8 +146,8 @@ const Suppliers = () => {
         )}
       </div>
       <div className="center">
-        <button className="btn clear-btn" onClick={() => OpenModal()}>
-          Add Client
+        <button className="btn" onClick={handelAddSupplierModal}>
+          Add Supplier
         </button>
       </div>
     </>

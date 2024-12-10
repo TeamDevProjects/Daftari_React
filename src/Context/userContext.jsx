@@ -8,16 +8,9 @@ const UserContext = createContext()
 // UserProvider Component to wrap your app
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null) // Initial state is null
-  const [isOpenModal, setModal] = useState(false) // Initial state is null
 
-  const OpenModal = () => {
-    setModal(true)
-  }
-  const CloseModal = () => {
-    setModal(false)
-  }
   return (
-    <UserContext.Provider value={{ user, setUser,isOpenModal, OpenModal, CloseModal }}>
+    <UserContext.Provider value={{ user, setUser }}>
       {children}
     </UserContext.Provider>
   )

@@ -38,10 +38,6 @@ const reducer = (state, action) => {
   }
 }
 
-const validatePhone = (phone) => {
-  const re = /^[0-9]{11}$/
-  return re.test(phone)
-}
 
 // Validation function
 const validate = (state) => {
@@ -63,6 +59,13 @@ const validate = (state) => {
 
   return errors
 }
+
+
+const validatePhone = (phone) => {
+  const re = /^[0-9]{11}$/
+  return re.test(phone)
+}
+
 const SignUp = () => {
   const [state, dispatch] = useReducer(reducer, initialState)
 
@@ -275,7 +278,7 @@ const SignUp = () => {
         </div>
         <p className="form-link">
           Already a member?
-          <Link to="/SignIn" className="form-text">
+          <Link to="/" className="form-text">
             SignIn
           </Link>
         </p>
