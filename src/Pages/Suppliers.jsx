@@ -3,6 +3,8 @@ import { useLoaderData } from 'react-router-dom'
 import { SearchForm } from '../components'
 import { useUser } from '../Context/userContext'
 import { handelDateTimeFormate } from '../assets/Utilities/date'
+import { MdDelete } from 'react-icons/md'
+import { FaUserEdit } from 'react-icons/fa'
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const loader = async () => {
@@ -81,7 +83,7 @@ const Suppliers = () => {
                         padding: '5px 10px',
                       }}
                     >
-                      Update
+                      <FaUserEdit />
                     </button>
                     <button
                       /*  onClick={} */
@@ -92,7 +94,7 @@ const Suppliers = () => {
                         padding: '5px 10px',
                       }}
                     >
-                      Delete
+                      <MdDelete />
                     </button>
                   </td>
                 </tr>
