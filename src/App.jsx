@@ -1,7 +1,7 @@
 import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { UserProvider } from './Context/userContext'
+import { useUser } from './Context/userContext'
 
 import {
   HomeLayout,
@@ -33,6 +33,8 @@ const queryClient = new QueryClient({
 })
 
 function App() {
+  const { user } = useUser(null)
+
   const [isUserLogin, setIsUserLogin] = useState(
     authService.getIsLogin() || false
   )
@@ -55,13 +57,13 @@ function App() {
     return () => {
       window.removeEventListener('storage', handleStorageChange)
     }
-  }, [checkIsLogin])
+  }, [checkIsLogin, user])
 
   const router = createBrowserRouter([
     {
       path: '/',
       index: true,
-      element: isUserLogin ? <Navigate to="/user" /> : <SignIn />,
+      element: isUserLogin ? <Navigate to="/user" replace /> : <SignIn />,
       action: SignInAction,
     },
     {
@@ -83,48 +85,43 @@ function App() {
           element: <Clients />,
           errorElement: <ErrorElement />,
           loader: LoaderClients,
-          children: [
-            {
-              path: 'ClientsTransactions',
-              element: <ClientsTransactions />,
-              errorElement: <ErrorElement />,
-            },
-            {
-              path: 'ClientsPaymentDates',
-              element: <ClientsPaymentDates />,
-              errorElement: <ErrorElement />,
-            },
-          ],
         },
+        {
+          path: 'Clients/ClientsTransactions/:clientId',
+          element: <ClientsTransactions />,
+          errorElement: <ErrorElement />,
+        },
+        {
+          path: 'Clients/ClientsPaymentDates',
+          element: <ClientsPaymentDates />,
+          errorElement: <ErrorElement />,
+        },
+
         {
           path: 'Suppliers',
           element: <Suppliers />,
           errorElement: <ErrorElement />,
           loader: LoaderSuppliers,
-          children: [
-            {
-              path: 'SuppliersTransactions',
-              element: <SuppliersTransactions />,
-              errorElement: <ErrorElement />,
-            },
-            {
-              path: 'SuppliersPaymentDates',
-              element: <SuppliersPaymentDates />,
-              errorElement: <ErrorElement />,
-            },
-          ],
+        },
+        {
+          path: 'Suppliers/SuppliersTransactions/:supplierId',
+          element: <SuppliersTransactions />,
+          errorElement: <ErrorElement />,
+        },
+        {
+          path: 'Suppliers/SuppliersPaymentDates',
+          element: <SuppliersPaymentDates />,
+          errorElement: <ErrorElement />,
         },
       ],
     },
   ])
 
   return (
-    <UserProvider>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
-    </UserProvider>
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   )
 }
 

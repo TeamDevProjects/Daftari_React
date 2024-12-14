@@ -6,3 +6,11 @@ export const handelDateTimeFormate = (dateTime) => {
   return formattedDate
   // Example Output: "05 Dec 14:15:22"
 }
+
+export const handelDateFormate = (dateTime) => {
+  // const date = new Date()
+  const formattedDate = format(dateTime, 'dd MMM')
+
+  return formattedDate
+  // Example Output: "05 Dec 14:15:22"
+}

@@ -20,12 +20,6 @@ const reducer = (state, action) => {
       return {
         ...state,
         [action.field]: action.value,
-        errors: { ...state.errors, [action.field]: '' }, // set ex: username error ""
-      }
-    case 'SET_ERROR':
-      return {
-        ...state,
-        errors: { ...state.errors, [action.field]: action.error },
       }
     default:
       return state

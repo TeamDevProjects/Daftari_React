@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from 'react'
+import { IoIosClose } from 'react-icons/io'
 
 const Modal = ({
   children,
@@ -37,7 +38,7 @@ const Modal = ({
           className="btn clear-btn center"
           onClick={closeModal}
         >
-          <span>x</span>
+          <IoIosClose />
         </button>
         {/* </div> */}
       </div>

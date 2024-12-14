@@ -37,15 +37,29 @@ const clientTransactionService = {
     }
   },
 
-  Add: async (clientTransactionData) => {
+  Add: async ({ amount, notes, ClientId, TransactionTypeId, file }) => {
     try {
       const token = authService.getAccessToken()
+      const formData = new FormData()
+
+      formData.append('amount', amount)
+      formData.append('notes', notes)
+      formData.append('ClientId', ClientId)
+      formData.append('TransactionTypeId', TransactionTypeId)
+
+      if (file) {
+        formData.append('FormImage', file)
+      } else {
+        formData.append('ImageType', 'None')
+      }
+
       const response = await apiService.post(
         `/api/ClientTransactions`,
-        clientTransactionData,
+        formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
           },
         }
       )
@@ -55,15 +69,28 @@ const clientTransactionService = {
     }
   },
 
-  Update: async (clientTransactionData) => {
+  Update: async ({ amount, notes, TransactionTypeId, file }) => {
     try {
       const token = authService.getAccessToken()
+      const formData = new FormData()
+
+      formData.append('amount', amount)
+      formData.append('notes', notes)
+      formData.append('TransactionTypeId', TransactionTypeId)
+
+      if (file) {
+        formData.append('FormImage', file)
+      } else {
+        formData.append('ImageType', 'None')
+      }
+
       const response = await apiService.put(
         `/api/ClientTransactions`,
-        clientTransactionData,
+        formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
           },
         }
       )

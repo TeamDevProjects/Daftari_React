@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from 'styled-components'
 
 const Wrapper = styled.nav`
   background: var(--white);
@@ -15,12 +15,17 @@ const Wrapper = styled.nav`
     color: var(--primary-500);
     font-weight: 700;
     letter-spacing: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.3rem;
   }
   .nav-links {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
     margin-top: 1rem;
+    font-size: 1rem;
   }
   .nav-link {
     color: var(--grey-900);
@@ -45,6 +50,6 @@ const Wrapper = styled.nav`
       margin-top: 0;
     }
   }
-`;
+`
 
-export default Wrapper;
+export default Wrapper

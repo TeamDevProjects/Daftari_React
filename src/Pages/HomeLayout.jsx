@@ -1,9 +1,4 @@
-import {
-  Outlet,
-  useNavigation,
-  useNavigate,
-  useLocation,
-} from 'react-router-dom'
+import { Outlet, useNavigation, useNavigate } from 'react-router-dom'
 import { Navbar } from '../components'
 import { useEffect } from 'react'
 import userServices from '../Services/user'
@@ -15,7 +10,6 @@ const HomeLayout = () => {
   const { user, setUser } = useUser(null)
 
   const navigate = useNavigate()
-  const location = useLocation()
   const isPageLoading = navigation.state === 'loading'
 
   const isUserLogin = () => {
@@ -35,6 +29,7 @@ const HomeLayout = () => {
 
       if (!currentUserInf) {
         setUser(null)
+        return
       }
       setUser(currentUserInf)
       // setUser(null)
@@ -47,18 +42,23 @@ const HomeLayout = () => {
 
   useEffect(() => {
     const checkLoginAndFetchUser = async () => {
-      if (!isUserLogin()) {
-        navigate('/')
+      const isLogin = isUserLogin()
+
+      if (!isLogin) {
+        if (user) {
+          setUser(null) // تأكد من أن حالة المستخدم تم تحديثها
+        }
+        navigate('/', { replace: true }) // وجه إلى صفحة تسجيل الدخول
         return
       }
 
       if (!user) {
-        await fetchCurrentUserInf()
+        await fetchCurrentUserInf() // جلب معلومات المستخدم
       }
     }
 
     checkLoginAndFetchUser()
-  }, [location.pathname, navigate])
+  }, [user]) // أضف `user` إلى التبعية لمنع التكرار
 
   return (
     <>

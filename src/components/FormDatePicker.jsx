@@ -1,8 +1,9 @@
+/* eslint-disable react/prop-types */
 import { useEffect, useState } from 'react'
 import { DayPicker } from 'react-day-picker'
 import 'react-day-picker/style.css'
 
-const FormDatePicker = () => {
+const FormDatePicker = ({ onSelect }) => {
   const [selected, setSelected] = useState(null) // Selected date
   const [month, setMonth] = useState(new Date()) // Month displayed in the calendar
 
@@ -24,6 +25,7 @@ const FormDatePicker = () => {
         onSelect={(date) => {
           setSelected(date)
           setMonth(date) // Update calendar view to match selected date
+          onSelect(date)
         }}
         month={month} // Control the calendar's displayed month
         footer={

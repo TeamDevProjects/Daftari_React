@@ -1,8 +1,7 @@
-import styled from 'styled-components';
+import styled from 'styled-components'
 
 const Wrapper = styled.div`
-  margin-bottom: 6rem;
-  .form {
+  .search-form {
     display: grid;
     grid-template-columns: 1fr auto;
   }
@@ -14,6 +13,6 @@ const Wrapper = styled.div`
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
   }
-`;
+`
 
-export default Wrapper;
+export default Wrapper
