@@ -7,7 +7,7 @@ import {
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import AddEditPersonForm from '../components/Forms/AddEditPersonForm'
-import supplierServices from '../Services/supplier'
+import SupplierServices from '../Services/supplier'
 import { MdDelete, MdOutlineSettingsInputComponent } from 'react-icons/md'
 import { FaUserEdit } from 'react-icons/fa'
 import PdfReportGenerator from '../components/Reports/PdfReportGenerator'
@@ -34,6 +34,12 @@ export const loader = async () => {
   }
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
+export const action = async ({ request }) => {
+  const formData = await request.formData()
+  const data = Object.fromEntries(formData)
+}
+
 const Suppliers = () => {
   const { suppliers } = useLoaderData()
   const [isModalOpen, setModalOpen] = useState(false)
@@ -42,14 +48,17 @@ const Suppliers = () => {
   const [totalWidthdrol, setTotalWidthdrol] = useState(0)
 
   const [mode, setMode] = useState('Add')
+  const [method, setMethod] = useState('post')
 
   const handelAddSupplierModal = () => {
     setMode('Add')
+    setMethod('post')
     handleOpenModal()
   }
 
   const handelUpdateSupplierModal = () => {
     setMode('Update')
+    setMethod('put')
     handleOpenModal()
   }
 
@@ -117,6 +126,7 @@ const Suppliers = () => {
           title={'Supplier'}
           buttonText={'Supplier'}
           mode={mode}
+          method={method}
         />
       </Modal>
 
@@ -215,7 +225,9 @@ const Suppliers = () => {
                           <FaUserEdit />
                         </button>
                         <button
-                          /*  onClick={} */
+                          onClick={() =>
+                            SupplierServices.Delete(supplier.supplierId)
+                          }
                           style={{
                             backgroundColor: '#d63031',
                             color: 'white',

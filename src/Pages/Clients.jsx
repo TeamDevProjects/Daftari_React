@@ -34,6 +34,12 @@ export const loader = async () => {
   }
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
+export const action = async ({ request }) => {
+  const formData = await request.formData()
+  const data = Object.fromEntries(formData)
+}
+
 const Clients = () => {
   const { Clients } = useLoaderData()
   const [isModalOpen, setModalOpen] = useState(false)
@@ -41,14 +47,17 @@ const Clients = () => {
   const [totalWidthdrol, setTotalWidthdrol] = useState(0)
 
   const [mode, setMode] = useState('Add')
+  const [method, setMethod] = useState('post')
 
   const handelAddClientModal = () => {
     setMode('Add')
+    setMethod('post')
     handleOpenModal()
   }
 
   const handelUpdateClientModal = () => {
     setMode('Update')
+    setMethod('put')
     handleOpenModal()
   }
   const handleOpenModal = () => {
@@ -119,6 +128,7 @@ const Clients = () => {
           title={'client'}
           buttonText={'Client'}
           mode={mode} // 'Add' 'Update'
+          method={method}
         />
       </Modal>
       <div className="page-section">
@@ -216,7 +226,7 @@ const Clients = () => {
                           <FaUserEdit />
                         </button>
                         <button
-                          /*  onClick={} */
+                          onClick={clientServices.Delete(client.clientId)}
                           style={{
                             backgroundColor: '#d63031',
                             color: 'white',
