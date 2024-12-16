@@ -33,7 +33,7 @@ const queryClient = new QueryClient({
 })
 
 function App() {
-  const { user } = useUser(null)
+  const { user } = useUser()
 
   const [isUserLogin, setIsUserLogin] = useState(
     authService.getIsLogin() || false

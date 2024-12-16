@@ -854,6 +854,30 @@ td.td-notes {
   font-size: 1rem;
 }
 
+/* filter form */
+.filter-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 2rem 1rem;
+}
+.filter-form > li {
+  background: var(--primary-200);
+  color: var(--primary-800);
+  font-size: 1.2rem;
+  font-weight: 600;
+  width: fit-content;
+  padding: 0.5rem 0.7rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-1);
+  transition: var(--transition);
+}
+
+.filter-form > li:hover {
+  background: var(--primary-400);
+}
+
 @media (max-width: 600px) {
   body {
     font-size: 62.5%;
