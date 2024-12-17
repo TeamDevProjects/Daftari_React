@@ -25,7 +25,7 @@ const reducer = (state, action) => {
       return state
   }
 }
-const AddEditPersonForm = ({ onSubmit, title, buttonText, mode }) => {
+const AddEditPersonForm = ({ onSubmit, title, buttonText, mode, method }) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -49,7 +49,7 @@ const AddEditPersonForm = ({ onSubmit, title, buttonText, mode }) => {
   return (
     <>
       <h4 className="form-title">{mode + ' ' + title}</h4>
-      <Form method="POST" className="register-form" onSubmit={handleSubmit}>
+      <Form method={method} className="register-form" onSubmit={handleSubmit}>
         <div className="flex">
           <FormInput
             type="text"

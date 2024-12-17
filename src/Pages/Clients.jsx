@@ -35,6 +35,33 @@ export const loader = async () => {
   }
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
+export const action = async ({ request }) => {
+  try {
+    const formData = await request.formData()
+    const data = Object.fromEntries(formData)
+
+    // Determine the method (supports PUT override via _method)
+    const method = formData.get('_method') || request.method.toLowerCase()
+
+    if (method === 'post') {
+      // Handle the 'add' operation
+      const createdItem = await clientServices.Add(data)
+      return { status: 201, message: 'Item added successfully', createdItem }
+    } else if (method === 'put') {
+      // Handle the 'update' operation
+      const id = data.id // Dynamically get ID
+      const updatedItem = await clientServices.Update(data, id)
+      return { status: 200, message: 'Item updated successfully', updatedItem }
+    } else {
+      return { status: 405, message: 'Method not allowed' }
+    }
+  } catch (error) {
+    console.error('Error in action function:', error)
+    return { status: 500, message: 'An error occurred', error: error.message }
+  }
+}
+
 const Clients = () => {
   const { Clients } = useLoaderData()
 
@@ -42,17 +69,20 @@ const Clients = () => {
   const [totalPayment, setTotalPayment] = useState(0)
   const [totalWithdraw, setTotalWithdraw] = useState(0)
   const [mode, setMode] = useState('Add')
+  const [method, setMethod] = useState('post')
   const [isModalOpen, setModalOpen] = useState(false)
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
   const handelAddClientModal = () => {
     setMode('Add')
+    setMethod('post')
     handleOpenModal()
   }
 
   const handelUpdateClientModal = () => {
     setMode('Update')
+    setMethod('put')
     handleOpenModal()
   }
   const handleOpenModal = () => {
@@ -174,6 +204,7 @@ const Clients = () => {
           title={'client'}
           buttonText={'Client'}
           mode={mode}
+          method={method}
         />
       </Modal>
 
@@ -268,7 +299,6 @@ const Clients = () => {
                     <td>
                       <div className="flex">
                         <button
-                          /* onClick={} */
                           style={{
                             marginRight: '5px',
                             backgroundColor: '#00b894',
@@ -281,7 +311,6 @@ const Clients = () => {
                           <FaUserEdit />
                         </button>
                         <button
-                          /*  onClick={} */
                           style={{
                             backgroundColor: '#d63031',
                             color: 'white',

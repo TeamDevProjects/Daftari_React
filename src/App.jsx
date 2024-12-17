@@ -20,6 +20,9 @@ import {
 import { action as SignInAction } from './Pages/SignIn'
 import { loader as LoaderSuppliers } from './Pages/Suppliers'
 import { loader as LoaderClients } from './Pages/Clients'
+/* actions */
+import { action as ActionClients } from './Pages/Clients'
+import { action as ActionSuppliers } from './Pages/Suppliers'
 import authService from './Services/authService'
 import { useEffect, useState, useCallback } from 'react'
 import { ErrorElement } from './components'
@@ -85,6 +88,7 @@ function App() {
           element: <Clients />,
           errorElement: <ErrorElement />,
           loader: LoaderClients,
+          action: ActionClients,
         },
         {
           path: 'Clients/ClientsTransactions/:clientId',
@@ -102,6 +106,7 @@ function App() {
           element: <Suppliers />,
           errorElement: <ErrorElement />,
           loader: LoaderSuppliers,
+          action: ActionSuppliers,
         },
         {
           path: 'Suppliers/SuppliersTransactions/:supplierId',

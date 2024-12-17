@@ -7,7 +7,6 @@ import {
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import AddEditPersonForm from '../components/Forms/AddEditPersonForm'
-import supplierServices from '../Services/supplier'
 import { MdDelete, MdOutlineSettingsInputComponent } from 'react-icons/md'
 import { FaUserEdit } from 'react-icons/fa'
 import PdfReportGenerator from '../components/Reports/PdfReportGenerator'
@@ -29,11 +28,34 @@ export const loader = async () => {
   }
 
   try {
-    const results = await supplierServices.GetAll()
+    const results = await SupplierServices.GetAll()
 
     return { suppliers: results } // Returning suppliers data from API
   } catch {
     throw new Response('Failed to fetch suppliers')
+  }
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const action = async ({ request }) => {
+  try {
+    const formData = await request.formData()
+    const data = Object.fromEntries(formData)
+
+    const method = request.method
+
+    if (method === 'post') {
+      // Handle the 'add' operation
+      const createdItem = await SupplierServices.Add(data) // Replace with your actual logic
+    } else if (method === 'put') {
+      // Handle the 'update' operation
+      const updatedItem = await SupplierServices.Update(data, 1) // Replace with your actual logic
+    } else {
+      return { status: 405, message: 'Method not allowed' }
+    }
+  } catch (error) {
+    console.error('Error in action function:', error)
+    return { status: 500, message: 'An error occurred', error: error.message }
   }
 }
 
@@ -47,16 +69,19 @@ const Suppliers = () => {
   const [totalWithdraw, setTotalWithdraw] = useState(0)
 
   const [mode, setMode] = useState('Add')
+  const [method, setMethod] = useState('post')
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
   const handelAddSupplierModal = () => {
     setMode('Add')
+    setMethod('post')
     handleOpenModal()
   }
 
   const handelUpdateSupplierModal = () => {
     setMode('Update')
+    setMethod('put')
     handleOpenModal()
   }
 
@@ -94,7 +119,7 @@ const Suppliers = () => {
   const handleSubmit = async (supplier) => {
     try {
       if (mode === 'Add') {
-        const newSupplier = await supplierServices.Add(supplier)
+        const newSupplier = await SupplierServices.Add(supplier)
         setSuppliers((prevSuppliers) => [...prevSuppliers, newSupplier])
         toast.success('Supplier Added Successfully')
       } else if (mode === 'Update') {
@@ -174,7 +199,6 @@ const Suppliers = () => {
     setIsLoading(false)
   }, [])
 
-  console.log(suppliers)
   // Render suppliers if data is available
 
   if (isLoading) {
@@ -191,6 +215,7 @@ const Suppliers = () => {
           title={'Supplier'}
           buttonText={'Supplier'}
           mode={mode}
+          method={method}
         />
       </Modal>
 
@@ -299,7 +324,6 @@ const Suppliers = () => {
                           <FaUserEdit />
                         </button>
                         <button
-                          /*  onClick={} */
                           style={{
                             backgroundColor: '#d63031',
                             color: 'white',
