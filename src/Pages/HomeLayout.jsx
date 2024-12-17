@@ -33,7 +33,6 @@ const HomeLayout = () => {
       }
       setUser(currentUserInf)
       // setUser(null)
-      console.log(currentUserInf)
     } catch (error) {
       setUser(null)
       console.log(error)

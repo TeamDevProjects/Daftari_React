@@ -27,6 +27,7 @@ const AddEditPaymentDateForm = ({
   title,
   buttonText,
   mode,
+  method,
   clientId,
 }) => {
   const [state, dispatch] = useReducer(reducer, initialState)
@@ -54,7 +55,7 @@ const AddEditPaymentDateForm = ({
   return (
     <>
       <h4 className="form-title">{mode + ' ' + title}</h4>
-      <Form method="POST" className="register-form" onSubmit={handleSubmit}>
+      <Form method={method || 'post'} className="register-form" onSubmit={handleSubmit}>
         <FormDatePicker onSelect={handleSelect} />
         <FormTextarea label="Notes" name="notes" onChange={handleChange} />
         <div className="submit-btn-container">

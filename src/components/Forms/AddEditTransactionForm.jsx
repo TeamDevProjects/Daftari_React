@@ -30,6 +30,7 @@ const AddEditTransactionForm = ({
   buttonText,
   TransactionTypeId,
   mode,
+  method,
   ClientId,
 }) => {
   const [selectedFile, setSelectedFile] = useState(null)
@@ -54,6 +55,7 @@ const AddEditTransactionForm = ({
     input.onchange = handleFileChange // Trigger file change event
     input.click() // Open file explorer
   }
+
   const handleSubmit = (e) => {
     e.preventDefault()
 
@@ -73,7 +75,11 @@ const AddEditTransactionForm = ({
   return (
     <>
       <h4 className="form-title">{mode + ' ' + title}</h4>
-      <Form method="POST" className="register-form" onSubmit={handleSubmit}>
+      <Form
+        method={method || 'post'}
+        className="register-form"
+        onSubmit={handleSubmit}
+      >
         <FormInput
           type="number"
           label="Amount"
@@ -108,6 +114,7 @@ const AddEditTransactionForm = ({
           </svg>
           <span className="ml-2 font-normal text-sm">Upload Image</span>
         </button>
+        
         <p>{selectedFile ? selectedFile.name : ''}</p>
         <div className="submit-btn-container">
           <SubmitBtn text={mode + ' ' + buttonText} />

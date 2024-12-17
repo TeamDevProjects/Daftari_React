@@ -45,8 +45,7 @@ const SupplierServices = {
   Add: async (SupplierData) => {
     try {
       const token = authService.getAccessToken()
-      const response = await apiService.post(`/api/Suppliers`, {
-        SupplierData,
+      const response = await apiService.post(`/api/Suppliers`, SupplierData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -59,12 +58,15 @@ const SupplierServices = {
   Update: async (SupplierData, id) => {
     try {
       const token = authService.getAccessToken()
-      const response = await apiService.put(`/api/Suppliers${id}`, {
+      const response = await apiService.put(
+        `/api/Suppliers/${id}`,
         SupplierData,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
       return response.data
     } catch (error) {
       throw error

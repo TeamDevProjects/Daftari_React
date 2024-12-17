@@ -6,7 +6,6 @@ import {
 } from '../assets/Utilities/date'
 import { MdDelete, MdOutlineSettingsInputComponent } from 'react-icons/md'
 import { FaUserEdit } from 'react-icons/fa'
-
 import clientServices from '../Services/client.js'
 import { useEffect, useState } from 'react'
 import AddEditPersonForm from '../components/Forms/AddEditPersonForm'
@@ -18,6 +17,8 @@ import { ReportPeopleColumns } from '../Constants/ReportColumns.js'
 import { PeopleColumns } from '../Constants/TablesColumns.js'
 import PdfFilteredReportGenerator from '../components/Reports/pdfFilteredReportGenerator.jsx'
 import { LuDollarSign } from 'react-icons/lu'
+import FilterPersonForm from '../components/Forms/FilterPersonForm.jsx'
+
 // eslint-disable-next-line react-refresh/only-export-components
 export const loader = async () => {
   const accessToken = localStorage.getItem('accessToken')
@@ -27,27 +28,51 @@ export const loader = async () => {
 
   try {
     const results = await clientServices.GetAll()
-
-    return { Clients: results } // Returning Clients data from API
+    console.log('results', results)
+    return { Clients: results }
   } catch {
-    throw new Response('Failed to fetch Clients')
+    return { Clients: [] }
   }
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const action = async ({ request }) => {
-  const formData = await request.formData()
-  const data = Object.fromEntries(formData)
+  try {
+    const formData = await request.formData()
+    const data = Object.fromEntries(formData)
+
+    // Determine the method (supports PUT override via _method)
+    const method = formData.get('_method') || request.method.toLowerCase()
+
+    if (method === 'post') {
+      // Handle the 'add' operation
+      const createdItem = await clientServices.Add(data)
+      return { status: 201, message: 'Item added successfully', createdItem }
+    } else if (method === 'put') {
+      // Handle the 'update' operation
+      const id = data.id // Dynamically get ID
+      const updatedItem = await clientServices.Update(data, id)
+      return { status: 200, message: 'Item updated successfully', updatedItem }
+    } else {
+      return { status: 405, message: 'Method not allowed' }
+    }
+  } catch (error) {
+    console.error('Error in action function:', error)
+    return { status: 500, message: 'An error occurred', error: error.message }
+  }
 }
 
 const Clients = () => {
   const { Clients } = useLoaderData()
-  const [isModalOpen, setModalOpen] = useState(false)
-  const [totalPayment, setTotalPayment] = useState(0)
-  const [totalWidthdrol, setTotalWidthdrol] = useState(0)
 
+  const [clientsState, setClients] = useState(Clients || [])
+  const [totalPayment, setTotalPayment] = useState(0)
+  const [totalWithdraw, setTotalWithdraw] = useState(0)
   const [mode, setMode] = useState('Add')
   const [method, setMethod] = useState('post')
+  const [isModalOpen, setModalOpen] = useState(false)
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   const handelAddClientModal = () => {
     setMode('Add')
@@ -68,67 +93,126 @@ const Clients = () => {
     setModalOpen(false)
   }
 
-  const handleSubmit = (client) => {
-    if (mode == 'Add') {
-      console.log('Add Client', client)
-      toast.success('Client Added Successfully')
-      return
+  const handleSubmit = async (client) => {
+    try {
+      if (mode === 'Add') {
+        const newClient = await clientServices.Add(client)
+        setClients((prevClients) => [...prevClients, newClient])
+        toast.success('Client Added Successfully')
+      } else if (mode === 'Update') {
+        const updatedClient = await clientServices.Update(client)
+        setClients((prevClients) =>
+          prevClients.map((c) =>
+            c.clientId === updatedClient.clientId ? updatedClient : c
+          )
+        )
+        toast.success('Client Updated Successfully')
+      }
+      setModalOpen(false)
+    } catch (error) {
+      console.error('Error saving client:', error)
+      toast.error('Failed to save client.')
     }
-    // Update
-    console.log('Edit Client', client)
-    toast.success('Client Updated Successfully')
-    setModalOpen(false)
   }
 
-  const ReportRows = Clients.map((r) => [
-    r.clientId || '-', // ID
-    r.name || '-', // Name
-    r.country || '-', // Country
-    r.city || '-', // City
-    r.address || '-', // Address
-    r.phone || '-', // Phone
-    handelDateFormate(r.dateOfPayment) || '-', // Payment Date
-    r.totalAmount ? `$${r.totalAmount.toFixed(2)}` : '-', // Amount, formatted as currency
-    r.paymentMethodName || '-', // Payment Method
-  ])
+  const handelOpenFilterModel = () => {
+    setIsFilterModalOpen(true)
+  }
+
+  const handelCloseFilterModel = () => {
+    setIsFilterModalOpen(false)
+  }
+
+  const handelSubmitFilter = async (filterBy) => {
+    console.log(filterBy)
+
+    if (filterBy === 'orderByName') {
+      const results = await clientServices.GetAllOrderByName()
+      console.log(results)
+      if (Array.isArray(results) && results.length > 0) {
+        setClients(results)
+        console.log('filtering')
+      }
+    } else if (filterBy === 'default') {
+      setClients(Clients)
+    }
+  }
+
+  const formatReportRows = (data) =>
+    data?.map((r) => [
+      r?.clientId || '-',
+      r?.name || '-',
+      r?.country || '-',
+      r?.city || '-',
+      r?.address || '-',
+      r?.phone || '-',
+      handelDateFormate(r?.dateOfPayment) || '-',
+      r?.totalAmount ? `$${r?.totalAmount.toFixed(2)}` : '-',
+      r?.paymentMethodName || '-',
+    ])
+
+  const ReportRows = formatReportRows(Clients)
+  const ReportFilterRows = formatReportRows(clientsState)
 
   useEffect(() => {
-    if (!Clients) return
-    let totalwidthdrolResult = 0
-    let totalPaymentResult = 0
-    const totalPaymentArr = Clients.filter((c) => c.totalAmount >= 0)
+    const calculateTotals = () => {
+      if (!Clients) return
 
-    if (totalPaymentArr.length > 0) {
-      totalPaymentResult = totalPaymentArr.reduce(
-        (prev, curr) => prev.totalAmount + curr.totalAmount
+      const totalPaymentResult = Clients.reduce(
+        (total, client) =>
+          client.totalAmount >= 0 ? total + client.totalAmount : total,
+        0
       )
+
+      const totalWithdrawResult = Clients.reduce(
+        (total, client) =>
+          client.totalAmount < 0 ? total + client.totalAmount : total,
+        0
+      )
+
+      setTotalPayment(totalPaymentResult)
+      setTotalWithdraw(totalWithdrawResult)
     }
 
-    setTotalPayment(totalPaymentResult)
+    calculateTotals()
+    setIsLoading(false)
+  }, [Clients])
 
-    const TotalWidthdrolArr = Clients.filter((c) => c.totalAmount < 0)
-
-    if (TotalWidthdrolArr.length > 0) {
-      totalwidthdrolResult = TotalWidthdrolArr.reduce(
-        (prev, curr) => prev.totalAmount + curr.totalAmount
+  const handleDeleteClient = async (clientId) => {
+    try {
+      await clientServices.Delete(clientId)
+      setClients((prevClients) =>
+        prevClients.filter((client) => client.clientId !== clientId)
       )
-      setTotalWidthdrol(totalwidthdrolResult)
+      toast.success('Client deleted successfully.')
+    } catch (error) {
+      console.error('Error deleting client:', error)
+      toast.error('Failed to delete client.')
     }
-  }, [])
+  }
 
-  console.log('totalPayment', totalPayment)
-  console.log('totalWidthdrol', totalWidthdrol)
+  if (isLoading) {
+    return <p>Loading...</p>
+  }
 
-  // Render suppliers if data is available
   return (
     <>
+      {/* ==[ Add / Edit Clients]== */}
       <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
         <AddEditPersonForm
           onSubmit={handleSubmit}
           title={'client'}
           buttonText={'Client'}
-          mode={mode} // 'Add' 'Update'
+          mode={mode}
           method={method}
+        />
+      </Modal>
+
+      {/* == [ Filter Clients]== */}
+      <Modal isOpen={isFilterModalOpen} onClose={handelCloseFilterModel}>
+        <FilterPersonForm
+          title={'Clients Ordering'}
+          onSubmit={handelSubmitFilter}
         />
       </Modal>
       <div className="page-section">
@@ -137,7 +221,7 @@ const Clients = () => {
             <span className="amount-message">To Me</span>
             <div className="amount red">
               <LuDollarSign />
-              <span className="red">{totalWidthdrol || '00'}</span>
+              <span className="red">{totalWithdraw || '00'}</span>
             </div>
           </div>
           <div className="line"></div>
@@ -157,10 +241,12 @@ const Clients = () => {
             rows={ReportRows}
             footer={'Generated by Daftari Management System'}
           />
-          <button className="btn btn-paymentdate">
-            <CiCalendarDate />
-            <Link to="ClientsPaymentDates">Payment Dates</Link>
-          </button>
+          <Link to="ClientsPaymentDates">
+            <button className="btn btn-paymentdate">
+              <CiCalendarDate />
+              <span>Payment Dates</span>
+            </button>
+          </Link>
         </div>
       </div>
       <div className="page-section">
@@ -169,10 +255,10 @@ const Clients = () => {
             title={`Client Report`}
             subtitle={`Generated on: ${handelDateTimeFormate(new Date())}`}
             columns={ReportPeopleColumns}
-            rows={ReportRows}
+            rows={ReportFilterRows}
             footer={'Generated by Daftari Management System'}
           />
-          <div className="btn btn-add">
+          <div className="btn btn-add" onClick={handelOpenFilterModel}>
             <MdOutlineSettingsInputComponent />
           </div>
           <button className="btn btn-add" onClick={handelAddClientModal}>
@@ -185,7 +271,7 @@ const Clients = () => {
         </div>
 
         <div className="table-wrapper">
-          {Clients && Clients.length > 0 ? (
+          {clientsState && clientsState.length > 0 ? (
             <table border="1" style={{ width: '100%', textAlign: 'left' }}>
               <thead>
                 <tr>
@@ -195,25 +281,24 @@ const Clients = () => {
                 </tr>
               </thead>
               <tbody>
-                {Clients.map((client) => (
-                  <tr key={client.clientId || '-'}>
-                    <td>{client.clientId || '-'}</td>
+                {clientsState?.map((client) => (
+                  <tr key={client?.clientId || '-'}>
+                    <td>{client?.clientId || '-'}</td>
                     <td>
-                      <Link to={`ClientsTransactions/${client.clientId}`}>
-                        {client.name || '-'}
+                      <Link to={`ClientsTransactions/${client?.clientId}`}>
+                        {client?.name || '-'}
                       </Link>
                     </td>
-                    <td>{client.country || '-'}</td>
-                    <td>{client.city || '-'}</td>
-                    <td>{client.address || '-'}</td>
-                    <td>{client.phone || '-'}</td>
-                    <td>{handelDateFormate(client.dateOfPayment) || '-'}</td>
-                    <td>{client.totalAmount || '-'}</td>
-                    <td>{client.paymentMethodName || '-'}</td>
+                    <td>{client?.country || '-'}</td>
+                    <td>{client?.city || '-'}</td>
+                    <td>{client?.address || '-'}</td>
+                    <td>{client?.phone || '-'}</td>
+                    <td>{handelDateFormate(client?.dateOfPayment) || '-'}</td>
+                    <td>{client?.totalAmount || '-'}</td>
+                    <td>{client?.paymentMethodName || '-'}</td>
                     <td>
                       <div className="flex">
                         <button
-                          /* onClick={} */
                           style={{
                             marginRight: '5px',
                             backgroundColor: '#00b894',
@@ -226,13 +311,13 @@ const Clients = () => {
                           <FaUserEdit />
                         </button>
                         <button
-                          onClick={clientServices.Delete(client.clientId)}
                           style={{
                             backgroundColor: '#d63031',
                             color: 'white',
                             border: 'none',
                             padding: '5px 10px',
                           }}
+                          onClick={() => handleDeleteClient(client?.clientId)}
                         >
                           <MdDelete />
                         </button>

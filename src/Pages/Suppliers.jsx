@@ -17,6 +17,7 @@ import { ReportPeopleColumns } from '../Constants/ReportColumns'
 import { PeopleColumns } from '../Constants/TablesColumns'
 import PdfFilteredReportGenerator from '../components/Reports/pdfFilteredReportGenerator'
 import { LuDollarSign } from 'react-icons/lu'
+import FilterPersonForm from '../components/Forms/FilterPersonForm'
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const loader = async () => {
@@ -26,7 +27,7 @@ export const loader = async () => {
   }
 
   try {
-    const results = await supplierServices.GetAll()
+    const results = await SupplierServices.GetAll()
 
     return { suppliers: results } // Returning suppliers data from API
   } catch {
@@ -36,19 +37,40 @@ export const loader = async () => {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const action = async ({ request }) => {
-  const formData = await request.formData()
-  const data = Object.fromEntries(formData)
+  try {
+    const formData = await request.formData()
+    const data = Object.fromEntries(formData)
+
+    const method = request.method
+
+    if (method === 'post') {
+      // Handle the 'add' operation
+      const createdItem = await SupplierServices.Add(data) // Replace with your actual logic
+    } else if (method === 'put') {
+      // Handle the 'update' operation
+      const updatedItem = await SupplierServices.Update(data, 1) // Replace with your actual logic
+    } else {
+      return { status: 405, message: 'Method not allowed' }
+    }
+  } catch (error) {
+    console.error('Error in action function:', error)
+    return { status: 500, message: 'An error occurred', error: error.message }
+  }
 }
 
 const Suppliers = () => {
   const { suppliers } = useLoaderData()
+  const [suppliersState, setSuppliers] = useState(suppliers)
+
   const [isModalOpen, setModalOpen] = useState(false)
   const [totalPayment, setTotalPayment] = useState(0)
 
-  const [totalWidthdrol, setTotalWidthdrol] = useState(0)
+  const [totalWithdraw, setTotalWithdraw] = useState(0)
 
   const [mode, setMode] = useState('Add')
   const [method, setMethod] = useState('post')
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   const handelAddSupplierModal = () => {
     setMode('Add')
@@ -70,16 +92,62 @@ const Suppliers = () => {
     setModalOpen(false)
   }
 
-  const handleSubmit = (supplier) => {
-    if (mode == 'Add') {
-      console.log('Add Supplier', supplier)
-      toast.success('Supplier Added Successfully')
-      return
+  const handelOpenFilterModel = () => {
+    setIsFilterModalOpen(true)
+  }
+
+  const handelCloseFilterModel = () => {
+    setIsFilterModalOpen(false)
+  }
+
+  const handelSubmitFilter = async (filterBy) => {
+    console.log(filterBy)
+    // getall orderbyname & reset clients by orderbyname
+
+    if (filterBy == 'orderByName') {
+      const results = await SupplierServices.GetAllOrderByName()
+      console.log(results)
+      if (Array.isArray(results) && results.length > 0) {
+        setSuppliers(results)
+        console.log('filtering')
+      }
+    } else if (filterBy == 'default') {
+      setSuppliers(suppliers)
     }
-    // Update
-    console.log('Edit Supplier', supplier)
-    toast.success('Supplier Updated Successfully')
-    setModalOpen(false)
+  }
+  const handleSubmit = async (supplier) => {
+    try {
+      if (mode === 'Add') {
+        const newSupplier = await SupplierServices.Add(supplier)
+        setSuppliers((prevSuppliers) => [...prevSuppliers, newSupplier])
+        toast.success('Supplier Added Successfully')
+      } else if (mode === 'Update') {
+        const updatedSupplier = await SupplierServices.Update(supplier)
+        setSuppliers((prevSuppliers) =>
+          prevSuppliers.map((c) =>
+            c.supplierId === updatedSupplier.supplierId ? updatedSupplier : c
+          )
+        )
+        toast.success('Supplier Updated Successfully')
+      }
+      setModalOpen(false)
+    } catch (error) {
+      console.error('Error saving Supplier:', error)
+      toast.error('Failed to save Supplier.')
+    }
+  }
+
+  const handleDeleteSupplier = async (supplierId) => {
+    try {
+      await SupplierServices.Delete(supplierId)
+      setSuppliers((prevSuppliers) =>
+        prevSuppliers.filter((supplier) => supplier.clientId !== supplierId)
+      )
+      toast.success('Supplier deleted successfully.')
+    } catch (error) {
+      console.error('Error deleting Supplier:', error)
+      toast.error('Failed to delete Supplier.')
+    }
   }
 
   const ReportRows = suppliers.map((r) => [
@@ -93,33 +161,53 @@ const Suppliers = () => {
     r.totalAmount ? `$${r.totalAmount.toFixed(2)}` : '-', // Amount, formatted as currency
     r.paymentMethodName || '-', // Payment Method
   ])
+
+  const ReportFilterRows = suppliersState.map((r) => [
+    r.supplierId || '-', // ID
+    r.name || '-', // Name
+    r.country || '-', // Country
+    r.city || '-', // City
+    r.address || '-', // Address
+    r.phone || '-', // Phone
+    handelDateFormate(r.dateOfPayment) || '-', // Payment Date
+    r.totalAmount ? `$${r.totalAmount.toFixed(2)}` : '-', // Amount, formatted as currency
+    r.paymentMethodName || '-', // Payment Method
+  ])
+
   useEffect(() => {
-    if (!suppliers) return
-    let totalwidthdrolResult = 0
-    let totalPaymentResult = 0
-    const totalPaymentArr = suppliers.filter((c) => c.totalAmount >= 0)
+    const calculateTotals = () => {
+      if (!suppliers) return
 
-    if (totalPaymentArr.length > 0) {
-      totalPaymentResult = totalPaymentArr.reduce(
-        (prev, curr) => prev.totalAmount + curr.totalAmount
+      const totalPaymentResult = suppliers.reduce(
+        (total, client) =>
+          client.totalAmount >= 0 ? total + client.totalAmount : total,
+        0
       )
+
+      const totalWithdrawResult = suppliers.reduce(
+        (total, client) =>
+          client.totalAmount < 0 ? total + client.totalAmount : total,
+        0
+      )
+
+      setTotalPayment(totalPaymentResult)
+      setTotalWithdraw(totalWithdrawResult)
     }
 
-    setTotalPayment(totalPaymentResult)
-
-    const TotalWidthdrolArr = suppliers.filter((c) => c.totalAmount < 0)
-
-    if (TotalWidthdrolArr.length > 0) {
-      totalwidthdrolResult = TotalWidthdrolArr.reduce(
-        (prev, curr) => prev.totalAmount + curr.totalAmount
-      )
-      setTotalWidthdrol(totalwidthdrolResult)
-    }
+    calculateTotals()
+    setIsLoading(false)
   }, [])
-  console.log(suppliers)
+
   // Render suppliers if data is available
+
+  if (isLoading) {
+    return <p>Loading...</p>
+  }
+
   return (
     <>
+      {/* ==[ Add / Edit Suppliers]== */}
+
       <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
         <AddEditPersonForm
           onSubmit={handleSubmit}
@@ -130,13 +218,21 @@ const Suppliers = () => {
         />
       </Modal>
 
+      {/* == [ Filter Clients]== */}
+      <Modal isOpen={isFilterModalOpen} onClose={handelCloseFilterModel}>
+        <FilterPersonForm
+          title={'Suppliers Ordering'}
+          onSubmit={handelSubmitFilter}
+        />
+      </Modal>
+
       <div className="page-section">
         <div className="flex center amount-container">
           <div className="red-box">
             <span className="amount-message">For Me</span>
             <div className="amount red">
               <LuDollarSign />
-              <span className="red">{totalWidthdrol || '00'}</span>
+              <span className="red">{totalWithdraw || '00'}</span>
             </div>
           </div>
           <div className="line"></div>
@@ -156,10 +252,12 @@ const Suppliers = () => {
             rows={ReportRows}
             footer={'Generated by Daftari Management System'}
           />
-          <button className="btn btn-paymentdate">
-            <CiCalendarDate />
-            <Link to="SuppliersPaymentDates">Payment Dates</Link>
-          </button>
+          <Link to="SuppliersPaymentDates">
+            <button className="btn btn-paymentdate">
+              <CiCalendarDate />
+              <span>Payment Dates</span>
+            </button>
+          </Link>
         </div>
       </div>
       <div className="page-section">
@@ -168,10 +266,10 @@ const Suppliers = () => {
             title={`Supplier Report`}
             subtitle={`Generated on: ${handelDateTimeFormate(new Date())}`}
             columns={ReportPeopleColumns}
-            rows={ReportRows}
+            rows={ReportFilterRows}
             footer={'Generated by Daftari Management System'}
           />
-          <div className="btn btn-add">
+          <div className="btn btn-add" onClick={handelOpenFilterModel}>
             <MdOutlineSettingsInputComponent />
           </div>
           <button className="btn btn-add" onClick={handelAddSupplierModal}>
@@ -183,7 +281,7 @@ const Suppliers = () => {
           </div>
         </div>
         <div className="table-wrapper">
-          {suppliers && suppliers.length > 0 ? (
+          {suppliersState && suppliersState.length > 0 ? (
             <table border="1" style={{ width: '100%', textAlign: 'left' }}>
               <thead>
                 <tr>
@@ -193,7 +291,7 @@ const Suppliers = () => {
                 </tr>
               </thead>
               <tbody>
-                {suppliers.map((supplier) => (
+                {suppliersState.map((supplier) => (
                   <tr key={supplier.supplierId || '-'}>
                     <td>{supplier.supplierId || '-'}</td>
                     <td>
@@ -225,15 +323,15 @@ const Suppliers = () => {
                           <FaUserEdit />
                         </button>
                         <button
-                          onClick={() =>
-                            SupplierServices.Delete(supplier.supplierId)
-                          }
                           style={{
                             backgroundColor: '#d63031',
                             color: 'white',
                             border: 'none',
                             padding: '5px 10px',
                           }}
+                          onClick={() =>
+                            handleDeleteSupplier(supplier.supplierId)
+                          }
                         >
                           <MdDelete />
                         </button>
