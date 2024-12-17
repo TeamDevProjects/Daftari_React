@@ -19,6 +19,7 @@ import PdfFilteredReportGenerator from '../components/Reports/pdfFilteredReportG
 import { LuDollarSign } from 'react-icons/lu'
 import FilterPersonForm from '../components/Forms/FilterPersonForm'
 import SupplierServices from '../Services/supplier'
+import NoContent from '../components/NoContent'
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const loader = async () => {
@@ -154,14 +155,14 @@ const Suppliers = () => {
       if (!suppliers) return
 
       const totalPaymentResult = suppliers.reduce(
-        (total, client) =>
-          client.totalAmount >= 0 ? total + client.totalAmount : total,
+        (total, supplier) =>
+          supplier.totalAmount >= 0 ? total + supplier.totalAmount : total,
         0
       )
 
       const totalWithdrawResult = suppliers.reduce(
-        (total, client) =>
-          client.totalAmount < 0 ? total + client.totalAmount : total,
+        (total, supplier) =>
+          supplier.totalAmount < 0 ? total + supplier.totalAmount : total,
         0
       )
 
@@ -256,7 +257,7 @@ const Suppliers = () => {
           </div>
         </div>
         <div className="table-wrapper">
-          {suppliersState && suppliersState.length > 0 ? (
+          {suppliersState && suppliersState.length > 0 && (
             <table border="1" style={{ width: '100%', textAlign: 'left' }}>
               <thead>
                 <tr>
@@ -317,10 +318,9 @@ const Suppliers = () => {
                 ))}
               </tbody>
             </table>
-          ) : (
-            <p>No Suppliers found.</p>
           )}
         </div>
+        {suppliersState.length == 0 && <NoContent text="No Suppliers found." />}
       </div>
     </>
   )

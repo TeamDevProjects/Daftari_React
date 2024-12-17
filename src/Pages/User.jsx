@@ -15,6 +15,9 @@ const User = () => {
 
   const [mode, setMode] = useState('Add')
 
+  const [totalPayment, setTotalPayment] = useState(0)
+  const [totalWithdraw, setTotalWithdraw] = useState(0)
+
   const handelAddPaymentTransactionModal = () => {
     setMode('Add')
     setTransactionType(1)
@@ -52,6 +55,7 @@ const User = () => {
   // const [totalPayment, setTotalPayment] = useState(0)
   // const [totalWidthdrol, setTotalWidthdrol] = useState(0)
   const { user } = useUser()
+
   const fetchTransactions = async () => {
     try {
       const results = await userTransactionServices.GetAll()
@@ -60,7 +64,25 @@ const User = () => {
         return
       }
       setTransactions(results)
-      console.log(results) // You can keep this for debugging, but be aware of its use in production
+
+      const totalPaymentResult = results.reduce(
+        (total, transaction) =>
+          transaction.transactionTypeName == 'Payment'
+            ? total + transaction.amount
+            : total,
+        0
+      )
+
+      const totalWithdrawResult = results.reduce(
+        (total, transaction) =>
+          transaction.transactionTypeName == 'Withdrawal'
+            ? total + transaction.amount
+            : total,
+        0
+      )
+
+      setTotalPayment(totalPaymentResult)
+      setTotalWithdraw(totalWithdrawResult)
     } catch (error) {
       console.log(error)
       setTransactions([])
@@ -86,7 +108,7 @@ const User = () => {
         />
       </Modal>
       <div className="page-section">
-        <h4>store : {user?.storeName}</h4>
+        <h4 className="header-title">store : {user?.storeName}</h4>
       </div>
       <div className="page-section">
         <div className="flex center amount-container">
@@ -94,18 +116,25 @@ const User = () => {
             <span className="amount-message">Payment</span>
             <div className="amount red">
               <LuDollarSign />
-              <span className="red">{'00'}</span>
+              <span className="red">{totalPayment || '00'}</span>
             </div>
           </div>
           <div className="line"></div>
           <div className="green-box">
-            <span className="amount-message">Withdrow</span>
+            <span className="amount-message">Withdraw</span>
             <div className="amount green">
               <LuDollarSign />
-              <span className="">{'00'}</span>
+              <span className="">{totalWithdraw || '00'}</span>
             </div>
           </div>
         </div>
+        <span className="center fs-1">
+          <span className="total-amount-title">Total Amount : </span>
+          <span className="total-amount">
+            <LuDollarSign />
+            {totalWithdraw - totalPayment}
+          </span>
+        </span>
       </div>
       <div className="page-section">
         <UserTransactionsTable

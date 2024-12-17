@@ -18,7 +18,7 @@ import { PeopleColumns } from '../Constants/TablesColumns.js'
 import PdfFilteredReportGenerator from '../components/Reports/pdfFilteredReportGenerator.jsx'
 import { LuDollarSign } from 'react-icons/lu'
 import FilterPersonForm from '../components/Forms/FilterPersonForm.jsx'
-
+import NoContent from '../components/NoContent.jsx'
 // eslint-disable-next-line react-refresh/only-export-components
 export const loader = async () => {
   const accessToken = localStorage.getItem('accessToken')
@@ -240,7 +240,7 @@ const Clients = () => {
         </div>
 
         <div className="table-wrapper">
-          {clientsState && clientsState.length > 0 ? (
+          {clientsState && clientsState.length > 0 && (
             <table border="1" style={{ width: '100%', textAlign: 'left' }}>
               <thead>
                 <tr>
@@ -298,10 +298,11 @@ const Clients = () => {
                 ))}
               </tbody>
             </table>
-          ) : (
-            <p>No Clients found.</p>
           )}
         </div>
+        {clientsState.length == 0 && (
+          <NoContent text="No Clients found."/>
+        )}
       </div>
     </>
   )

@@ -26,6 +26,7 @@ const Wrapper = styled.nav`
     gap: 0.5rem;
     margin-top: 1rem;
     font-size: 1rem;
+    overflow: hidden;
   }
   .nav-link {
     color: var(--grey-900);
