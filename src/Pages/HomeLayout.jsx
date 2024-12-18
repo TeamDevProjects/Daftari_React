@@ -1,16 +1,19 @@
 import { Outlet, useNavigation, useNavigate } from 'react-router-dom'
 import { Navbar } from '../components'
-import { useEffect } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import userServices from '../Services/user'
 import { useUser } from '../Context/userContext'
 import authService from '../Services/authService'
+import NetworkContext from '../Context/NetworkContext' // Import your NetworkContext
 
 const HomeLayout = () => {
   const navigation = useNavigation()
   const { user, setUser } = useUser(null)
-
+  const { setServerErrorStatus } = useContext(NetworkContext) // Access the setServerErrorStatus from context
   const navigate = useNavigate()
   const isPageLoading = navigation.state === 'loading'
+
+  const [isServerError, setIsServerError] = useState(false) // Local state to manage server error
 
   const isUserLogin = () => {
     const token = authService.getAccessToken()
@@ -18,10 +21,8 @@ const HomeLayout = () => {
     if (!token || !isLogin) {
       return false
     }
-
     return true
   }
-  // is login before in localstorage and token is valid redirect to page
 
   const fetchCurrentUserInf = async () => {
     try {
@@ -32,10 +33,11 @@ const HomeLayout = () => {
         return
       }
       setUser(currentUserInf)
-      // setUser(null)
     } catch (error) {
       setUser(null)
       console.log(error)
+      setIsServerError(true) // Set server error state when API fails
+      setServerErrorStatus(true) // Update global error state using context
     }
   }
 
@@ -45,19 +47,27 @@ const HomeLayout = () => {
 
       if (!isLogin) {
         if (user) {
-          setUser(null) // تأكد من أن حالة المستخدم تم تحديثها
+          setUser(null)
         }
-        navigate('/', { replace: true }) // وجه إلى صفحة تسجيل الدخول
+        navigate('/', { replace: true })
         return
       }
 
       if (!user) {
-        await fetchCurrentUserInf() // جلب معلومات المستخدم
+        await fetchCurrentUserInf()
       }
     }
 
     checkLoginAndFetchUser()
-  }, [user]) // أضف `user` إلى التبعية لمنع التكرار
+  }, [user, navigate, setUser])
+
+  if (isServerError) {
+    return (
+      <p className="flex center">
+        There was a server error. Please try again later.
+      </p>
+    ) // Show a message if server error occurs
+  }
 
   return (
     <>
@@ -68,4 +78,5 @@ const HomeLayout = () => {
     </>
   )
 }
+
 export default HomeLayout

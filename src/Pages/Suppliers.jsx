@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { Link, useLoaderData } from 'react-router-dom'
 import { Modal, SearchForm } from '../components'
 import {
@@ -37,22 +38,25 @@ export const loader = async () => {
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const action = async ({ request }) => {
+export const action = async ({ request, params }) => {
   try {
     const formData = await request.formData()
-    const data = Object.fromEntries(formData)
+    const data = Object.fromEntries(formData) // Convert form data to an object
 
     const method = request.method
-
-    if (method === 'post') {
+    if (method === 'POST') {
       // Handle the 'add' operation
-      const createdItem = await SupplierServices.Add(data) // Replace with your actual logic
-    } else if (method === 'put') {
+      await SupplierServices.Add(data) // Replace with your actual logic
+    } else if (method === 'PUT') {
       // Handle the 'update' operation
-      const updatedItem = await SupplierServices.Update(data, 1) // Replace with your actual logic
+      await SupplierServices.Update(data, params.id) // Replace with your actual logic
     } else {
       return { status: 405, message: 'Method not allowed' }
     }
+
+    // After successful form submission, redirect to a success page or wherever needed
+    // return redirect('/success') // You can change this path to your preferred destination
+    return null
   } catch (error) {
     console.error('Error in action function:', error)
     return { status: 500, message: 'An error occurred', error: error.message }
@@ -61,6 +65,7 @@ export const action = async ({ request }) => {
 
 const Suppliers = () => {
   const { suppliers } = useLoaderData()
+
   const [suppliersState, setSuppliers] = useState(suppliers)
 
   const [isModalOpen, setModalOpen] = useState(false)
@@ -72,6 +77,7 @@ const Suppliers = () => {
   const [method, setMethod] = useState('post')
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [currentRowId, setCurrentRowId] = useState(0)
 
   // Function to handle searching suppliers by name
   const handleSearch = async (query) => {
@@ -94,14 +100,15 @@ const Suppliers = () => {
 
   const handelAddSupplierModal = () => {
     setMode('Add')
-    setMethod('post')
+    setMethod('POST')
     handleOpenModal()
   }
 
-  const handelUpdateSupplierModal = () => {
+  const handelUpdateSupplierModal = (id) => {
     setMode('Update')
-    setMethod('put')
+    setMethod('PUT')
     handleOpenModal()
+    setCurrentRowId(id)
   }
 
   const handleOpenModal = () => {
@@ -137,12 +144,15 @@ const Suppliers = () => {
   }
   const handleSubmit = async (supplier) => {
     try {
-      if (mode === 'Add') {
+      if (mode == 'Add') {
         const newSupplier = await SupplierServices.Add(supplier)
         setSuppliers((prevSuppliers) => [...prevSuppliers, newSupplier])
         toast.success('Supplier Added Successfully')
-      } else if (mode === 'Update') {
-        const updatedSupplier = await SupplierServices.Update(supplier)
+      } else if (mode == 'Update') {
+        const updatedSupplier = await SupplierServices.Update(
+          supplier,
+          currentRowId
+        )
         setSuppliers((prevSuppliers) =>
           prevSuppliers.map((c) =>
             c.supplierId === updatedSupplier.supplierId ? updatedSupplier : c
@@ -235,6 +245,7 @@ const Suppliers = () => {
           buttonText={'Supplier'}
           mode={mode}
           method={method}
+          actionPath={`${currentRowId}`}
         />
       </Modal>
 
@@ -338,7 +349,9 @@ const Suppliers = () => {
                             border: 'none',
                             padding: '5px 10px',
                           }}
-                          onClick={handelUpdateSupplierModal}
+                          onClick={() =>
+                            handelUpdateSupplierModal(supplier.supplierId)
+                          }
                         >
                           <FaUserEdit />
                         </button>
