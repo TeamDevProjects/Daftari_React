@@ -74,6 +74,24 @@ const Clients = () => {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
+  const handleSearch = async (query) => {
+    if (!query) {
+      setClients(Clients) // Reset to the original list when the query is empty
+      return
+    }
+
+    try {
+      setIsLoading(true)
+      const results = await clientServices.SearchByName(query) // Call API to search by name
+      setClients(results)
+      setIsLoading(false)
+    } catch (error) {
+      console.error('Error searching suppliers:', error)
+      toast.error('Failed to search suppliers.')
+      setIsLoading(false)
+    }
+  }
+
   const handelAddClientModal = () => {
     setMode('Add')
     setMethod('post')
@@ -266,7 +284,7 @@ const Clients = () => {
             <span>Add Client</span>
           </button>
           <div className="" style={{ flex: 4 }}>
-            <SearchForm />
+            <SearchForm onSubmit={handleSearch} />
           </div>
         </div>
 
@@ -329,9 +347,7 @@ const Clients = () => {
             </table>
           )}
         </div>
-        {clientsState.length == 0 && (
-          <NoContent text="No Clients found."/>
-        )}
+        {clientsState.length == 0 && <NoContent text="No Clients found." />}
       </div>
     </>
   )

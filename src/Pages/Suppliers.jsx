@@ -73,6 +73,25 @@ const Suppliers = () => {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
+  // Function to handle searching suppliers by name
+  const handleSearch = async (query) => {
+    if (!query) {
+      setSuppliers(suppliers) // Reset to the original list when the query is empty
+      return
+    }
+
+    try {
+      setIsLoading(true)
+      const results = await SupplierServices.SearchByName(query) // Call API to search by name
+      setSuppliers(results)
+      setIsLoading(false)
+    } catch (error) {
+      console.error('Error searching suppliers:', error)
+      toast.error('Failed to search suppliers.')
+      setIsLoading(false)
+    }
+  }
+
   const handelAddSupplierModal = () => {
     setMode('Add')
     setMethod('post')
@@ -278,7 +297,7 @@ const Suppliers = () => {
             <span>Add Supplier</span>
           </button>
           <div className="" style={{ flex: 4 }}>
-            <SearchForm />
+            <SearchForm onSubmit={handleSearch} />
           </div>
         </div>
         <div className="table-wrapper">
