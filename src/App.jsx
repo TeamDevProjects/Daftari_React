@@ -24,8 +24,9 @@ import { loader as LoaderClients } from './Pages/Clients'
 import { action as ActionClients } from './Pages/Clients'
 import { action as ActionSuppliers } from './Pages/Suppliers'
 import authService from './Services/authService'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useContext } from 'react'
 import { ErrorElement } from './components'
+import NetworkContext from './Context/NetworkContext'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -122,6 +123,10 @@ function App() {
     },
   ])
 
+  const { isConnected } = useContext(NetworkContext)
+
+  if (!isConnected) return <p className='flex center'>No internet connection</p>
+  
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
