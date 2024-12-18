@@ -37,31 +37,6 @@ export const loader = async () => {
   }
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const action = async ({ request, params }) => {
-  try {
-    const formData = await request.formData()
-    const data = Object.fromEntries(formData) // Convert form data to an object
-
-    const method = request.method
-    if (method === 'POST') {
-      // Handle the 'add' operation
-      await SupplierServices.Add(data) // Replace with your actual logic
-    } else if (method === 'PUT') {
-      // Handle the 'update' operation
-      await SupplierServices.Update(data, params.id) // Replace with your actual logic
-    } else {
-      return { status: 405, message: 'Method not allowed' }
-    }
-
-    // After successful form submission, redirect to a success page or wherever needed
-    // return redirect('/success') // You can change this path to your preferred destination
-    return null
-  } catch (error) {
-    console.error('Error in action function:', error)
-    return { status: 500, message: 'An error occurred', error: error.message }
-  }
-}
 
 const Suppliers = () => {
   const { suppliers } = useLoaderData()

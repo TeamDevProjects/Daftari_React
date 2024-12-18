@@ -35,32 +35,6 @@ export const loader = async () => {
   }
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const action = async ({ request }) => {
-  try {
-    const formData = await request.formData()
-    const data = Object.fromEntries(formData)
-
-    // Determine the method (supports PUT override via _method)
-    const method = formData.get('_method') || request.method.toLowerCase()
-
-    if (method === 'post') {
-      // Handle the 'add' operation
-      const createdItem = await clientServices.Add(data)
-      return { status: 201, message: 'Item added successfully', createdItem }
-    } else if (method === 'put') {
-      // Handle the 'update' operation
-      const id = data.id // Dynamically get ID
-      const updatedItem = await clientServices.Update(data, id)
-      return { status: 200, message: 'Item updated successfully', updatedItem }
-    } else {
-      return { status: 405, message: 'Method not allowed' }
-    }
-  } catch (error) {
-    console.error('Error in action function:', error)
-    return { status: 500, message: 'An error occurred', error: error.message }
-  }
-}
 
 const Clients = () => {
   const { Clients } = useLoaderData()
