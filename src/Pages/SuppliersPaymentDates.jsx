@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { IoIosArrowBack } from 'react-icons/io'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -7,12 +7,49 @@ import { PaymentDatesColumns } from '../Constants/TablesColumns'
 import SupplierPaymentDatesTable from '../components/Tables/SupplierPaymentDatesTable'
 import PaymentDateImg from '../assets/payroll.png'
 import { PAYMENT_Date } from '../Constants/Variables'
+import { useQuery } from '@tanstack/react-query'
+
+const SuppliersPaymentDatesQuery = {
+  queryKey: ['SuppliersPaymentDatesQuery'],
+  queryFn: async () => {
+    try {
+      const [todayResults, oldResults, closerResults] = await Promise.all([
+        supplierPaymentDateService.GetToDay(),
+        supplierPaymentDateService.GetOld(),
+        supplierPaymentDateService.GetCloser(),
+      ])
+
+      return {
+        today: todayResults || [],
+        old: oldResults || [],
+        closer: closerResults || [],
+      }
+    } catch (error) {
+      toast.error('Fail to fetch data')
+      throw error // Ensure the error propagates to React Query
+    }
+  },
+}
+
+export const loader = (queryClient) => async () => {
+  try {
+    await queryClient.ensureQueryData({
+      queryKey: SuppliersPaymentDatesQuery.queryKey,
+      queryFn: SuppliersPaymentDatesQuery.queryFn,
+    })
+  } catch (error) {
+    console.error('Error fetching payment dates:', error.message)
+    toast.error('Fail to fetch data')
+  }
+}
 
 const SuppliersPaymentDates = () => {
   const navigate = useNavigate()
-  const [toDayPaymentDate, setToDayPaymentDate] = useState([])
-  const [oldPaymentDate, setOldPaymentDate] = useState([])
-  const [closerPaymentDate, setCloserPaymentDate] = useState([])
+  const { data } = useQuery(SuppliersPaymentDatesQuery)
+  const { today, old, closer } = data
+  const [toDayPaymentDate, setToDayPaymentDate] = useState(today)
+  const [oldPaymentDate, setOldPaymentDate] = useState(old)
+  const [closerPaymentDate, setCloserPaymentDate] = useState(closer)
 
   const [activePaymentDate, setActivePaymentDate] = useState(toDayPaymentDate)
   const [activeTitle, setActiveTitle] = useState(PAYMENT_Date.TODAY)
@@ -21,7 +58,7 @@ const SuppliersPaymentDates = () => {
     navigate(-1) // الرجوع إلى الصفحة السابقة
   }
 
-  const fetchToDayPaymentDates = async () => {
+  /*   const fetchToDayPaymentDates = async () => {
     try {
       const results = await supplierPaymentDateService.GetToDay()
       if (results) setToDayPaymentDate(results)
@@ -56,7 +93,7 @@ const SuppliersPaymentDates = () => {
     fetchOldPaymentDates()
     fetchCloserPaymentDates()
   }, [])
-
+*/
   const handelPaymentAsToDay = () => {
     setActivePaymentDate(toDayPaymentDate || [])
     setActiveTitle(PAYMENT_Date.TODAY)
@@ -69,6 +106,8 @@ const SuppliersPaymentDates = () => {
     setActivePaymentDate(closerPaymentDate || [])
     setActiveTitle(PAYMENT_Date.CLOSER)
   }
+
+
   return (
     <>
       <div className="page-section">

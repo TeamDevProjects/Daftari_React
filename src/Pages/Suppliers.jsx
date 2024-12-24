@@ -24,15 +24,20 @@ import { useUser } from '../Context/userContext'
 import supplierImg from '../assets/supplier.png'
 import { MODE } from '../Constants/Variables'
 
+const SuppliersQuery = {
+  queryKey: ['SuppliersQuery'],
+  queryFn: () => SupplierServices.GetAll(),
+}
+
 // eslint-disable-next-line react-refresh/only-export-components
-export const loader = async () => {
+export const loader = (queryClient) => async () => {
   const accessToken = localStorage.getItem('accessToken')
   if (!accessToken) {
     throw new Response('Unauthorized', { status: 401 })
   }
 
   try {
-    const results = await SupplierServices.GetAll()
+    const results = await queryClient.ensureQueryData(SuppliersQuery)
 
     return { suppliers: results } // Returning suppliers data from API
   } catch {

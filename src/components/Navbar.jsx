@@ -7,12 +7,16 @@ import { FaBookOpen } from 'react-icons/fa'
 import { FaBarsStaggered } from 'react-icons/fa6'
 import { IoMdClose } from 'react-icons/io'
 import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+
 const Navbar = () => {
   const { setUser } = useUser(null)
   const navigate = useNavigate()
   const [isOpenNav, setIsOpenNav] = useState(true)
+  const queryClient = useQueryClient()
 
   const handelLogout = () => {
+    queryClient.removeQueries()
     authService.clearTokens()
     setUser(null)
     navigate('/', { replace: true }) // توجه إلى صفحة تسجيل الدخول (تجنب التكرار)

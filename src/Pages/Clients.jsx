@@ -23,15 +23,19 @@ import clientImg from '../assets/client.png'
 import { useUser } from '../Context/userContext.jsx'
 import { MODE } from '../Constants/Variables'
 // eslint-disable-next-line react-refresh/only-export-components
-export const loader = async () => {
+const ClientsQuery = {
+  queryKey: ['ClientsQuery'],
+  queryFn: () => clientServices.GetAll(),
+}
+
+export const loader = (queryClient) => async () => {
   const accessToken = localStorage.getItem('accessToken')
   if (!accessToken) {
     throw new Response('Unauthorized', { status: 401 })
   }
 
   try {
-    const results = await clientServices.GetAll()
-    console.log('results', results)
+    const results = await queryClient.ensureQueryData(ClientsQuery)
     return { Clients: results }
   } catch {
     return { Clients: [] }

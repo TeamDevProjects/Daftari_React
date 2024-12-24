@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
 import userTransactionServices from '../Services/userTransaction'
 import { toast } from 'react-toastify'
 import { useUser } from '../Context/userContext'
@@ -8,23 +8,69 @@ import { TransactionsColumns } from '../Constants/TablesColumns'
 import { Modal } from '../components'
 import transactionImg from '../assets/cash-flow.png'
 import AddEditUserTransactionForm from '../components/Forms/AddEditUserTransactionForm'
+import { useLoaderData } from 'react-router-dom'
 import {
   MODE,
   TRANSACTION_TYPE_NAME,
   TRANSACTION_TYPE_ID,
 } from '../Constants/Variables'
+
+const UserQuery = {
+  queryKey: ['UserQuery'],
+  queryFn: () => userTransactionServices.GetAll(),
+}
+
+export const loader = (queryClient) => async () => {
+  try {
+    const results = await queryClient.ensureQueryData(UserQuery)
+    if (!results || results.length === 0) {
+      throw new Error("Can't load user transactions")
+    }
+
+    const totalPaymentResult = results.reduce(
+      (total, transaction) =>
+        transaction.transactionTypeName === 'Payment'
+          ? total + transaction.amount
+          : total,
+      0
+    )
+
+    const totalWithdrawResult = results.reduce(
+      (total, transaction) =>
+        transaction.transactionTypeName === 'Withdrawal'
+          ? total + transaction.amount
+          : total,
+      0
+    )
+
+    return {
+      results,
+      totalPaymentResult,
+      totalWithdrawResult,
+    }
+  } catch (error) {
+    return {
+      results: [],
+      totalPaymentResult: 0,
+      totalWithdrawResult: 0,
+    }
+  }
+}
+
 const User = () => {
-  const { user } = useUser()
-  const [transactions, setTransactions] = useState([]) // array from loader
+   const { user } = useUser()
+  const { results, totalPaymentResult, totalWithdrawResult } = useLoaderData()
+  const [transactions, setTransactions] = useState(results)
+  const [transactionType, setTransactionType] = useState(0)
 
   const [isModalOpen, setModalOpen] = useState(false)
   const [transactionTypeId, setTransactionTypeId] = useState(0)
 
   const [mode, setMode] = useState(MODE.ADD)
 
-  const [totalPayment, setTotalPayment] = useState(0)
-  const [totalWithdraw, setTotalWithdraw] = useState(0)
   const [currentTransaction, setCurrentTransaction] = useState(null)
+  const [totalPayment, setTotalPayment] = useState(totalPaymentResult)
+  const [totalWithdraw, setTotalWithdraw] = useState(totalWithdrawResult)
 
   const handelAddPaymentTransactionModal = () => {
     setMode(MODE.ADD)
@@ -46,28 +92,29 @@ const User = () => {
     setModalOpen(false)
   }
 
-  const handleSubmit = async (transaction) => {
-    if (mode == MODE.ADD) {
-      console.log('Add user transaction', transaction)
-      await userTransactionServices.Add(transaction)
-      // setTransactions((prevTransactions) => [...prevTransactions, transaction])
-      await fetchTransactions()
-      toast.success('user transaction Added Successfully')
-    }
-    // Update
-    else if (mode == MODE.UPDATE) {
-      console.log('Edit user transaction', transaction)
-      await userTransactionServices.Update(
-        transaction,
-        currentTransaction?.userTransactionId
-      )
-      await fetchTransactions()
-      toast.success('user transaction Updated Successfully')
-    }
-    setModalOpen(false)
-  }
+  // const handleSubmit = async (transaction) => {
+  //   if (mode == MODE.ADD) {
+  //     console.log('Add user transaction', transaction)
+  //     await userTransactionServices.Add(transaction)
+  //     // setTransactions((prevTransactions) => [...prevTransactions, transaction])
+  //     await fetchTransactions()
+  //     toast.success('user transaction Added Successfully')
+  //   }
+  //   // Update
+  //   else if (mode == MODE.UPDATE) {
+  //     console.log('Edit user transaction', transaction)
+  //     await userTransactionServices.Update(
+  //       transaction,
+  //       currentTransaction?.userTransactionId
+  //     )
+  //     await fetchTransactions()
+  //     toast.success('user transaction Updated Successfully')
+  //   }
+  //   setModalOpen(false)
+  // }
 
-  const fetchTransactions = useCallback(async () => {
+  /*const fetchTransactions = useCallback(async () => {
+     const fetchTransactions = async () => {
     try {
       const results = await userTransactionServices.GetAll()
       if (!results) {
@@ -98,11 +145,12 @@ const User = () => {
       console.log(error)
       setTransactions([])
     }
-  }, [])
+  }, []
+  */
 
-  useEffect(() => {
-    fetchTransactions()
-  }, [fetchTransactions]) // Empty dependency array ensures that the effect only runs once on mount
+  // useEffect(() => {
+  //   fetchTransactions()
+  // }, [fetchTransactions]) // Empty dependency array ensures that the effect only runs once on mount
 
   const handelDeleteTransaction = async (transactionId) => {
     try {
@@ -125,12 +173,15 @@ const User = () => {
     handleOpenModal()
     setCurrentTransaction(transaction)
   }
+ 
+  if (transactions.length === 0)
+    return <div className="center">No transactions Found</div>
 
   return (
     <>
       <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
         <AddEditUserTransactionForm
-          onSubmit={handleSubmit}
+          // onSubmit={handleSubmit}
           title={'Transaction'}
           buttonText={'Transaction'}
           mode={mode}
