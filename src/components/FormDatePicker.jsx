@@ -3,9 +3,9 @@ import { useEffect, useState } from 'react'
 import { DayPicker } from 'react-day-picker'
 import 'react-day-picker/style.css'
 
-const FormDatePicker = ({ onSelect }) => {
-  const [selected, setSelected] = useState(null) // Selected date
-  const [month, setMonth] = useState(new Date()) // Month displayed in the calendar
+const FormDatePicker = ({ onSelect, defaultValue }) => {
+  const [selected, setSelected] = useState(defaultValue || null) // Selected date
+  const [month, setMonth] = useState(defaultValue.getMonth() || new Date()) // Month displayed in the calendar
 
   useEffect(() => {
     // Set the selected date to one month from today

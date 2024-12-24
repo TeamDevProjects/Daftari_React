@@ -24,18 +24,22 @@ const reducer = (state, action) => {
   }
 }
 
-const AddEditTransactionForm = ({
+const AddEditClientTransactionForm = ({
   onSubmit,
   title,
   buttonText,
-  TransactionTypeId,
+  transactionTypeId,
   mode,
-  method,
-  ClientId,
+  clientId,
+  currentTransaction,
 }) => {
   const [selectedFile, setSelectedFile] = useState(null)
 
-  const [state, dispatch] = useReducer(reducer, initialState)
+  const [state, dispatch] = useReducer(
+    reducer,
+    currentTransaction || initialState
+  )
+
   const handleChange = (e) => {
     const { name, value } = e.target
     dispatch({ type: 'SET_FIELD_VALUE', field: name, value })
@@ -61,33 +65,32 @@ const AddEditTransactionForm = ({
 
     const tarnsaction = {
       amount: state?.amount,
-      notes: state?.notes.trim(),
-      ClientId,
-      TransactionTypeId: TransactionTypeId,
+      notes: state?.notes?.trim(),
+      clientId: clientId,
+      transactionTypeId: transactionTypeId,
       file: selectedFile,
     }
-
-    console.log(selectedFile)
-    console.log(state)
 
     onSubmit(tarnsaction)
   }
   return (
     <>
       <h4 className="form-title">{mode + ' ' + title}</h4>
-      <Form
-        method={method || 'post'}
-        className="register-form"
-        onSubmit={handleSubmit}
-      >
+      <Form className="register-form" onSubmit={handleSubmit}>
         <FormInput
           type="number"
           label="Amount"
           name="amount"
+          defaultValue={state?.amount}
           onChange={handleChange}
         />
 
-        <FormTextarea label="Notes" name="notes" onChange={handleChange} />
+        <FormTextarea
+          label="Notes"
+          name="notes"
+          defaultValue={state?.notes}
+          onChange={handleChange}
+        />
 
         <button
           type="button"
@@ -114,7 +117,7 @@ const AddEditTransactionForm = ({
           </svg>
           <span className="ml-2 font-normal text-sm">Upload Image</span>
         </button>
-        
+
         <p>{selectedFile ? selectedFile.name : ''}</p>
         <div className="submit-btn-container">
           <SubmitBtn text={mode + ' ' + buttonText} />
@@ -124,4 +127,4 @@ const AddEditTransactionForm = ({
   )
 }
 
-export default AddEditTransactionForm
+export default AddEditClientTransactionForm

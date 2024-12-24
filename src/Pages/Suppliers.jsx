@@ -19,7 +19,10 @@ import PdfFilteredReportGenerator from '../components/Reports/pdfFilteredReportG
 import { LuDollarSign } from 'react-icons/lu'
 import FilterPersonForm from '../components/Forms/FilterPersonForm'
 import SupplierServices from '../Services/supplier'
-import NoContent from '../components/NoContent'
+import NoContent from '../components/Common/NoContent'
+import { useUser } from '../Context/userContext'
+import supplierImg from '../assets/supplier.png'
+import { MODE } from '../Constants/Variables'
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const loader = async () => {
@@ -37,32 +40,6 @@ export const loader = async () => {
   }
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const action = async ({ request, params }) => {
-  try {
-    const formData = await request.formData()
-    const data = Object.fromEntries(formData) // Convert form data to an object
-
-    const method = request.method
-    if (method === 'POST') {
-      // Handle the 'add' operation
-      await SupplierServices.Add(data) // Replace with your actual logic
-    } else if (method === 'PUT') {
-      // Handle the 'update' operation
-      await SupplierServices.Update(data, params.id) // Replace with your actual logic
-    } else {
-      return { status: 405, message: 'Method not allowed' }
-    }
-
-    // After successful form submission, redirect to a success page or wherever needed
-    // return redirect('/success') // You can change this path to your preferred destination
-    return null
-  } catch (error) {
-    console.error('Error in action function:', error)
-    return { status: 500, message: 'An error occurred', error: error.message }
-  }
-}
-
 const Suppliers = () => {
   const { suppliers } = useLoaderData()
 
@@ -73,42 +50,40 @@ const Suppliers = () => {
 
   const [totalWithdraw, setTotalWithdraw] = useState(0)
 
-  const [mode, setMode] = useState('Add')
-  const [method, setMethod] = useState('post')
+  const [mode, setMode] = useState(MODE.ADD)
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [currentRowId, setCurrentRowId] = useState(0)
-
+  const [currentPerson, setCurrentPerson] = useState(null)
+  const { user } = useUser()
   // Function to handle searching suppliers by name
   const handleSearch = async (query) => {
+    console.log(query)
     if (!query) {
       setSuppliers(suppliers) // Reset to the original list when the query is empty
       return
     }
 
     try {
-      setIsLoading(true)
+      // setIsLoading(true)
       const results = await SupplierServices.SearchByName(query) // Call API to search by name
       setSuppliers(results)
-      setIsLoading(false)
+      // setIsLoading(false)
     } catch (error) {
       console.error('Error searching suppliers:', error)
       toast.error('Failed to search suppliers.')
-      setIsLoading(false)
+      // setIsLoading(false)
     }
   }
 
   const handelAddSupplierModal = () => {
-    setMode('Add')
-    setMethod('POST')
+    setMode(MODE.ADD)
     handleOpenModal()
   }
 
-  const handelUpdateSupplierModal = (id) => {
-    setMode('Update')
-    setMethod('PUT')
+  const handelUpdateSupplierModal = (person) => {
+    setMode(MODE.UPDATE)
+    setCurrentPerson(person)
     handleOpenModal()
-    setCurrentRowId(id)
   }
 
   const handleOpenModal = () => {
@@ -144,14 +119,14 @@ const Suppliers = () => {
   }
   const handleSubmit = async (supplier) => {
     try {
-      if (mode == 'Add') {
+      if (mode == MODE.ADD) {
         const newSupplier = await SupplierServices.Add(supplier)
         setSuppliers((prevSuppliers) => [...prevSuppliers, newSupplier])
         toast.success('Supplier Added Successfully')
-      } else if (mode == 'Update') {
+      } else if (mode == MODE.UPDATE) {
         const updatedSupplier = await SupplierServices.Update(
           supplier,
-          currentRowId
+          currentPerson?.supplierId
         )
         setSuppliers((prevSuppliers) =>
           prevSuppliers.map((c) =>
@@ -237,18 +212,23 @@ const Suppliers = () => {
   return (
     <>
       {/* ==[ Add / Edit Suppliers]== */}
-
       <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
         <AddEditPersonForm
           onSubmit={handleSubmit}
           title={'Supplier'}
           buttonText={'Supplier'}
           mode={mode}
-          method={method}
-          actionPath={`${currentRowId}`}
+          currentPerson={currentPerson}
         />
       </Modal>
 
+      <div className="page-section">
+        <h4 className="header-title">store : {user?.storeName}</h4>
+        <div className="center section-logo">
+          <img src={supplierImg} alt="supplierImg!!!" />
+          <p>Suppliers</p>
+        </div>
+      </div>
       {/* == [ Filter Clients]== */}
       <Modal isOpen={isFilterModalOpen} onClose={handelCloseFilterModel}>
         <FilterPersonForm
@@ -256,11 +236,10 @@ const Suppliers = () => {
           onSubmit={handelSubmitFilter}
         />
       </Modal>
-
       <div className="page-section">
         <div className="flex center amount-container">
           <div className="red-box">
-            <span className="amount-message">For Me</span>
+            <span className="amount-message">I Gave</span>
             <div className="amount red">
               <LuDollarSign />
               <span className="red">{totalWithdraw || '00'}</span>
@@ -268,7 +247,7 @@ const Suppliers = () => {
           </div>
           <div className="line"></div>
           <div className="green-box">
-            <span className="amount-message">To Me</span>
+            <span className="amount-message">I Get</span>
             <div className="amount green">
               <LuDollarSign />
               <span className="">{totalPayment || '00'}</span>
@@ -322,9 +301,9 @@ const Suppliers = () => {
                 </tr>
               </thead>
               <tbody>
-                {suppliersState.map((supplier) => (
+                {suppliersState.map((supplier, index) => (
                   <tr key={supplier.supplierId || '-'}>
-                    <td>{supplier.supplierId || '-'}</td>
+                    <td>{index + 1 || '-'}</td>
                     <td>
                       <Link to={`SuppliersTransactions/${supplier.supplierId}`}>
                         {supplier.name || '-'}
@@ -349,9 +328,7 @@ const Suppliers = () => {
                             border: 'none',
                             padding: '5px 10px',
                           }}
-                          onClick={() =>
-                            handelUpdateSupplierModal(supplier.supplierId)
-                          }
+                          onClick={() => handelUpdateSupplierModal(supplier)}
                         >
                           <FaUserEdit />
                         </button>

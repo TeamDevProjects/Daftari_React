@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
-import noContentImg from '../assets/no-content.png'
+import noContentImg from '../../assets/payment.png'
 
-const NoContent = ({text}) => {
+const NoPaymentDates = ({ text }) => {
   return (
     <div className="no-content">
       <img className="no-content" src={noContentImg} alt="noContentImg!!" />
@@ -10,4 +10,4 @@ const NoContent = ({text}) => {
   )
 }
 
-export default NoContent
+export default NoPaymentDates

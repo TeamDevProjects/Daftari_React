@@ -20,6 +20,7 @@ const FormSelect = ({
       <select
         name={name}
         value={defaultValue}
+        id={name}
         onChange={onChange}
         className={`input input-bordered ${Error && 'select-error'} ${size}`}
       >

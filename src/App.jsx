@@ -1,7 +1,6 @@
 import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { useUser } from './Context/userContext'
 
 import {
   HomeLayout,
@@ -20,13 +19,12 @@ import {
 import { action as SignInAction } from './Pages/SignIn'
 import { loader as LoaderSuppliers } from './Pages/Suppliers'
 import { loader as LoaderClients } from './Pages/Clients'
-/* actions */
-import { action as ActionClients } from './Pages/Clients'
-import { action as ActionSuppliers } from './Pages/Suppliers'
 import authService from './Services/authService'
-import { useEffect, useState, useCallback, useContext } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { ErrorElement } from './components'
-import NetworkContext from './Context/NetworkContext'
+// import NoWifi from './components/Common/NoWifi'
+// import NetworkContext from './Context/NetworkContext'
+// import NetworkContext from './Context/NetworkContext'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,7 +35,6 @@ const queryClient = new QueryClient({
 })
 
 function App() {
-  const { user } = useUser()
 
   const [isUserLogin, setIsUserLogin] = useState(
     authService.getIsLogin() || false
@@ -61,7 +58,7 @@ function App() {
     return () => {
       window.removeEventListener('storage', handleStorageChange)
     }
-  }, [checkIsLogin, user])
+  }, [checkIsLogin])
 
   const router = createBrowserRouter([
     {
@@ -89,7 +86,6 @@ function App() {
           element: <Clients />,
           errorElement: <ErrorElement />,
           loader: LoaderClients,
-          action: ActionClients,
         },
         {
           path: 'Clients/ClientsTransactions/:clientId',
@@ -107,7 +103,6 @@ function App() {
           element: <Suppliers />,
           errorElement: <ErrorElement />,
           loader: LoaderSuppliers,
-          action: ActionSuppliers,
         },
         {
           path: 'Suppliers/SuppliersTransactions/:supplierId',
@@ -123,10 +118,10 @@ function App() {
     },
   ])
 
-  const { isConnected } = useContext(NetworkContext)
+  // const { isConnected } = useContext(NetworkContext)
 
-  if (!isConnected) return <p className='flex center'>No internet connection</p>
-  
+  // if (!isConnected) return <NoWifi text="No internet connection"/>
+
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />

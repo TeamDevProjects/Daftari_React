@@ -27,10 +27,10 @@ const AddEditPaymentDateForm = ({
   title,
   buttonText,
   mode,
-  method,
   clientId,
+  currentPaymentDate
 }) => {
-  const [state, dispatch] = useReducer(reducer, initialState)
+  const [state, dispatch] = useReducer(reducer, currentPaymentDate|| initialState)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -55,9 +55,9 @@ const AddEditPaymentDateForm = ({
   return (
     <>
       <h4 className="form-title">{mode + ' ' + title}</h4>
-      <Form method={method || 'post'} className="register-form" onSubmit={handleSubmit}>
-        <FormDatePicker onSelect={handleSelect} />
-        <FormTextarea label="Notes" name="notes" onChange={handleChange} />
+      <Form  className="register-form" onSubmit={handleSubmit}>
+        <FormDatePicker onSelect={handleSelect} defaultValue={state?.dateOfPayment}/>
+        <FormTextarea label="Notes" name="notes" defaultValue={state?.notes} onChange={handleChange} />
         <div className="submit-btn-container">
           <SubmitBtn text={mode + ' ' + buttonText} />
         </div>

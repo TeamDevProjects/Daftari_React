@@ -3,6 +3,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { handelDateFormate } from '../../assets/Utilities/date'
 import { LuDollarSign } from 'react-icons/lu'
+import NoPaymentDates from '../Common/NoPaymentDates'
 
 const ClientPaymentDatesTable = ({ columns, rows }) => {
   // rowPaymentDateId
@@ -19,7 +20,7 @@ const ClientPaymentDatesTable = ({ columns, rows }) => {
     navigate(-1)
   }
   if (!columns || !rows || rows.length == 0)
-    return <p className="center mb-1">No Content Yet !</p>
+    return <NoPaymentDates text='No PaymentDates Founded'/>
 
   return (
     <div className="table-wrapper">

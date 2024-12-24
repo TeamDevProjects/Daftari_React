@@ -18,7 +18,10 @@ import { PeopleColumns } from '../Constants/TablesColumns.js'
 import PdfFilteredReportGenerator from '../components/Reports/pdfFilteredReportGenerator.jsx'
 import { LuDollarSign } from 'react-icons/lu'
 import FilterPersonForm from '../components/Forms/FilterPersonForm.jsx'
-import NoContent from '../components/NoContent.jsx'
+import NoContent from '../components/Common/NoContent.jsx'
+import clientImg from '../assets/client.png'
+import { useUser } from '../Context/userContext.jsx'
+import { MODE } from '../Constants/Variables'
 // eslint-disable-next-line react-refresh/only-export-components
 export const loader = async () => {
   const accessToken = localStorage.getItem('accessToken')
@@ -35,44 +38,18 @@ export const loader = async () => {
   }
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const action = async ({ request }) => {
-  try {
-    const formData = await request.formData()
-    const data = Object.fromEntries(formData)
-
-    // Determine the method (supports PUT override via _method)
-    const method = formData.get('_method') || request.method.toLowerCase()
-
-    if (method === 'post') {
-      // Handle the 'add' operation
-      const createdItem = await clientServices.Add(data)
-      return { status: 201, message: 'Item added successfully', createdItem }
-    } else if (method === 'put') {
-      // Handle the 'update' operation
-      const id = data.id // Dynamically get ID
-      const updatedItem = await clientServices.Update(data, id)
-      return { status: 200, message: 'Item updated successfully', updatedItem }
-    } else {
-      return { status: 405, message: 'Method not allowed' }
-    }
-  } catch (error) {
-    console.error('Error in action function:', error)
-    return { status: 500, message: 'An error occurred', error: error.message }
-  }
-}
-
 const Clients = () => {
   const { Clients } = useLoaderData()
 
   const [clientsState, setClients] = useState(Clients || [])
   const [totalPayment, setTotalPayment] = useState(0)
   const [totalWithdraw, setTotalWithdraw] = useState(0)
-  const [mode, setMode] = useState('Add')
-  const [method, setMethod] = useState('post')
+  const [mode, setMode] = useState(MODE.ADD)
   const [isModalOpen, setModalOpen] = useState(false)
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [currentPerson, setCurrentPerson] = useState(null)
+  const { user } = useUser()
 
   const handleSearch = async (query) => {
     if (!query) {
@@ -93,14 +70,13 @@ const Clients = () => {
   }
 
   const handelAddClientModal = () => {
-    setMode('Add')
-    setMethod('post')
+    setMode(MODE.ADD)
     handleOpenModal()
   }
 
-  const handelUpdateClientModal = () => {
-    setMode('Update')
-    setMethod('put')
+  const handelUpdateClientModal = (person) => {
+    setMode(MODE.UPDATE)
+    setCurrentPerson(person)
     handleOpenModal()
   }
   const handleOpenModal = () => {
@@ -113,12 +89,12 @@ const Clients = () => {
 
   const handleSubmit = async (client) => {
     try {
-      if (mode === 'Add') {
+      if (mode === MODE.ADD) {
         const newClient = await clientServices.Add(client)
         setClients((prevClients) => [...prevClients, newClient])
         toast.success('Client Added Successfully')
-      } else if (mode === 'Update') {
-        const updatedClient = await clientServices.Update(client)
+      } else if (mode === MODE.UPDATE) {
+        const updatedClient = await clientServices.Update(client,1004) //=>
         setClients((prevClients) =>
           prevClients.map((c) =>
             c.clientId === updatedClient.clientId ? updatedClient : c
@@ -194,7 +170,7 @@ const Clients = () => {
 
     calculateTotals()
     setIsLoading(false)
-  }, [Clients])
+  }, [])
 
   const handleDeleteClient = async (clientId) => {
     try {
@@ -222,10 +198,9 @@ const Clients = () => {
           title={'client'}
           buttonText={'Client'}
           mode={mode}
-          method={method}
+          currentPerson={currentPerson}
         />
       </Modal>
-
       {/* == [ Filter Clients]== */}
       <Modal isOpen={isFilterModalOpen} onClose={handelCloseFilterModel}>
         <FilterPersonForm
@@ -234,9 +209,16 @@ const Clients = () => {
         />
       </Modal>
       <div className="page-section">
+        <h4 className="header-title">store : {user?.storeName}</h4>
+        <div className="center section-logo">
+          <img src={clientImg} alt="clientImg!!!" />
+          <p>Clients</p>
+        </div>
+      </div>
+      <div className="page-section">
         <div className="flex center amount-container">
           <div className="red-box">
-            <span className="amount-message">To Me</span>
+            <span className="amount-message">I Gave</span>
             <div className="amount red">
               <LuDollarSign />
               <span className="red">{totalWithdraw || '00'}</span>
@@ -244,7 +226,7 @@ const Clients = () => {
           </div>
           <div className="line"></div>
           <div className="green-box">
-            <span className="amount-message">For Me</span>
+            <span className="amount-message">I Get</span>
             <div className="amount green">
               <LuDollarSign />
               <span className="">{totalPayment || '00'}</span>
@@ -299,9 +281,9 @@ const Clients = () => {
                 </tr>
               </thead>
               <tbody>
-                {clientsState?.map((client) => (
+                {clientsState?.map((client, index) => (
                   <tr key={client?.clientId || '-'}>
-                    <td>{client?.clientId || '-'}</td>
+                    <td>{index + 1 || '-'}</td>
                     <td>
                       <Link to={`ClientsTransactions/${client?.clientId}`}>
                         {client?.name || '-'}
@@ -324,7 +306,7 @@ const Clients = () => {
                             border: 'none',
                             padding: '5px 10px',
                           }}
-                          onClick={handelUpdateClientModal}
+                          onClick={() => handelUpdateClientModal(client)}
                         >
                           <FaUserEdit />
                         </button>

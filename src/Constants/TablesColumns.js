@@ -21,7 +21,7 @@ export const PaymentDatesColumns = [
   'Notes',
 ]
 
-export const UserTransactionsColumns = [
+export const TransactionsColumns = [
   'ID',
   'Transaction Type',
   'Date',

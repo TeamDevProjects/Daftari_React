@@ -11,6 +11,7 @@ const FormTextarea = ({ label, name, defaultValue, onChange, required }) => {
         defaultValue={defaultValue}
         className={`input input-bordered no-resize-textarea`}
         placeholder="Type something..."
+        id={name}
         onChange={onChange}
         required={required}
       />

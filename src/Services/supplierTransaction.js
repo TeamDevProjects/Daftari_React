@@ -37,15 +37,15 @@ const SupplierTransactionService = {
     }
   },
 
-  Add: async ({ amount, notes, ClientId, TransactionTypeId, file }) => {
+  Add: async ({ amount, notes, supplierId, transactionTypeId, file }) => {
     try {
       const token = authService.getAccessToken()
       const formData = new FormData()
 
       formData.append('amount', amount)
       formData.append('notes', notes)
-      formData.append('ClientId', ClientId)
-      formData.append('TransactionTypeId', TransactionTypeId)
+      formData.append('supplierId', supplierId)
+      formData.append('transactionTypeId', transactionTypeId)
 
       if (file) {
         formData.append('FormImage', file)
@@ -69,14 +69,18 @@ const SupplierTransactionService = {
     }
   },
 
-  Update: async ({ amount, notes, TransactionTypeId, file }) => {
+  Update: async (
+    { amount, notes, transactionTypeId, file },
+    supplierTransactionId
+  ) => {
     try {
       const token = authService.getAccessToken()
       const formData = new FormData()
 
       formData.append('amount', amount)
       formData.append('notes', notes)
-      formData.append('TransactionTypeId', TransactionTypeId)
+      formData.append('supplierTransactionId', supplierTransactionId)
+      formData.append('transactionTypeId', transactionTypeId)
 
       if (file) {
         formData.append('FormImage', file)

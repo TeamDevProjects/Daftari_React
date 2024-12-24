@@ -5,7 +5,6 @@ import apiService from './apiService'
 import authService from './authService'
 
 const userTransactionServices = {
- 
   GetAll: async () => {
     try {
       const token = authService.getAccessToken()
@@ -19,20 +18,19 @@ const userTransactionServices = {
       throw error
     }
   },
-   Add: async ({ amount, notes, ClientId, TransactionTypeId, file }) => {
+  Add: async ({ amount, notes, transactionTypeId, file }) => {
     try {
       const token = authService.getAccessToken()
       const formData = new FormData()
 
       formData.append('amount', amount)
       formData.append('notes', notes)
-      formData.append('ClientId', ClientId)
-      formData.append('TransactionTypeId', TransactionTypeId)
+      formData.append('transactionTypeId', transactionTypeId)
 
       if (file) {
-        formData.append('FormImage', file)
+        formData.append('formImage', file)
       } else {
-        formData.append('ImageType', 'None')
+        formData.append('imageType', 'None')
       }
 
       const response = await apiService.post(
@@ -51,19 +49,19 @@ const userTransactionServices = {
     }
   },
 
-  Update: async ({ amount, notes, TransactionTypeId, file }) => {
+  Update: async ({ amount, notes, file }, userTransactionId) => {
     try {
       const token = authService.getAccessToken()
       const formData = new FormData()
 
       formData.append('amount', amount)
       formData.append('notes', notes)
-      formData.append('TransactionTypeId', TransactionTypeId)
+      formData.append('userTransactionId', userTransactionId)
 
       if (file) {
-        formData.append('FormImage', file)
+        formData.append('formImage', file)
       } else {
-        formData.append('ImageType', 'None')
+        formData.append('imageType', 'None')
       }
 
       const response = await apiService.put(`/api/UserTransactions`, formData, {
@@ -78,11 +76,11 @@ const userTransactionServices = {
     }
   },
 
-  Delete: async (clientTransactionId) => {
+  Delete: async (transactionId) => {
     try {
       const token = authService.getAccessToken()
       const response = await apiService.delete(
-        `/api/UserTransactions/${clientTransactionId}`,
+        `/api/UserTransactions/${transactionId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -93,6 +91,6 @@ const userTransactionServices = {
     } catch (error) {
       throw error
     }
-  }
+  },
 }
 export default userTransactionServices

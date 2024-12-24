@@ -30,10 +30,9 @@ const AddEditPersonForm = ({
   title,
   buttonText,
   mode,
-  method,
-  actionPath,
+  currentPerson,
 }) => {
-  const [state, dispatch] = useReducer(reducer, initialState)
+  const [state, dispatch] = useReducer(reducer, currentPerson || initialState)
   const handleChange = (e) => {
     const { name, value } = e.target
     dispatch({ type: 'SET_FIELD_VALUE', field: name, value })
@@ -43,12 +42,12 @@ const AddEditPersonForm = ({
     e.preventDefault()
 
     const Person = {
-      name: state?.name.trim(),
-      phone: state?.phone.trim(),
-      city: state?.city.trim(),
-      country: state?.country.trim(),
-      address: state?.address.trim(),
-      notes: state?.notes.trim(),
+      name: state?.name?.trim(),
+      phone: state?.phone?.trim(),
+      city: state?.city?.trim(),
+      country: state?.country?.trim(),
+      address: state?.address?.trim(),
+      notes: state?.notes?.trim(),
     }
 
     onSubmit(Person)
@@ -56,17 +55,13 @@ const AddEditPersonForm = ({
   return (
     <>
       <h4 className="form-title">{mode + ' ' + title}</h4>
-      <Form
-        method={method}
-        action={actionPath}
-        className="register-form"
-        onSubmit={handleSubmit}
-      >
+      <Form className="register-form" onSubmit={handleSubmit}>
         <div className="flex">
           <FormInput
             type="text"
             label="name"
             name="name"
+            defaultValue={state?.name}
             onChange={handleChange}
           />
 
@@ -74,6 +69,7 @@ const AddEditPersonForm = ({
             type="text"
             label="phone"
             name="phone"
+            defaultValue={state?.phone}
             onChange={handleChange}
           />
         </div>
@@ -82,12 +78,14 @@ const AddEditPersonForm = ({
             type="text"
             label="city"
             name="city"
+            defaultValue={state?.city}
             onChange={handleChange}
           />
           <FormInput
             type="text"
             label="country"
             name="country"
+            defaultValue={state?.country}
             onChange={handleChange}
           />
         </div>
@@ -95,12 +93,14 @@ const AddEditPersonForm = ({
           type="text"
           label="address"
           name="address"
+          defaultValue={state?.address}
           onChange={handleChange}
         />
         <FormInput
           type="text"
           label="notes"
           name="notes"
+          defaultValue={state?.notes}
           onChange={handleChange}
         />
         <div className="submit-btn-container">

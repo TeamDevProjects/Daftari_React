@@ -49,10 +49,10 @@ apiService.interceptors.response.use(
         errorMessage = STATUS_MESSAGES[STATUS_CODES.FORBIDDEN]
         break
       case STATUS_CODES.NOT_FOUND:
-        errorMessage = STATUS_MESSAGES[STATUS_CODES.NOT_FOUND]
+        // errorMessage = STATUS_MESSAGES[STATUS_CODES.NOT_FOUND]
         break
       case STATUS_CODES.INTERNAL_SERVER_ERROR:
-        errorMessage = STATUS_MESSAGES[STATUS_CODES.INTERNAL_SERVER_ERROR]
+        // errorMessage = STATUS_MESSAGES[STATUS_CODES.INTERNAL_SERVER_ERROR]
         break
       case STATUS_CODES.SERVICE_UNAVAILABLE:
         errorMessage = STATUS_MESSAGES[STATUS_CODES.SERVICE_UNAVAILABLE]

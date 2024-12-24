@@ -5,6 +5,7 @@ import userServices from '../Services/user'
 import { useUser } from '../Context/userContext'
 import authService from '../Services/authService'
 import NetworkContext from '../Context/NetworkContext' // Import your NetworkContext
+import ServerError from '../components/Common/ServerError'
 
 const HomeLayout = () => {
   const navigation = useNavigation()
@@ -45,27 +46,26 @@ const HomeLayout = () => {
     const checkLoginAndFetchUser = async () => {
       const isLogin = isUserLogin()
 
+
       if (!isLogin) {
         if (user) {
           setUser(null)
+          navigate('/', { replace: true })
         }
-        navigate('/', { replace: true })
         return
       }
 
-      if (!user) {
-        await fetchCurrentUserInf()
-      }
+      
+      // is isLogin try fetch user
+      await fetchCurrentUserInf()
     }
 
     checkLoginAndFetchUser()
-  }, [user, navigate, setUser])
+  }, [ navigate, isServerError])
 
   if (isServerError) {
     return (
-      <p className="flex center">
-        There was a server error. Please try again later.
-      </p>
+      <ServerError text="There was a server error. Please try again later." />
     ) // Show a message if server error occurs
   }
 

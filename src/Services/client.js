@@ -59,7 +59,7 @@ const clientServices = {
   Update: async (clientData, id) => {
     try {
       const token = authService.getAccessToken()
-      const response = await apiService.put(`/api/Clients${id}`, clientData, {
+      const response = await apiService.put(`/api/Clients/${id}`, clientData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

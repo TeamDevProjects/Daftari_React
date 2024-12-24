@@ -6,6 +6,7 @@ const Modal = ({
   children,
   isOpen = false,
   onClose,
+  style
   // onSubmit,
   // title,
   // buttonText,
@@ -26,7 +27,7 @@ const Modal = ({
 
   return (
     <aside className={`modal-container`}>
-      <div className="modal">
+      <div className="modal" style={style}>
         {/* <h3>{title}</h3> */}
         {children}
         {/* <div className="btn-container"> */}

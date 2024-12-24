@@ -1,21 +1,23 @@
 /* eslint-disable react/prop-types */
-import { MdDelete } from 'react-icons/md'
-import { handelDateTimeFormate } from '../../assets/Utilities/date'
-import { LuDollarSign } from 'react-icons/lu'
-import { FaUserEdit } from 'react-icons/fa'
-import NoContent from '../Common/NoContent'
-import Modal from '../Modal'
-import { useState } from 'react'
 
-const UserTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
-  // UserId
-  // UserTransactionId
-  // TransactionTypeName
-  // TransactionDate
-  // Amount
-  // Notes
-  // ImageData
-  // ImageType
+import { LuDollarSign } from 'react-icons/lu'
+import { handelDateTimeFormate } from '../../assets/Utilities/date'
+import { FaUserEdit } from 'react-icons/fa'
+import { MdDelete } from 'react-icons/md'
+import NoContent from '../Common/NoContent'
+import { useState } from 'react'
+import Modal from '../Modal'
+
+const ClientTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
+  // rowPaymentDateId
+  // name
+  // dateOfPayment
+  // paymentMethodName
+  // notes
+  // phone
+  // clientId
+  // userId
+
   const [isModalOpen, setModalOpen] = useState(false)
   const [currentImg, setCurrentImg] = useState(false)
   const handleOpenModal = () => {
@@ -46,7 +48,6 @@ const UserTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
           />
         </Modal>
       )}
-
       <div className="table-wrapper">
         <table border="1" style={{ width: '100%', textAlign: 'left' }}>
           <thead>
@@ -59,7 +60,7 @@ const UserTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
           </thead>
           <tbody>
             {rows.map((row, index) => (
-              <tr key={row.userTransactionId || '-'}>
+              <tr key={row.clientTransactionId || '-'}>
                 <td>{index + 1 || '-'}</td>
                 <td>
                   <div className="td-transaction-type">
@@ -91,7 +92,10 @@ const UserTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
                     {row.amount}
                   </div>
                 </td>
-                <td>{handelDateTimeFormate(row.transactionDate) || '-'}</td>
+                <td>
+                  {handelDateTimeFormate(row.transactionDate || new Date()) ||
+                    '-'}
+                </td>
                 <td className="td-notes">{row.notes || '-'}</td>
                 <td
                   onClick={() =>
@@ -134,7 +138,7 @@ const UserTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
                             border: 'none',
                             padding: '5px 10px',
                           }}
-                          onClick={() => onDelete(row.userTransactionId)}
+                          onClick={() => onDelete(row?.clientTransactionId)}
                         >
                           <MdDelete />
                         </button>
@@ -151,4 +155,4 @@ const UserTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
   )
 }
 
-export default UserTransactionsTable
+export default ClientTransactionsTable

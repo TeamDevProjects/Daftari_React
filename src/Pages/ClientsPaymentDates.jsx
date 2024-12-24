@@ -5,6 +5,9 @@ import { PaymentDatesColumns } from '../Constants/TablesColumns'
 import { useEffect, useState } from 'react'
 import clientPaymentDateService from '../Services/clientPaymentDateService'
 import { toast } from 'react-toastify'
+import PaymentDateImg from '../assets/payroll.png'
+import { PAYMENT_Date } from '../Constants/Variables'
+
 const ClientsPaymentDates = () => {
   const navigate = useNavigate()
   const [toDayPaymentDate, setToDayPaymentDate] = useState([])
@@ -12,7 +15,7 @@ const ClientsPaymentDates = () => {
   const [closerPaymentDate, setCloserPaymentDate] = useState([])
 
   const [activePaymentDate, setActivePaymentDate] = useState(toDayPaymentDate)
-  const [activeTitle, setActiveTitle] = useState('ToDay')
+  const [activeTitle, setActiveTitle] = useState(PAYMENT_Date.TODAY)
 
   const goBack = () => {
     navigate(-1) // الرجوع إلى الصفحة السابقة
@@ -52,45 +55,92 @@ const ClientsPaymentDates = () => {
     fetchToDayPaymentDates()
     fetchOldPaymentDates()
     fetchCloserPaymentDates()
-  }, [activePaymentDate])
+  }, [])
 
   const handelPaymentAsToDay = () => {
     setActivePaymentDate(toDayPaymentDate || [])
-    setActiveTitle('ToDay')
+    setActiveTitle(PAYMENT_Date.TODAY)
   }
   const handelPaymentAsOld = () => {
     setActivePaymentDate(oldPaymentDate || [])
-    setActiveTitle('Old')
+    setActiveTitle(PAYMENT_Date.OLD)
   }
   const handelPaymentAsCloser = () => {
     setActivePaymentDate(closerPaymentDate || [])
-    setActiveTitle('Closer')
+    setActiveTitle(PAYMENT_Date.CLOSER)
   }
 
   return (
     <>
-      <div className="panner">
-        <button onClick={goBack}>
+      <div className="page-section">
+        <button className="btn-back" onClick={goBack}>
           <IoIosArrowBack />
         </button>
+        <div className="center section-logo">
+          <img src={PaymentDateImg} alt="supplierImg!!!" />
+          <p>Suppliers PaymentDates</p>
+        </div>
       </div>
       <div className="page-section">
-        <div className="flex btn-group">
-          <div className="btn" onClick={handelPaymentAsCloser}>
+        <div className="tab-wrap">
+          <input
+            type="radio"
+            id="tab1"
+            name="tabGroup1"
+            className={`tab ${
+              activeTitle == PAYMENT_Date.CLOSER && 'active-tab'
+            }`}
+            checked
+          />
+          <label
+            htmlFor="tab1"
+            onClick={handelPaymentAsCloser}
+            className={`tab ${
+              activeTitle == PAYMENT_Date.CLOSER && 'active-tab'
+            }`}
+          >
             Closer
-          </div>
-          <div className="btn" onClick={handelPaymentAsToDay}>
+          </label>
+
+          <input
+            type="radio"
+            id="tab2"
+            name="tabGroup1"
+            className={`tab ${
+              activeTitle == PAYMENT_Date.TODAY && 'active-tab'
+            }`}
+          />
+          <label
+            htmlFor="tab2"
+            onClick={handelPaymentAsToDay}
+            className={`tab ${
+              activeTitle == PAYMENT_Date.TODAY && 'active-tab'
+            }`}
+          >
             ToDay
-          </div>
-          <div className="btn" onClick={handelPaymentAsOld}>
+          </label>
+
+          <input
+            type="radio"
+            id="tab3"
+            name="tabGroup1"
+            className={`tab ${activeTitle == PAYMENT_Date.OLD && 'active-tab'}`}
+          />
+          <label
+            htmlFor="tab3"
+            onClick={handelPaymentAsOld}
+            className={`tab ${activeTitle == PAYMENT_Date.OLD && 'active-tab'}`}
+          >
             Old
+          </label>
+
+          <div className="tab__content">
+            <ClientPaymentDatesTable
+              columns={PaymentDatesColumns}
+              rows={activePaymentDate}
+            />
           </div>
         </div>
-        <h4 className="center mb-1 table-header">{`${activeTitle} Payment Dates`}</h4>
-        <ClientPaymentDatesTable
-          columns={PaymentDatesColumns}
-          rows={activePaymentDate}
-        />
       </div>
     </>
   )

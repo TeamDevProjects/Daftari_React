@@ -37,20 +37,20 @@ const clientTransactionService = {
     }
   },
 
-  Add: async ({ amount, notes, ClientId, TransactionTypeId, file }) => {
+  Add: async ({ amount, notes, clientId, transactionTypeId, file }) => {
     try {
       const token = authService.getAccessToken()
       const formData = new FormData()
 
       formData.append('amount', amount)
       formData.append('notes', notes)
-      formData.append('ClientId', ClientId)
-      formData.append('TransactionTypeId', TransactionTypeId)
+      formData.append('clientId', clientId)
+      formData.append('transactionTypeId', transactionTypeId)
 
       if (file) {
-        formData.append('FormImage', file)
+        formData.append('formImage', file)
       } else {
-        formData.append('ImageType', 'None')
+        formData.append('imageType', 'None')
       }
 
       const response = await apiService.post(
@@ -69,13 +69,17 @@ const clientTransactionService = {
     }
   },
 
-  Update: async ({ amount, notes, TransactionTypeId, file }) => {
+  Update: async (
+    { amount, notes, TransactionTypeId, file },
+    clientTransactionId
+  ) => {
     try {
       const token = authService.getAccessToken()
       const formData = new FormData()
 
       formData.append('amount', amount)
       formData.append('notes', notes)
+      formData.append('clientTransactionId', clientTransactionId)
       formData.append('TransactionTypeId', TransactionTypeId)
 
       if (file) {
