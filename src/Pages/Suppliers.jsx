@@ -21,22 +21,26 @@ import FilterPersonForm from '../components/Forms/FilterPersonForm'
 import SupplierServices from '../Services/supplier'
 import NoContent from '../components/NoContent'
 
+const SuppliersQuery = {
+  queryKey: ['SuppliersQuery'],
+  queryFn: () => SupplierServices.GetAll(),
+}
+
 // eslint-disable-next-line react-refresh/only-export-components
-export const loader = async () => {
+export const loader = (queryClient) => async () => {
   const accessToken = localStorage.getItem('accessToken')
   if (!accessToken) {
     throw new Response('Unauthorized', { status: 401 })
   }
 
   try {
-    const results = await SupplierServices.GetAll()
+    const results = await queryClient.ensureQueryData(SuppliersQuery)
 
     return { suppliers: results } // Returning suppliers data from API
   } catch {
     throw new Response('Failed to fetch suppliers')
   }
 }
-
 
 const Suppliers = () => {
   const { suppliers } = useLoaderData()

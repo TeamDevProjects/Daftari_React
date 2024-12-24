@@ -2,14 +2,48 @@ import { IoIosArrowBack } from 'react-icons/io'
 import { useNavigate } from 'react-router-dom'
 import ClientPaymentDatesTable from '../components/Tables/ClientPaymentDatesTable'
 import { PaymentDatesColumns } from '../Constants/TablesColumns'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import clientPaymentDateService from '../Services/clientPaymentDateService'
 import { toast } from 'react-toastify'
+import { useQuery } from '@tanstack/react-query'
+
+const ClientPaymentDatesQuery = {
+  queryKey: ['ClientPaymentDatesTable'],
+  queryFn: async () => {
+    try {
+      const [todayResults, oldResults, closerResults] = await Promise.all([
+        clientPaymentDateService.GetToDay(),
+        clientPaymentDateService.GetOld(),
+        clientPaymentDateService.GetCloser(),
+      ])
+
+      return {
+        today: todayResults || [],
+        old: oldResults || [],
+        closer: closerResults || [],
+      }
+    } catch (error) {
+      toast.error('Fail to fetch data')
+      throw error // Ensure the error propagates to React Query
+    }
+  },
+}
+
+export const loader = (queryClient) => async () => {
+  try {
+    await queryClient.ensureQueryData(ClientPaymentDatesQuery)
+  } catch (error) {
+    toast.error('Fail to fetch data')
+  }
+}
+
 const ClientsPaymentDates = () => {
   const navigate = useNavigate()
-  const [toDayPaymentDate, setToDayPaymentDate] = useState([])
-  const [oldPaymentDate, setOldPaymentDate] = useState([])
-  const [closerPaymentDate, setCloserPaymentDate] = useState([])
+  const { data } = useQuery(ClientPaymentDatesQuery)
+  const { today, old, closer } = data
+  const [toDayPaymentDate, setToDayPaymentDate] = useState(today)
+  const [oldPaymentDate, setOldPaymentDate] = useState(old)
+  const [closerPaymentDate, setCloserPaymentDate] = useState(closer)
 
   const [activePaymentDate, setActivePaymentDate] = useState(toDayPaymentDate)
   const [activeTitle, setActiveTitle] = useState('ToDay')
@@ -18,7 +52,7 @@ const ClientsPaymentDates = () => {
     navigate(-1) // الرجوع إلى الصفحة السابقة
   }
 
-  const fetchToDayPaymentDates = async () => {
+  /*   const fetchToDayPaymentDates = async () => {
     try {
       const results = await clientPaymentDateService.GetToDay()
       if (results) setToDayPaymentDate(results)
@@ -52,7 +86,7 @@ const ClientsPaymentDates = () => {
     fetchToDayPaymentDates()
     fetchOldPaymentDates()
     fetchCloserPaymentDates()
-  }, [activePaymentDate])
+  }, [activePaymentDate]) */
 
   const handelPaymentAsToDay = () => {
     setActivePaymentDate(toDayPaymentDate || [])

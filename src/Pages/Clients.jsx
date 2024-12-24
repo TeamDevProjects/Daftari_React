@@ -19,22 +19,26 @@ import PdfFilteredReportGenerator from '../components/Reports/pdfFilteredReportG
 import { LuDollarSign } from 'react-icons/lu'
 import FilterPersonForm from '../components/Forms/FilterPersonForm.jsx'
 import NoContent from '../components/NoContent.jsx'
+
+const ClientsQuery = {
+  queryKey: ['ClientsQuery'],
+  queryFn: () => clientServices.GetAll(),
+}
+
 // eslint-disable-next-line react-refresh/only-export-components
-export const loader = async () => {
+export const loader = (queryClient) => async () => {
   const accessToken = localStorage.getItem('accessToken')
   if (!accessToken) {
     throw new Response('Unauthorized', { status: 401 })
   }
 
   try {
-    const results = await clientServices.GetAll()
-    console.log('results', results)
+    const results = await queryClient.ensureQueryData(ClientsQuery)
     return { Clients: results }
   } catch {
     return { Clients: [] }
   }
 }
-
 
 const Clients = () => {
   const { Clients } = useLoaderData()
@@ -47,6 +51,7 @@ const Clients = () => {
   const [isModalOpen, setModalOpen] = useState(false)
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [currentRowId, setCurrentRowId] = useState(0)
 
   const handleSearch = async (query) => {
     if (!query) {
@@ -72,10 +77,11 @@ const Clients = () => {
     handleOpenModal()
   }
 
-  const handelUpdateClientModal = () => {
+  const handelUpdateClientModal = (id) => {
     setMode('Update')
     setMethod('put')
     handleOpenModal()
+    setCurrentRowId(id)
   }
   const handleOpenModal = () => {
     setModalOpen(true)
@@ -92,7 +98,7 @@ const Clients = () => {
         setClients((prevClients) => [...prevClients, newClient])
         toast.success('Client Added Successfully')
       } else if (mode === 'Update') {
-        const updatedClient = await clientServices.Update(client)
+        const updatedClient = await clientServices.Update(client, currentRowId)
         setClients((prevClients) =>
           prevClients.map((c) =>
             c.clientId === updatedClient.clientId ? updatedClient : c
@@ -298,7 +304,9 @@ const Clients = () => {
                             border: 'none',
                             padding: '5px 10px',
                           }}
-                          onClick={handelUpdateClientModal}
+                          onClick={() =>
+                            handelUpdateClientModal(client.clientId)
+                          }
                         >
                           <FaUserEdit />
                         </button>

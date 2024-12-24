@@ -20,6 +20,9 @@ import {
 import { action as SignInAction } from './Pages/SignIn'
 import { loader as LoaderSuppliers } from './Pages/Suppliers'
 import { loader as LoaderClients } from './Pages/Clients'
+import { loader as LoaderSuppliersPaymentDates } from './Pages/SuppliersPaymentDates'
+import { loader as LoaderClientsPaymentDates } from './Pages/ClientsPaymentDates'
+import { loader as LoaderUser } from './Pages/User'
 
 import authService from './Services/authService'
 import { useEffect, useState, useCallback, useContext } from 'react'
@@ -80,13 +83,14 @@ function App() {
         {
           path: '/user',
           element: <User />,
+          loader: LoaderUser(queryClient),
           errorElement: <ErrorElement />,
         },
         {
           path: 'Clients',
           element: <Clients />,
           errorElement: <ErrorElement />,
-          loader: LoaderClients,
+          loader: LoaderClients(queryClient),
         },
         {
           path: 'Clients/ClientsTransactions/:clientId',
@@ -96,6 +100,7 @@ function App() {
         {
           path: 'Clients/ClientsPaymentDates',
           element: <ClientsPaymentDates />,
+          loader: LoaderClientsPaymentDates(queryClient),
           errorElement: <ErrorElement />,
         },
 
@@ -103,7 +108,7 @@ function App() {
           path: 'Suppliers',
           element: <Suppliers />,
           errorElement: <ErrorElement />,
-          loader: LoaderSuppliers,
+          loader: LoaderSuppliers(queryClient),
         },
         {
           path: 'Suppliers/SuppliersTransactions/:supplierId',
@@ -113,6 +118,7 @@ function App() {
         {
           path: 'Suppliers/SuppliersPaymentDates',
           element: <SuppliersPaymentDates />,
+          loader: LoaderSuppliersPaymentDates(queryClient),
           errorElement: <ErrorElement />,
         },
       ],

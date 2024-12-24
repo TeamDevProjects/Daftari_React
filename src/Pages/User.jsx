@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import userTransactionServices from '../Services/userTransaction'
 import { toast } from 'react-toastify'
 import { useUser } from '../Context/userContext'
@@ -7,16 +7,60 @@ import UserTransactionsTable from '../components/Tables/UserTransactionsTable'
 import { UserTransactionsColumns } from '../Constants/TablesColumns'
 import { Modal } from '../components'
 import AddEditTransactionForm from '../components/Forms/AddEditTransactionForm'
+import { useLoaderData } from 'react-router-dom'
+
+const UserQuery = {
+  queryKey: ['UserQuery'],
+  queryFn: () => userTransactionServices.GetAll(),
+}
+
+export const loader = (queryClient) => async () => {
+  try {
+    const results = await queryClient.ensureQueryData(UserQuery)
+    if (!results || results.length === 0) {
+      throw new Error("Can't load user transactions")
+    }
+
+    const totalPaymentResult = results.reduce(
+      (total, transaction) =>
+        transaction.transactionTypeName === 'Payment'
+          ? total + transaction.amount
+          : total,
+      0
+    )
+
+    const totalWithdrawResult = results.reduce(
+      (total, transaction) =>
+        transaction.transactionTypeName === 'Withdrawal'
+          ? total + transaction.amount
+          : total,
+      0
+    )
+
+    return {
+      results,
+      totalPaymentResult,
+      totalWithdrawResult,
+    }
+  } catch (error) {
+    return {
+      results: [],
+      totalPaymentResult: 0,
+      totalWithdrawResult: 0,
+    }
+  }
+}
 
 const User = () => {
-  const [transactions, setTransactions] = useState([])
+  const { results, totalPaymentResult, totalWithdrawResult } = useLoaderData()
+  const [transactions, setTransactions] = useState(results)
   const [isModalOpen, setModalOpen] = useState(false)
   const [transactionType, setTransactionType] = useState(0)
 
   const [mode, setMode] = useState('Add')
 
-  const [totalPayment, setTotalPayment] = useState(0)
-  const [totalWithdraw, setTotalWithdraw] = useState(0)
+  const [totalPayment, setTotalPayment] = useState(totalPaymentResult)
+  const [totalWithdraw, setTotalWithdraw] = useState(totalWithdrawResult)
 
   const handelAddPaymentTransactionModal = () => {
     setMode('Add')
@@ -56,7 +100,7 @@ const User = () => {
   // const [totalWidthdrol, setTotalWidthdrol] = useState(0)
   const { user } = useUser()
 
-  const fetchTransactions = async () => {
+  /*   const fetchTransactions = async () => {
     try {
       const results = await userTransactionServices.GetAll()
       if (!results) {
@@ -92,7 +136,7 @@ const User = () => {
   useEffect(() => {
     fetchTransactions()
   }, []) // Empty dependency array ensures that the effect only runs once on mount
-
+ */
   if (transactions.length === 0)
     return <div className="center">No transactions Found</div>
 
