@@ -36,6 +36,7 @@ export const loader = (queryClient) => async () => {
 
   try {
     const results = await queryClient.ensureQueryData(ClientsQuery)
+    queryClient.removeQueries(['ClientsQuery'])
     return { Clients: results }
   } catch {
     return { Clients: [] }
@@ -98,7 +99,7 @@ const Clients = () => {
         setClients((prevClients) => [...prevClients, newClient])
         toast.success('Client Added Successfully')
       } else if (mode === MODE.UPDATE) {
-        const updatedClient = await clientServices.Update(client,1004) //=>
+        const updatedClient = await clientServices.Update(client, 1004) //=>
         setClients((prevClients) =>
           prevClients.map((c) =>
             c.clientId === updatedClient.clientId ? updatedClient : c

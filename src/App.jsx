@@ -22,13 +22,11 @@ import { loader as LoaderClients } from './Pages/Clients'
 import { loader as LoaderSuppliersPaymentDates } from './Pages/SuppliersPaymentDates'
 import { loader as LoaderClientsPaymentDates } from './Pages/ClientsPaymentDates'
 import { loader as LoaderUser } from './Pages/User'
+import { loader as LoaderClientsTransactions } from './Pages/ClientsTransactions'
 
 import authService from './Services/authService'
 import { useEffect, useState, useCallback } from 'react'
 import { ErrorElement } from './components'
-// import NoWifi from './components/Common/NoWifi'
-// import NetworkContext from './Context/NetworkContext'
-// import NetworkContext from './Context/NetworkContext'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,7 +37,6 @@ const queryClient = new QueryClient({
 })
 
 function App() {
-
   const [isUserLogin, setIsUserLogin] = useState(
     authService.getIsLogin() || false
   )
@@ -95,6 +92,7 @@ function App() {
         {
           path: 'Clients/ClientsTransactions/:clientId',
           element: <ClientsTransactions />,
+          loader: LoaderClientsTransactions(),
           errorElement: <ErrorElement />,
         },
         {
@@ -128,7 +126,6 @@ function App() {
   // const { isConnected } = useContext(NetworkContext)
 
   // if (!isConnected) return <NoWifi text="No internet connection"/>
-
 
   return (
     <QueryClientProvider client={queryClient}>

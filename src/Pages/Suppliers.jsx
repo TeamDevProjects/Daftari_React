@@ -38,6 +38,7 @@ export const loader = (queryClient) => async () => {
 
   try {
     const results = await queryClient.ensureQueryData(SuppliersQuery)
+    queryClient.removeQueries(['SuppliersQuery'])
 
     return { suppliers: results } // Returning suppliers data from API
   } catch {
