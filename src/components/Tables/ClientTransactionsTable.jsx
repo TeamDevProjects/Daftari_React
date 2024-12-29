@@ -2,11 +2,10 @@
 
 import { LuDollarSign } from 'react-icons/lu'
 import { handelDateTimeFormate } from '../../assets/Utilities/date'
-import { FaUserEdit } from 'react-icons/fa'
-import { MdDelete } from 'react-icons/md'
-import NoContent from '../Common/NoContent'
 import { useState } from 'react'
-import Modal from '../Modal'
+import { Modal } from '../UI'
+import { NoContent } from '../Common'
+import { DeleteBtn, EditBtn } from '../Buttons'
 
 const ClientTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
   // rowPaymentDateId
@@ -55,7 +54,7 @@ const ClientTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
               {columns.map((col, index) => (
                 <th key={index}>{col}</th>
               ))}
-              {<th>Actions</th>}
+              {(onEdit || onDelete) && <th>Actions</th>}
             </tr>
           </thead>
           <tbody>
@@ -113,39 +112,18 @@ const ClientTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
                   )) ||
                     '-'}
                 </td>
-                {
-                  <td>
-                    <div className="flex">
-                      {onEdit && (
-                        <button
-                          style={{
-                            marginRight: '5px',
-                            backgroundColor: '#00b894',
-                            color: 'white',
-                            border: 'none',
-                            padding: '5px 10px',
-                          }}
-                          onClick={() => onEdit(row)}
-                        >
-                          <FaUserEdit />
-                        </button>
-                      )}
-                      {onDelete && (
-                        <button
-                          style={{
-                            backgroundColor: '#d63031',
-                            color: 'white',
-                            border: 'none',
-                            padding: '5px 10px',
-                          }}
-                          onClick={() => onDelete(row?.clientTransactionId)}
-                        >
-                          <MdDelete />
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                }
+                {(onEdit ||
+                onDelete )&&(<td>
+                  <div className="flex">
+                    {onEdit && <EditBtn onEdit={onEdit} row={row} />}
+                    {onDelete && (
+                      <DeleteBtn
+                        onDelete={onDelete}
+                        rowId={row.clientTransactionId}
+                      />
+                    )}
+                  </div>
+                </td>)}
               </tr>
             ))}
           </tbody>

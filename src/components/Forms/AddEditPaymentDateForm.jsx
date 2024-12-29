@@ -1,8 +1,7 @@
 /* eslint-disable react/prop-types */
 import { Form } from 'react-router-dom'
-import SubmitBtn from '../SubmitBtn'
-import FormDatePicker from '../FormDatePicker'
-import FormTextarea from '../FormTextarea'
+import { SubmitBtn } from '../Buttons'
+import { FormTextarea, FormDatePicker } from '../UI'
 import { useReducer } from 'react'
 // Initial state for the form
 const initialState = {
@@ -28,9 +27,12 @@ const AddEditPaymentDateForm = ({
   buttonText,
   mode,
   clientId,
-  currentPaymentDate
+  currentPaymentDate,
 }) => {
-  const [state, dispatch] = useReducer(reducer, currentPaymentDate|| initialState)
+  const [state, dispatch] = useReducer(
+    reducer,
+    currentPaymentDate || initialState
+  )
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -55,9 +57,17 @@ const AddEditPaymentDateForm = ({
   return (
     <>
       <h4 className="form-title">{mode + ' ' + title}</h4>
-      <Form  className="register-form" onSubmit={handleSubmit}>
-        <FormDatePicker onSelect={handleSelect} defaultValue={state?.dateOfPayment}/>
-        <FormTextarea label="Notes" name="notes" defaultValue={state?.notes} onChange={handleChange} />
+      <Form className="register-form" onSubmit={handleSubmit}>
+        <FormDatePicker
+          onSelect={handleSelect}
+          defaultValue={state?.dateOfPayment}
+        />
+        <FormTextarea
+          label="Notes"
+          name="notes"
+          defaultValue={state?.notes}
+          onChange={handleChange}
+        />
         <div className="submit-btn-container">
           <SubmitBtn text={mode + ' ' + buttonText} />
         </div>

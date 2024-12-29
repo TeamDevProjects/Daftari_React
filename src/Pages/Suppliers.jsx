@@ -1,85 +1,141 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+import { useState } from 'react'
 import { Link, useLoaderData } from 'react-router-dom'
-import { Modal, SearchForm } from '../components'
+import { toast } from 'react-toastify'
 import {
   handelDateFormate,
   handelDateTimeFormate,
 } from '../assets/Utilities/date'
-import { useEffect, useState } from 'react'
-import { toast } from 'react-toastify'
-import AddEditPersonForm from '../components/Forms/AddEditPersonForm'
-import { MdDelete, MdOutlineSettingsInputComponent } from 'react-icons/md'
-import { FaUserEdit } from 'react-icons/fa'
-import PdfReportGenerator from '../components/Reports/PdfReportGenerator'
+import supplierImg from '../assets/supplier.png'
+import { LuDollarSign } from 'react-icons/lu'
+import {
+  PdfReportGenerator,
+  PdfFilteredReportGenerator,
+} from '../components/Reports'
 import { CiCalendarDate } from 'react-icons/ci'
 import { IoIosAdd } from 'react-icons/io'
 import { ReportPeopleColumns } from '../Constants/ReportColumns'
 import { PeopleColumns } from '../Constants/TablesColumns'
-import PdfFilteredReportGenerator from '../components/Reports/pdfFilteredReportGenerator'
-import { LuDollarSign } from 'react-icons/lu'
-import FilterPersonForm from '../components/Forms/FilterPersonForm'
-import SupplierServices from '../Services/supplier'
-import NoContent from '../components/Common/NoContent'
-import { useUser } from '../Context/userContext'
-import supplierImg from '../assets/supplier.png'
 import { MODE } from '../Constants/Variables'
+import { useUser } from '../Context/userContext'
+import SupplierServices from '../Services/supplier'
+import { Modal, SearchForm } from '../components/UI'
+import { AddEditPersonForm, FilterPersonForm } from '../components/Forms'
+import { SuppliersTable } from '../components/Tables'
+import { MdOutlineSettingsInputComponent } from 'react-icons/md'
+import { REACT_QUERY_NAME } from '../Constants/Variables'
+import { queryClient } from '../App'
 
 const SuppliersQuery = {
-  queryKey: ['SuppliersQuery'],
+  queryKey: [REACT_QUERY_NAME.SUPPLIERS],
   queryFn: () => SupplierServices.GetAll(),
 }
+const _calcTotalPayment = (clients) => {
+  if (!clients || clients.length == 0) return 0
 
+  const totalPayment = clients.reduce(
+    (total, client) =>
+      client.totalAmount >= 0 ? total + client.totalAmount : total,
+    0
+  )
+  return totalPayment
+}
+
+const _calcTotalWithdraw = (clients) => {
+  if (!clients || clients.length == 0) return 0
+
+  const totalWithdraw = clients.reduce(
+    (total, client) =>
+      client.totalAmount < 0 ? total + client.totalAmount : total,
+    0
+  )
+  return totalWithdraw
+}
 // eslint-disable-next-line react-refresh/only-export-components
 export const loader = (queryClient) => async () => {
-  const accessToken = localStorage.getItem('accessToken')
-  if (!accessToken) {
-    throw new Response('Unauthorized', { status: 401 })
-  }
-
   try {
-    const results = await queryClient.ensureQueryData(SuppliersQuery)
+    const initialSuppliers = await queryClient.ensureQueryData(SuppliersQuery)
 
-    return { suppliers: results } // Returning suppliers data from API
+    //set default totalPaymentDate & totalWithdraw
+    const initialTotalPayment = _calcTotalPayment(initialSuppliers)
+
+    const initialTotalWithdraw = _calcTotalWithdraw(initialSuppliers)
+
+    return { initialSuppliers, initialTotalPayment, initialTotalWithdraw }
   } catch {
     throw new Response('Failed to fetch suppliers')
   }
 }
 
 const Suppliers = () => {
-  const { suppliers } = useLoaderData()
+  const { initialSuppliers, initialTotalPayment, initialTotalWithdraw } =
+    useLoaderData()
 
-  const [suppliersState, setSuppliers] = useState(suppliers)
+  const [suppliers, setSuppliers] = useState(initialSuppliers)
+  const [totalPayment, setTotalPayment] = useState(initialTotalPayment || 0)
+  const [totalWithdraw, setTotalWithdraw] = useState(initialTotalWithdraw || 0)
 
   const [isModalOpen, setModalOpen] = useState(false)
-  const [totalPayment, setTotalPayment] = useState(0)
-
-  const [totalWithdraw, setTotalWithdraw] = useState(0)
-
   const [mode, setMode] = useState(MODE.ADD)
-  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const [currentPerson, setCurrentPerson] = useState(null)
-  const { user } = useUser()
-  // Function to handle searching suppliers by name
-  const handleSearch = async (query) => {
-    console.log(query)
-    if (!query) {
-      setSuppliers(suppliers) // Reset to the original list when the query is empty
-      return
-    }
 
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
+  const [currentPerson, setCurrentPerson] = useState(null)
+
+  const { user } = useUser()
+
+  // ==============[ Privet Methods ]==================
+  const _refreshTotalPayment = (newClients) => {
+    if (!newClients) return
+
+    const totalPaymentResult = _calcTotalPayment(newClients)
+
+    setTotalPayment(totalPaymentResult)
+  }
+
+  const _refreshTotalWithdraw = (newClients) => {
+    if (!newClients) return
+
+    const totalWithdrawResult = _calcTotalWithdraw(newClients)
+
+    setTotalWithdraw(totalWithdrawResult)
+  }
+
+  const _refresh = async () => {
+    // Refresh
+    _refreshTotalPayment(suppliers)
+    _refreshTotalWithdraw(suppliers)
+  }
+
+  const _addSupplier = async (supplier) => {
     try {
-      // setIsLoading(true)
-      const results = await SupplierServices.SearchByName(query) // Call API to search by name
-      setSuppliers(results)
-      // setIsLoading(false)
+      const newSupplier = await SupplierServices.Add(supplier)
+      setSuppliers((prevSuppliers) => [...prevSuppliers, newSupplier])
+
+      toast.success('New Supplier Added Successfully')
     } catch (error) {
-      console.error('Error searching suppliers:', error)
-      toast.error('Failed to search suppliers.')
-      // setIsLoading(false)
+      toast.error(error?.message)
     }
   }
 
+  const _updateSupplier = async (supplier) => {
+    try {
+      await SupplierServices.Update(supplier, currentPerson?.supplierId)
+
+      setSuppliers((prevSuppliers) =>
+        prevSuppliers.map((c) =>
+          c.supplierId === currentPerson.supplierId
+            ? { ...supplier, supplierId: currentPerson?.supplierId }
+            : c
+        )
+      )
+      console.log(supplier)
+      toast.success('Supplier Updated Successfully')
+    } catch (error) {
+      toast.error(error?.message)
+    }
+  }
+
+  // ================[ Handel UI ]=====================
   const handelAddSupplierModal = () => {
     setMode(MODE.ADD)
     handleOpenModal()
@@ -107,9 +163,25 @@ const Suppliers = () => {
     setIsFilterModalOpen(false)
   }
 
+  // ==============[ Action Methods ]==================
+
+  // Function to handle searching suppliers by name or phone
+  const handleSearch = async (temp) => {
+    try {
+      if (!temp || temp == '') {
+        setSuppliers(initialSuppliers)
+        return
+      }
+
+      const results = await SupplierServices.SearchByName(temp) // Call API to search by name
+      setSuppliers(results)
+    } catch {
+      setSuppliers([])
+    }
+  }
+
   const handelSubmitFilter = async (filterBy) => {
     console.log(filterBy)
-    // getall orderbyname & reset clients by orderbyname
 
     if (filterBy == 'orderByName') {
       const results = await SupplierServices.GetAllOrderByName()
@@ -122,97 +194,55 @@ const Suppliers = () => {
       setSuppliers(suppliers)
     }
   }
+
   const handleSubmit = async (supplier) => {
-    try {
-      if (mode == MODE.ADD) {
-        const newSupplier = await SupplierServices.Add(supplier)
-        setSuppliers((prevSuppliers) => [...prevSuppliers, newSupplier])
-        toast.success('Supplier Added Successfully')
-      } else if (mode == MODE.UPDATE) {
-        const updatedSupplier = await SupplierServices.Update(
-          supplier,
-          currentPerson?.supplierId
-        )
-        setSuppliers((prevSuppliers) =>
-          prevSuppliers.map((c) =>
-            c.supplierId === updatedSupplier.supplierId ? updatedSupplier : c
-          )
-        )
-        toast.success('Supplier Updated Successfully')
-      }
-      setModalOpen(false)
-    } catch (error) {
-      console.error('Error saving Supplier:', error)
-      toast.error('Failed to save Supplier.')
+    if (mode === MODE.ADD) {
+      await _addSupplier(supplier)
+    } else if (mode === MODE.UPDATE) {
+      await _updateSupplier(supplier)
     }
+    // Refresh
+    await _refresh()
+
+    setModalOpen(false)
+    queryClient.removeQueries(REACT_QUERY_NAME.SUPPLIERS)
   }
 
   const handleDeleteSupplier = async (supplierId) => {
     try {
       await SupplierServices.Delete(supplierId)
+
       setSuppliers((prevSuppliers) =>
-        prevSuppliers.filter((supplier) => supplier.clientId !== supplierId)
+        prevSuppliers.filter((supplier) => supplier.supplierId !== supplierId)
       )
+
+      // Refresh
+      await _refresh()
+      queryClient.removeQueries(REACT_QUERY_NAME.SUPPLIERS)
+
       toast.success('Supplier deleted successfully.')
     } catch (error) {
       console.error('Error deleting Supplier:', error)
       toast.error('Failed to delete Supplier.')
     }
   }
+  
+  const formatReportRows = (data) =>
+    data.map((r) => [
+      r.supplierId || '-', // ID
+      r.name || '-', // Name
+      r.country || '-', // Country
+      r.city || '-', // City
+      r.address || '-', // Address
+      r.phone || '-', // Phone
+      handelDateFormate(r.dateOfPayment || '') || '-', // Payment Date
+      r.totalAmount ? `$${r.totalAmount.toFixed(2)}` : '-', // Amount, formatted as currency
+      r.paymentMethodName || '-', // Payment Method
+    ])
 
-  const ReportRows = suppliers.map((r) => [
-    r.supplierId || '-', // ID
-    r.name || '-', // Name
-    r.country || '-', // Country
-    r.city || '-', // City
-    r.address || '-', // Address
-    r.phone || '-', // Phone
-    handelDateFormate(r.dateOfPayment) || '-', // Payment Date
-    r.totalAmount ? `$${r.totalAmount.toFixed(2)}` : '-', // Amount, formatted as currency
-    r.paymentMethodName || '-', // Payment Method
-  ])
+  const ReportRows = formatReportRows(initialSuppliers)
 
-  const ReportFilterRows = suppliersState.map((r) => [
-    r.supplierId || '-', // ID
-    r.name || '-', // Name
-    r.country || '-', // Country
-    r.city || '-', // City
-    r.address || '-', // Address
-    r.phone || '-', // Phone
-    handelDateFormate(r.dateOfPayment) || '-', // Payment Date
-    r.totalAmount ? `$${r.totalAmount.toFixed(2)}` : '-', // Amount, formatted as currency
-    r.paymentMethodName || '-', // Payment Method
-  ])
-
-  useEffect(() => {
-    const calculateTotals = () => {
-      if (!suppliers) return
-
-      const totalPaymentResult = suppliers.reduce(
-        (total, supplier) =>
-          supplier.totalAmount >= 0 ? total + supplier.totalAmount : total,
-        0
-      )
-
-      const totalWithdrawResult = suppliers.reduce(
-        (total, supplier) =>
-          supplier.totalAmount < 0 ? total + supplier.totalAmount : total,
-        0
-      )
-
-      setTotalPayment(totalPaymentResult)
-      setTotalWithdraw(totalWithdrawResult)
-    }
-
-    calculateTotals()
-    setIsLoading(false)
-  }, [])
-
-  // Render suppliers if data is available
-
-  if (isLoading) {
-    return <p>Loading...</p>
-  }
+  const ReportFilterRows = formatReportRows(suppliers)
 
   return (
     <>
@@ -295,70 +325,12 @@ const Suppliers = () => {
             <SearchForm onSubmit={handleSearch} />
           </div>
         </div>
-        <div className="table-wrapper">
-          {suppliersState && suppliersState.length > 0 && (
-            <table border="1" style={{ width: '100%', textAlign: 'left' }}>
-              <thead>
-                <tr>
-                  {PeopleColumns.map((col, index) => (
-                    <th key={index}>{col}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {suppliersState.map((supplier, index) => (
-                  <tr key={supplier.supplierId || '-'}>
-                    <td>{index + 1 || '-'}</td>
-                    <td>
-                      <Link to={`SuppliersTransactions/${supplier.supplierId}`}>
-                        {supplier.name || '-'}
-                      </Link>
-                    </td>
-                    <td>{supplier.country || '-'}</td>
-                    <td>{supplier.city || '-'}</td>
-                    <td>{supplier.address || '-'}</td>
-                    <td>{supplier.phone || '-'}</td>
-                    <td>{handelDateFormate(supplier.dateOfPayment) || '-'}</td>
-                    <td>{supplier.totalAmount || '-'}</td>
-                    <td>{supplier.paymentMethodName || '-'}</td>
-                    {/* <td>{supplier.notes || '-'}</td> */}
-                    <td>
-                      <div className="flex">
-                        <button
-                          /* onClick={} */
-                          style={{
-                            marginRight: '5px',
-                            backgroundColor: '#00b894',
-                            color: 'white',
-                            border: 'none',
-                            padding: '5px 10px',
-                          }}
-                          onClick={() => handelUpdateSupplierModal(supplier)}
-                        >
-                          <FaUserEdit />
-                        </button>
-                        <button
-                          style={{
-                            backgroundColor: '#d63031',
-                            color: 'white',
-                            border: 'none',
-                            padding: '5px 10px',
-                          }}
-                          onClick={() =>
-                            handleDeleteSupplier(supplier.supplierId)
-                          }
-                        >
-                          <MdDelete />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-        {suppliersState.length == 0 && <NoContent text="No Suppliers found." />}
+        <SuppliersTable
+          rows={suppliers}
+          columns={PeopleColumns}
+          onDelete={handleDeleteSupplier}
+          onEdit={handelUpdateSupplierModal}
+        />
       </div>
     </>
   )

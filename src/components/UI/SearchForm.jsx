@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useNavigation, Form } from 'react-router-dom'
-import Wrapper from '../assets/wrappers/SearchForm'
+import Wrapper from '../../assets/wrappers/SearchForm'
 import { CiSearch } from 'react-icons/ci'
 import { useReducer } from 'react'
 
@@ -33,7 +33,7 @@ const SearchForm = ({ onSubmit }) => {
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    const temp = state.search
+    const temp = state.search?.trim()
 
     onSubmit(temp)
   }

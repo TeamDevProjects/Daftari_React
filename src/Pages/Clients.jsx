@@ -1,77 +1,152 @@
+import { useState } from 'react'
 import { Link, useLoaderData } from 'react-router-dom'
-import { Modal, SearchForm } from '../components'
+import { MdOutlineSettingsInputComponent } from 'react-icons/md'
+import { LuDollarSign } from 'react-icons/lu'
+import { CiCalendarDate } from 'react-icons/ci'
+import { IoIosAdd } from 'react-icons/io'
+import { toast } from 'react-toastify'
+import clientServices from '../Services/client.js'
 import {
   handelDateFormate,
   handelDateTimeFormate,
 } from '../assets/Utilities/date'
-import { MdDelete, MdOutlineSettingsInputComponent } from 'react-icons/md'
-import { FaUserEdit } from 'react-icons/fa'
-import clientServices from '../Services/client.js'
-import { useEffect, useState } from 'react'
-import AddEditPersonForm from '../components/Forms/AddEditPersonForm'
-import { toast } from 'react-toastify'
-import PdfReportGenerator from '../components/Reports/PdfReportGenerator.jsx'
-import { CiCalendarDate } from 'react-icons/ci'
-import { IoIosAdd } from 'react-icons/io'
-import { ReportPeopleColumns } from '../Constants/ReportColumns.js'
-import { PeopleColumns } from '../Constants/TablesColumns.js'
-import PdfFilteredReportGenerator from '../components/Reports/pdfFilteredReportGenerator.jsx'
-import { LuDollarSign } from 'react-icons/lu'
-import FilterPersonForm from '../components/Forms/FilterPersonForm.jsx'
-import NoContent from '../components/Common/NoContent.jsx'
 import clientImg from '../assets/client.png'
+import {
+  PdfFilteredReportGenerator,
+  PdfReportGenerator,
+} from '../components/Reports'
+import { FilterPersonForm, AddEditPersonForm } from '../components/Forms'
+import { SearchForm, Modal } from '../components/UI/'
 import { useUser } from '../Context/userContext.jsx'
 import { MODE } from '../Constants/Variables'
+import { ReportPeopleColumns } from '../Constants/ReportColumns.js'
+import { PeopleColumns } from '../Constants/TablesColumns.js'
+import { ClientsTable } from '../components/Tables'
+import { queryClient } from '../App'
+import { REACT_QUERY_NAME } from '../Constants/Variables'
+
 // eslint-disable-next-line react-refresh/only-export-components
+
+const _getAllClients = async () => {
+  return await clientServices.GetAll()
+}
+const _calcTotalPayment = (clients) => {
+  if (!clients || clients.length == 0) return 0
+
+  const totalPayment = clients.reduce(
+    (total, client) =>
+      client.totalAmount >= 0 ? total + client.totalAmount : total,
+    0
+  )
+  return totalPayment
+}
+
+const _calcTotalWithdraw = (clients) => {
+  if (!clients || clients.length == 0) return 0
+
+  const totalWithdraw = clients.reduce(
+    (total, client) =>
+      client.totalAmount < 0 ? total + client.totalAmount : total,
+    0
+  )
+  return totalWithdraw
+}
+
 const ClientsQuery = {
-  queryKey: ['ClientsQuery'],
-  queryFn: () => clientServices.GetAll(),
+  queryKey: [REACT_QUERY_NAME.CLIENTS],
+  queryFn: async () => await _getAllClients(),
 }
 
 export const loader = (queryClient) => async () => {
-  const accessToken = localStorage.getItem('accessToken')
-  if (!accessToken) {
-    throw new Response('Unauthorized', { status: 401 })
-  }
-
   try {
-    const results = await queryClient.ensureQueryData(ClientsQuery)
-    return { Clients: results }
+    const initialClients = await queryClient.ensureQueryData(ClientsQuery)
+
+    if (!initialClients || initialClients.length == 0) return
+
+    //set default totalPaymentDate & totalWithdraw
+    const initialTotalPayment = _calcTotalPayment(initialClients)
+
+    const initialTotalWithdraw = _calcTotalWithdraw(initialClients)
+
+    return { initialClients, initialTotalPayment, initialTotalWithdraw }
   } catch {
-    return { Clients: [] }
+    return {
+      initialClients: [],
+      initialTotalPayment: 0,
+      initialTotalWithdraw: 0,
+    }
   }
 }
 
 const Clients = () => {
-  const { Clients } = useLoaderData()
+  const { initialClients, initialTotalPayment, initialTotalWithdraw } =
+    useLoaderData()
 
-  const [clientsState, setClients] = useState(Clients || [])
-  const [totalPayment, setTotalPayment] = useState(0)
-  const [totalWithdraw, setTotalWithdraw] = useState(0)
+  const [clients, setClients] = useState(initialClients || [])
+  const [totalPayment, setTotalPayment] = useState(initialTotalPayment || 0)
+  const [totalWithdraw, setTotalWithdraw] = useState(initialTotalWithdraw || 0)
+
   const [mode, setMode] = useState(MODE.ADD)
   const [isModalOpen, setModalOpen] = useState(false)
+
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
   const [currentPerson, setCurrentPerson] = useState(null)
+
   const { user } = useUser()
 
-  const handleSearch = async (query) => {
-    if (!query) {
-      setClients(Clients) // Reset to the original list when the query is empty
-      return
-    }
+  // ==============[ Privet Methods ]==================
+  const _refreshTotalPayment = (newClients) => {
+    if (!newClients) return
 
+    const totalPaymentResult = _calcTotalPayment(newClients)
+
+    setTotalPayment(totalPaymentResult)
+  }
+
+  const _refreshTotalWithdraw = (newClients) => {
+    if (!newClients) return
+
+    const totalWithdrawResult = _calcTotalWithdraw(newClients)
+
+    setTotalWithdraw(totalWithdrawResult)
+  }
+
+  const _refresh = async () => {
+    // Refresh
+    _refreshTotalPayment(clients)
+    _refreshTotalWithdraw(clients)
+  }
+
+  const _addClient = async (client) => {
     try {
-      setIsLoading(true)
-      const results = await clientServices.SearchByName(query) // Call API to search by name
-      setClients(results)
-      setIsLoading(false)
+      const newClient = await clientServices.Add(client)
+      setClients((prevClients) => [...prevClients, newClient])
+
+      toast.success('New Client Added Successfully')
     } catch (error) {
-      console.error('Error searching suppliers:', error)
-      toast.error('Failed to search suppliers.')
-      setIsLoading(false)
+      toast.error(error?.message)
     }
   }
+
+  const _updateClient = async (client) => {
+    try {
+      await clientServices.Update(client, currentPerson?.clientId)
+
+      setClients((prevClients) =>
+        prevClients.map((c) =>
+          c.clientId === currentPerson.clientId
+            ? { ...client, clientId: currentPerson?.clientId }
+            : c
+        )
+      )
+      console.log(client)
+      toast.success('Client Updated Successfully')
+    } catch (error) {
+      toast.error(error?.message)
+    }
+  }
+
+  // ================[ Handel UI ]=====================
 
   const handelAddClientModal = () => {
     setMode(MODE.ADD)
@@ -91,34 +166,46 @@ const Clients = () => {
     setModalOpen(false)
   }
 
-  const handleSubmit = async (client) => {
-    try {
-      if (mode === MODE.ADD) {
-        const newClient = await clientServices.Add(client)
-        setClients((prevClients) => [...prevClients, newClient])
-        toast.success('Client Added Successfully')
-      } else if (mode === MODE.UPDATE) {
-        const updatedClient = await clientServices.Update(client,1004) //=>
-        setClients((prevClients) =>
-          prevClients.map((c) =>
-            c.clientId === updatedClient.clientId ? updatedClient : c
-          )
-        )
-        toast.success('Client Updated Successfully')
-      }
-      setModalOpen(false)
-    } catch (error) {
-      console.error('Error saving client:', error)
-      toast.error('Failed to save client.')
-    }
-  }
-
   const handelOpenFilterModel = () => {
     setIsFilterModalOpen(true)
   }
 
   const handelCloseFilterModel = () => {
     setIsFilterModalOpen(false)
+  }
+
+  // ==============[ Action Methods ]==================
+
+  const handleSubmit = async (client) => {
+    if (mode === MODE.ADD) {
+      await _addClient(client)
+    } else if (mode === MODE.UPDATE) {
+      await _updateClient(client)
+    }
+    // Refresh
+    await _refresh()
+
+    setModalOpen(false)
+    queryClient.removeQueries(REACT_QUERY_NAME.CLIENTS)
+  }
+
+  const handleDeleteClient = async (clientId) => {
+    try {
+      await clientServices.Delete(clientId)
+
+      setClients((prevClients) =>
+        prevClients.filter((client) => client.clientId !== clientId)
+      )
+
+      // Refresh
+      await _refresh()
+      queryClient.removeQueries(REACT_QUERY_NAME.CLIENTS)
+
+      toast.success('Client deleted successfully.')
+    } catch (error) {
+      console.error('Error deleting client:', error)
+      toast.error('Failed to delete client.')
+    }
   }
 
   const handelSubmitFilter = async (filterBy) => {
@@ -144,54 +231,28 @@ const Clients = () => {
       r?.city || '-',
       r?.address || '-',
       r?.phone || '-',
-      handelDateFormate(r?.dateOfPayment) || '-',
+      handelDateFormate(r?.dateOfPayment || '') || '-',
       r?.totalAmount ? `$${r?.totalAmount.toFixed(2)}` : '-',
       r?.paymentMethodName || '-',
     ])
 
-  const ReportRows = formatReportRows(Clients)
-  const ReportFilterRows = formatReportRows(clientsState)
-
-  useEffect(() => {
-    const calculateTotals = () => {
-      if (!Clients) return
-
-      const totalPaymentResult = Clients.reduce(
-        (total, client) =>
-          client.totalAmount >= 0 ? total + client.totalAmount : total,
-        0
-      )
-
-      const totalWithdrawResult = Clients.reduce(
-        (total, client) =>
-          client.totalAmount < 0 ? total + client.totalAmount : total,
-        0
-      )
-
-      setTotalPayment(totalPaymentResult)
-      setTotalWithdraw(totalWithdrawResult)
-    }
-
-    calculateTotals()
-    setIsLoading(false)
-  }, [])
-
-  const handleDeleteClient = async (clientId) => {
+  const handleSearch = async (temp) => {
     try {
-      await clientServices.Delete(clientId)
-      setClients((prevClients) =>
-        prevClients.filter((client) => client.clientId !== clientId)
-      )
-      toast.success('Client deleted successfully.')
-    } catch (error) {
-      console.error('Error deleting client:', error)
-      toast.error('Failed to delete client.')
+      if (!temp || temp == '') {
+        setClients(initialClients)
+        return
+      }
+
+      const results = await clientServices.SearchByName(temp) // Call API to search by name
+
+      setClients(results)
+    } catch {
+      setClients([])
     }
   }
 
-  if (isLoading) {
-    return <p>Loading...</p>
-  }
+  const ReportRows = formatReportRows(initialClients)
+  const ReportFilterRows = formatReportRows(clients)
 
   return (
     <>
@@ -273,67 +334,12 @@ const Clients = () => {
             <SearchForm onSubmit={handleSearch} />
           </div>
         </div>
-
-        <div className="table-wrapper">
-          {clientsState && clientsState.length > 0 && (
-            <table border="1" style={{ width: '100%', textAlign: 'left' }}>
-              <thead>
-                <tr>
-                  {PeopleColumns.map((col, index) => (
-                    <th key={index}>{col}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {clientsState?.map((client, index) => (
-                  <tr key={client?.clientId || '-'}>
-                    <td>{index + 1 || '-'}</td>
-                    <td>
-                      <Link to={`ClientsTransactions/${client?.clientId}`}>
-                        {client?.name || '-'}
-                      </Link>
-                    </td>
-                    <td>{client?.country || '-'}</td>
-                    <td>{client?.city || '-'}</td>
-                    <td>{client?.address || '-'}</td>
-                    <td>{client?.phone || '-'}</td>
-                    <td>{handelDateFormate(client?.dateOfPayment) || '-'}</td>
-                    <td>{client?.totalAmount || '-'}</td>
-                    <td>{client?.paymentMethodName || '-'}</td>
-                    <td>
-                      <div className="flex">
-                        <button
-                          style={{
-                            marginRight: '5px',
-                            backgroundColor: '#00b894',
-                            color: 'white',
-                            border: 'none',
-                            padding: '5px 10px',
-                          }}
-                          onClick={() => handelUpdateClientModal(client)}
-                        >
-                          <FaUserEdit />
-                        </button>
-                        <button
-                          style={{
-                            backgroundColor: '#d63031',
-                            color: 'white',
-                            border: 'none',
-                            padding: '5px 10px',
-                          }}
-                          onClick={() => handleDeleteClient(client?.clientId)}
-                        >
-                          <MdDelete />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-        {clientsState.length == 0 && <NoContent text="No Clients found." />}
+        <ClientsTable
+          rows={clients}
+          columns={PeopleColumns}
+          onDelete={handleDeleteClient}
+          onEdit={handelUpdateClientModal}
+        />
       </div>
     </>
   )

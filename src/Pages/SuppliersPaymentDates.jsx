@@ -1,16 +1,19 @@
 import { useState } from 'react'
-import { IoIosArrowBack } from 'react-icons/io'
+import { IoIosAdd, IoIosArrowBack } from 'react-icons/io'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import supplierPaymentDateService from '../Services/supplierPaymentDate'
 import { PaymentDatesColumns } from '../Constants/TablesColumns'
-import SupplierPaymentDatesTable from '../components/Tables/SupplierPaymentDatesTable'
+import { SupplierPaymentDatesTable } from '../components/Tables'
 import PaymentDateImg from '../assets/payroll.png'
-import { PAYMENT_Date } from '../Constants/Variables'
+import { MODE, PAYMENT_Date } from '../Constants/Variables'
 import { useQuery } from '@tanstack/react-query'
+import { REACT_QUERY_NAME } from '../Constants/Variables'
+import { Modal } from '../components/UI'
+import { AddEditPaymentDateForm } from '../components/Forms'
 
 const SuppliersPaymentDatesQuery = {
-  queryKey: ['SuppliersPaymentDatesQuery'],
+  queryKey: [REACT_QUERY_NAME.SUPPLIERS_PAYMENTDATE],
   queryFn: async () => {
     try {
       const [todayResults, oldResults, closerResults] = await Promise.all([
@@ -51,8 +54,39 @@ const SuppliersPaymentDates = () => {
   const [oldPaymentDate, setOldPaymentDate] = useState(old)
   const [closerPaymentDate, setCloserPaymentDate] = useState(closer)
 
+  const [mode, setMode] = useState(MODE.ADD)
+  const [isModalOpen, setModalOpen] = useState(false)
+
   const [activePaymentDate, setActivePaymentDate] = useState(toDayPaymentDate)
   const [activeTitle, setActiveTitle] = useState(PAYMENT_Date.TODAY)
+  // ==============[ Privet Methods ]==================
+  // ================[ Handel UI ]=====================
+
+  const handelAddPaymentDateModal = () => {
+    setMode(MODE.ADD)
+    handleOpenModal()
+  }
+
+  const handelUpdatePaymentDateModal = (paymentDate) => {
+    setMode(MODE.UPDATE)
+    //  setCurrentPerson(person)
+
+    handleOpenModal()
+    console.log(paymentDate)
+  }
+  const handleOpenModal = () => {
+    setModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setModalOpen(false)
+  }
+  // ==============[ Action Methods ]==================
+  const handleSubmit = () => {}
+
+  const handelDelete = (paymentDateId) => {
+    return console.log(paymentDateId)
+  }
 
   const goBack = () => {
     navigate(-1) // الرجوع إلى الصفحة السابقة
@@ -107,11 +141,18 @@ const SuppliersPaymentDates = () => {
     setActiveTitle(PAYMENT_Date.CLOSER)
   }
 
-
   return (
     <>
+      <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
+        <AddEditPaymentDateForm
+          onSubmit={handleSubmit}
+          title={'Supplier PaymentDate'}
+          buttonText={'PaymentDate'}
+          mode={mode}
+        />
+      </Modal>
       <div className="page-section">
-        <button className='btn-back' onClick={goBack}>
+        <button className="btn-back" onClick={goBack}>
           <IoIosArrowBack />
         </button>
         <div className="center section-logo">
@@ -120,6 +161,10 @@ const SuppliersPaymentDates = () => {
         </div>
       </div>
       <div className="page-section">
+        <button className="btn btn-add" onClick={handelAddPaymentDateModal}>
+          <IoIosAdd />
+          <span>Add Payment Date</span>
+        </button>
         <div className="tab-wrap">
           <input
             type="radio"
@@ -176,6 +221,8 @@ const SuppliersPaymentDates = () => {
             <SupplierPaymentDatesTable
               columns={PaymentDatesColumns}
               rows={activePaymentDate}
+              onDelete={handelDelete}
+              onEdit={handelUpdatePaymentDateModal}
             />
           </div>
         </div>

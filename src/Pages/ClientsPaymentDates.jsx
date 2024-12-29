@@ -1,16 +1,19 @@
-import { IoIosArrowBack } from 'react-icons/io'
+import { IoIosAdd, IoIosArrowBack } from 'react-icons/io'
 import { useNavigate } from 'react-router-dom'
-import ClientPaymentDatesTable from '../components/Tables/ClientPaymentDatesTable'
+import { ClientPaymentDatesTable } from '../components/Tables'
 import { PaymentDatesColumns } from '../Constants/TablesColumns'
 import { useState } from 'react'
 import clientPaymentDateService from '../Services/clientPaymentDateService'
 import { toast } from 'react-toastify'
 import PaymentDateImg from '../assets/payroll.png'
-import { PAYMENT_Date } from '../Constants/Variables'
+import { MODE, PAYMENT_Date } from '../Constants/Variables'
 import { useQuery } from '@tanstack/react-query'
+import { REACT_QUERY_NAME } from '../Constants/Variables'
+import { Modal } from '../components/UI'
+import { AddEditPaymentDateForm } from '../components/Forms'
 
 const ClientPaymentDatesQuery = {
-  queryKey: ['ClientPaymentDatesTable'],
+  queryKey: [REACT_QUERY_NAME.CLIENTS_PAYMENTDATE],
   queryFn: async () => {
     try {
       const [todayResults, oldResults, closerResults] = await Promise.all([
@@ -47,9 +50,40 @@ const ClientsPaymentDates = () => {
   const [oldPaymentDate, setOldPaymentDate] = useState(old)
   const [closerPaymentDate, setCloserPaymentDate] = useState(closer)
 
+  const [mode, setMode] = useState(MODE.ADD)
+  const [isModalOpen, setModalOpen] = useState(false)
+
   const [activePaymentDate, setActivePaymentDate] = useState(toDayPaymentDate)
   const [activeTitle, setActiveTitle] = useState(PAYMENT_Date.TODAY)
 
+  // ==============[ Privet Methods ]==================
+  // ================[ Handel UI ]=====================
+
+  const handelAddPaymentDateModal = () => {
+    setMode(MODE.ADD)
+    handleOpenModal()
+  }
+
+  const handelUpdatePaymentDateModal = (paymentDate) => {
+    setMode(MODE.UPDATE)
+    //  setCurrentPerson(person)
+
+    handleOpenModal()
+    console.log(paymentDate)
+  }
+  const handleOpenModal = () => {
+    setModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setModalOpen(false)
+  }
+  // ==============[ Action Methods ]==================
+  const handleSubmit = () => {}
+
+  const handelDelete = (paymentDateId) => {
+    return console.log(paymentDateId)
+  }
   const goBack = () => {
     navigate(-1) // الرجوع إلى الصفحة السابقة
   }
@@ -83,12 +117,7 @@ const ClientsPaymentDates = () => {
       toast.error(error.message)
     }
   }
-  useEffect(() => {
-    // fetch paymentDates old, today, closer
-    fetchToDayPaymentDates()
-    fetchOldPaymentDates()
-    fetchCloserPaymentDates()
-  }, [])
+
 */
   const handelPaymentAsToDay = () => {
     setActivePaymentDate(toDayPaymentDate || [])
@@ -105,6 +134,14 @@ const ClientsPaymentDates = () => {
 
   return (
     <>
+      <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
+        <AddEditPaymentDateForm
+          onSubmit={handleSubmit}
+          title={'Client PaymentDate'}
+          buttonText={'PaymentDate'}
+          mode={mode}
+        />
+      </Modal>
       <div className="page-section">
         <button className="btn-back" onClick={goBack}>
           <IoIosArrowBack />
@@ -115,6 +152,10 @@ const ClientsPaymentDates = () => {
         </div>
       </div>
       <div className="page-section">
+        <button className="btn btn-add" onClick={handelAddPaymentDateModal}>
+          <IoIosAdd />
+          <span>Add Payment Date</span>
+        </button>
         <div className="tab-wrap">
           <input
             type="radio"
@@ -171,6 +212,8 @@ const ClientsPaymentDates = () => {
             <ClientPaymentDatesTable
               columns={PaymentDatesColumns}
               rows={activePaymentDate}
+              onDelete={handelDelete}
+              onEdit={handelUpdatePaymentDateModal}
             />
           </div>
         </div>

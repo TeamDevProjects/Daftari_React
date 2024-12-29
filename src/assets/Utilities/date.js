@@ -9,6 +9,7 @@ export const handelDateTimeFormate = (dateTime) => {
 
 export const handelDateFormate = (dateTime) => {
   // const date = new Date()
+  if (!dateTime) return ''
   const formattedDate = format(dateTime, 'dd MMM')
 
   return formattedDate

@@ -2,11 +2,11 @@ import { useCallback, useEffect, useState } from 'react'
 import { IoIosArrowBack } from 'react-icons/io'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { Modal } from '../components'
+import { Modal } from '../components/UI'
 import { LuDollarSign } from 'react-icons/lu'
 import { TransactionsColumns } from '../Constants/TablesColumns'
 import clientTransactionService from '../Services/clientTransaction'
-import ClientTransactionsTable from '../components/Tables/ClientTransactionsTable'
+import { ClientTransactionsTable } from '../components/Tables'
 import transactionImg from '../assets/cash-flow.png'
 import {
   MODE,
@@ -29,7 +29,9 @@ const ClientsTransactions = () => {
   const [currentTransaction, setCurrentTransaction] = useState(null)
 
   const navigate = useNavigate()
-
+  // ==============[ Privet Methods ]==================
+  // ================[ Handel UI ]=====================
+  // ==============[ Action Methods ]==================
   const goBack = () => {
     navigate(-1)
   }
@@ -107,7 +109,7 @@ const ClientsTransactions = () => {
       console.log(error)
       setTransactions([])
     }
-  },[])
+  }, [])
 
   const handelDeleteTransaction = async (transactionId) => {
     try {
@@ -199,7 +201,7 @@ const ClientsTransactions = () => {
             I Gave
           </div>
           <div
-            className="btn btn-withdrow"
+            className="btn btn-withdraw"
             onClick={handelAddWithdrawTransactionModal}
           >
             I Get

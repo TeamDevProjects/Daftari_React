@@ -1,12 +1,10 @@
 /* eslint-disable react/prop-types */
-import { MdDelete } from 'react-icons/md'
 import { handelDateTimeFormate } from '../../assets/Utilities/date'
 import { LuDollarSign } from 'react-icons/lu'
-import { FaUserEdit } from 'react-icons/fa'
-import NoContent from '../Common/NoContent'
+import { NoContent } from '../Common'
 import { useState } from 'react'
-import Modal from '../Modal'
-
+import { Modal } from '../UI'
+import { DeleteBtn, EditBtn } from '../Buttons'
 const SupplierTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
   // rowPaymentDateId
   // name
@@ -16,7 +14,7 @@ const SupplierTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
   // phone
   // clientId
   // userId
-const [isModalOpen, setModalOpen] = useState(false)
+  const [isModalOpen, setModalOpen] = useState(false)
   const [currentImg, setCurrentImg] = useState(false)
   const handleOpenModal = () => {
     setModalOpen(true)
@@ -29,6 +27,8 @@ const [isModalOpen, setModalOpen] = useState(false)
     handleOpenModal()
     setCurrentImg({ imageType, imageData })
   }
+
+  
   if (!columns || !rows || rows.length == 0)
     return <NoContent text="no Transactions yet !" />
 
@@ -53,7 +53,7 @@ const [isModalOpen, setModalOpen] = useState(false)
               {columns.map((col, index) => (
                 <th key={index}>{col}</th>
               ))}
-              {<th>Actions</th>}
+              {(onEdit || onDelete) && <th>Actions</th>}
             </tr>
           </thead>
           <tbody>
@@ -108,39 +108,19 @@ const [isModalOpen, setModalOpen] = useState(false)
                   )) ||
                     '-'}
                 </td>
-                {
+                {(onEdit || onDelete) && (
                   <td>
                     <div className="flex">
-                      {onEdit && (
-                        <button
-                          style={{
-                            marginRight: '5px',
-                            backgroundColor: '#00b894',
-                            color: 'white',
-                            border: 'none',
-                            padding: '5px 10px',
-                          }}
-                          onClick={() => onEdit(row)}
-                        >
-                          <FaUserEdit />
-                        </button>
-                      )}
+                      {onEdit && <EditBtn onEdit={onEdit} row={row} />}
                       {onDelete && (
-                        <button
-                          style={{
-                            backgroundColor: '#d63031',
-                            color: 'white',
-                            border: 'none',
-                            padding: '5px 10px',
-                          }}
-                          onClick={() => onDelete(row.supplierTransactionId)}
-                        >
-                          <MdDelete />
-                        </button>
+                        <DeleteBtn
+                          onDelete={onDelete}
+                          rowId={row.supplierTransactionId}
+                        />
                       )}
                     </div>
                   </td>
-                }
+                )}
               </tr>
             ))}
           </tbody>

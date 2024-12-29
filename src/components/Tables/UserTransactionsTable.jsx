@@ -1,21 +1,22 @@
 /* eslint-disable react/prop-types */
-import { MdDelete } from 'react-icons/md'
 import { handelDateTimeFormate } from '../../assets/Utilities/date'
 import { LuDollarSign } from 'react-icons/lu'
-import { FaUserEdit } from 'react-icons/fa'
-import NoContent from '../Common/NoContent'
-import Modal from '../Modal'
+import { NoContent } from '../Common'
+import { Modal } from '../UI'
 import { useState } from 'react'
+import { EditBtn, DeleteBtn } from '../Buttons'
+
+// UserId
+// UserTransactionId
+// TransactionTypeName
+// TransactionDate
+// Amount
+// Notes
+// ImageData
+// ImageType
 
 const UserTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
-  // UserId
-  // UserTransactionId
-  // TransactionTypeName
-  // TransactionDate
-  // Amount
-  // Notes
-  // ImageData
-  // ImageType
+  
   const [isModalOpen, setModalOpen] = useState(false)
   const [currentImg, setCurrentImg] = useState(false)
   const handleOpenModal = () => {
@@ -54,7 +55,7 @@ const UserTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
               {columns.map((col, index) => (
                 <th key={index}>{col}</th>
               ))}
-              {<th>Actions</th>}
+              {(onEdit || onDelete) && <th>Actions</th>}
             </tr>
           </thead>
           <tbody>
@@ -109,39 +110,19 @@ const UserTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
                   )) ||
                     '-'}
                 </td>
-                {
+                {(onEdit || onDelete) && (
                   <td>
                     <div className="flex">
-                      {onEdit && (
-                        <button
-                          style={{
-                            marginRight: '5px',
-                            backgroundColor: '#00b894',
-                            color: 'white',
-                            border: 'none',
-                            padding: '5px 10px',
-                          }}
-                          onClick={() => onEdit(row)}
-                        >
-                          <FaUserEdit />
-                        </button>
-                      )}
+                      {onEdit && <EditBtn onEdit={onEdit} row={row} />}
                       {onDelete && (
-                        <button
-                          style={{
-                            backgroundColor: '#d63031',
-                            color: 'white',
-                            border: 'none',
-                            padding: '5px 10px',
-                          }}
-                          onClick={() => onDelete(row.userTransactionId)}
-                        >
-                          <MdDelete />
-                        </button>
+                        <DeleteBtn
+                          onDelete={onDelete}
+                          rowId={row.userTransactionId}
+                        />
                       )}
                     </div>
                   </td>
-                }
+                )}
               </tr>
             ))}
           </tbody>

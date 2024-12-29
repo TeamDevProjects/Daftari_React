@@ -1,5 +1,6 @@
 import { useEffect, useState, useReducer, useCallback } from 'react'
-import { FormInput, FormSelect, SubmitBtn } from '../components/index'
+import { FormInput, FormSelect } from '../components/UI'
+import { SubmitBtn } from '../components/Buttons'
 import { Form, Link, useNavigate } from 'react-router-dom'
 import { GetBusinessTypes } from '../Services/businessType'
 import { GetSectors } from '../Services/sector'
@@ -38,7 +39,6 @@ const reducer = (state, action) => {
   }
 }
 
-
 // Validation function
 const validate = (state) => {
   const errors = {} // !''  = true
@@ -59,7 +59,6 @@ const validate = (state) => {
 
   return errors
 }
-
 
 const validatePhone = (phone) => {
   const re = /^[0-9]{11}$/

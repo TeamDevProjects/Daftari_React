@@ -17,7 +17,18 @@ export const PAYMENT_Date = {
   TODAY: 'ToDay',
   CLOSER: 'Closer',
 }
-export const UI_TEXT={
-  GEV:'',
-  GET:''
+
+export const REACT_QUERY_NAME = {
+  SUPPLIERS: 'suppliersTable',
+  CLIENTS: 'clientsTable',
+  USER_TRANSACTIONS: 'userTransactionsTable',
+  CLIENT_TRANSACTIONS: 'clientTransactionsTable',
+  SUPPLIER_TRANSACTIONS: 'supplierTransactionsTable',
+  CLIENTS_PAYMENTDATE: 'clientPaymentDatesTable',
+  SUPPLIERS_PAYMENTDATE: 'supplierPaymentDatesTable',
+}
+
+export const UI_TEXT = {
+  I_GIVE: 'I Give',
+  I_GET: 'I Get',
 }
