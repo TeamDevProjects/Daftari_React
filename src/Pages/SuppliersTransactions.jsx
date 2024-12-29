@@ -1,12 +1,12 @@
 import { IoIosArrowBack } from 'react-icons/io'
 import { LuDollarSign } from 'react-icons/lu'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Modal } from '../components'
+import { Modal } from '../components/UI'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { TransactionsColumns } from '../Constants/TablesColumns'
 import SupplierTransactionService from '../Services/supplierTransaction'
-import SupplierTransactionsTable from '../components/Tables/SupplierTransactionsTable'
+import {SupplierTransactionsTable} from '../components/Tables'
 import transactionImg from '../assets/cash-flow.png'
 import {
   MODE,
@@ -29,7 +29,9 @@ const SuppliersTransactions = () => {
   const [currentTransaction, setCurrentTransaction] = useState(null)
 
   const navigate = useNavigate()
-
+  // ==============[ Privet Methods ]==================
+  // ================[ Handel UI ]=====================
+  // ==============[ Action Methods ]==================
   const goBack = () => {
     navigate(-1)
   }
@@ -195,7 +197,7 @@ const SuppliersTransactions = () => {
             I Gave
           </div>
           <div
-            className="btn btn-withdrow"
+            className="btn btn-withdraw"
             onClick={handelAddWithdrawTransactionModal}
           >
             I Get

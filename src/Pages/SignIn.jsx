@@ -2,8 +2,8 @@ import { Form, Link, redirect } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import userServices from '../Services/user'
 import authService from '../Services/authService'
-import { FormInput, SubmitBtn } from '../components/index'
-
+import { FormInput } from '../components/UI'
+import { SubmitBtn } from '../components/Buttons'
 // Action function for form submission
 // eslint-disable-next-line react-refresh/only-export-components
 export const action = async ({ request }) => {
@@ -39,7 +39,6 @@ export const action = async ({ request }) => {
 
 // SignIn Component
 const SignIn = () => {
-  
   return (
     <section className="register-container">
       <Form method="POST" className="register-form">

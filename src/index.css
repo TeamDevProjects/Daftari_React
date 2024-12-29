@@ -9,7 +9,7 @@
 }
 
 html {
-  font-size: 100%; 
+  font-size: 100%;
   /* 100% */
 } /*16px*/
 
@@ -606,7 +606,7 @@ td.td-notes {
   width: 100vw;
   height: 100vh;
   background: rgba(0, 0, 0, 0.7);
-  z-index: 100;
+  z-index: 110;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -677,8 +677,7 @@ td.td-notes {
 
 .clear-btn:hover {
   color: var(--grey-400);
-    background-color: var(--grey-50);
-
+  background-color: var(--grey-50);
 }
 .btn-container {
   display: flex;
@@ -714,7 +713,7 @@ td.td-notes {
 }
 
 .btn-payment,
-.btn-withdrow {
+.btn-withdraw {
   padding: 0.75rem 2rem;
 }
 .btn-payment {
@@ -722,7 +721,7 @@ td.td-notes {
   color: var(--red-dark);
   border: 1px solid var(--red-dark);
 }
-.btn-withdrow {
+.btn-withdraw {
   background: var(--green-light);
   color: var(--green-dark);
   border: 1px solid var(--green-dark);
@@ -732,7 +731,7 @@ td.td-notes {
   background: var(--red-dark);
   color: var(--red-light);
 }
-.btn-withdrow:hover {
+.btn-withdraw:hover {
   background: var(--green-dark);
   color: var(--green-light);
 }
@@ -776,7 +775,7 @@ td.td-notes {
 
 /* scroll bar */
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(90deg, #ff7e5f, #feb47b); /* لون متدرج */
+  background: linear-gradient(90deg, #ff7e5f, #feb47b);
   border-radius: 0.6rem;
 }
 
@@ -944,7 +943,7 @@ td.td-notes {
 .filter-form > li {
   background: var(--primary-200);
   color: var(--primary-800);
-  font-size: .8rem;
+  font-size: 0.8rem;
   font-weight: 600;
   width: fit-content;
   padding: 0.5rem 0.7rem;
@@ -968,7 +967,7 @@ td.td-notes {
   position: relative;
   list-style: none;
   background-color: #fff;
-  margin: 40px 0;
+  margin: 15px 0;
   /* box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24); */
 }
 .tab-wrap:hover {

@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { Form } from 'react-router-dom'
-import FormInput from '../FormInput'
-import SubmitBtn from '../SubmitBtn'
+import { FormInput } from '../UI'
+import SubmitBtn from '../Buttons/SubmitBtn'
 import { useReducer } from 'react'
 // Initial state for the form
 const initialState = {

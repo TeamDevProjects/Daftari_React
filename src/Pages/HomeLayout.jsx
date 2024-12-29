@@ -1,11 +1,11 @@
 import { Outlet, useNavigation, useNavigate } from 'react-router-dom'
-import { Navbar } from '../components'
+import { Navbar } from '../Layouts'
 import { useContext, useEffect, useState } from 'react'
 import userServices from '../Services/user'
 import { useUser } from '../Context/userContext'
 import authService from '../Services/authService'
 import NetworkContext from '../Context/NetworkContext' // Import your NetworkContext
-import ServerError from '../components/Common/ServerError'
+import { ServerError } from '../components/Common'
 
 const HomeLayout = () => {
   const navigation = useNavigation()
@@ -46,7 +46,6 @@ const HomeLayout = () => {
     const checkLoginAndFetchUser = async () => {
       const isLogin = isUserLogin()
 
-
       if (!isLogin) {
         if (user) {
           setUser(null)
@@ -55,13 +54,12 @@ const HomeLayout = () => {
         return
       }
 
-      
       // is isLogin try fetch user
       await fetchCurrentUserInf()
     }
 
     checkLoginAndFetchUser()
-  }, [ navigate, isServerError])
+  }, [navigate, isServerError])
 
   if (isServerError) {
     return (

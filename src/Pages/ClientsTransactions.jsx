@@ -2,11 +2,11 @@ import { useState } from 'react'
 import { IoIosArrowBack } from 'react-icons/io'
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { Modal } from '../components'
+import { Modal } from '../components/UI'
 import { LuDollarSign } from 'react-icons/lu'
 import { TransactionsColumns } from '../Constants/TablesColumns'
 import clientTransactionService from '../Services/clientTransaction'
-import ClientTransactionsTable from '../components/Tables/ClientTransactionsTable'
+import { ClientTransactionsTable } from '../components/Tables'
 import transactionImg from '../assets/cash-flow.png'
 import {
   MODE,
@@ -75,7 +75,9 @@ const ClientsTransactions = () => {
   const [currentTransaction, setCurrentTransaction] = useState(null)
 
   const navigate = useNavigate()
-
+  // ==============[ Privet Methods ]==================
+  // ================[ Handel UI ]=====================
+  // ==============[ Action Methods ]==================
   const goBack = () => {
     navigate(-1)
   }
@@ -121,6 +123,40 @@ const ClientsTransactions = () => {
     }
     setModalOpen(false)
   }
+
+/*   const fetchTransactions = async () => {
+    try {
+      // supplierId
+      const results = await clientTransactionService.GetAll(clientId)
+      if (!results) {
+        toast.error("Can't load client transactions")
+        return
+      }
+      setTransactions(results)
+
+      const totalPaymentResult = results.reduce(
+        (total, transaction) =>
+          transaction.transactionTypeName == TRANSACTION_TYPE_NAME.PAYMENT
+            ? total + transaction.amount
+            : total,
+        0
+      )
+
+      const totalWithdrawResult = results.reduce(
+        (total, transaction) =>
+          transaction.transactionTypeName == TRANSACTION_TYPE_NAME.WITHDRAW
+            ? total + transaction.amount
+            : total,
+        0
+      )
+
+      setTotalPayment(totalPaymentResult)
+      setTotalWithdraw(totalWithdrawResult)
+    } catch (error) {
+      console.log(error)
+      setTransactions([])
+    }
+  } */
 
   const handelDeleteTransaction = async (transactionId) => {
     try {

@@ -26,9 +26,12 @@ import { loader as LoaderClientsTransactions } from './Pages/ClientsTransactions
 
 import authService from './Services/authService'
 import { useEffect, useState, useCallback } from 'react'
-import { ErrorElement } from './components'
+import { ErrorElement } from './components/Common'
+// import NoWifi from './components/Common/NoWifi'
+// import NetworkContext from './Context/NetworkContext'
+// import NetworkContext from './Context/NetworkContext'
 
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5,
