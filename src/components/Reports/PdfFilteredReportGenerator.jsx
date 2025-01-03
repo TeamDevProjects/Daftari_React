@@ -1,18 +1,20 @@
 /* eslint-disable react/prop-types */
 import { AiOutlineFilePdf } from 'react-icons/ai'
-import { generatePDF } from '../../assets/Utilities/generatePDF'
+import { generatePersonPDF } from '../../assets/Utilities/generatePersonPDF'
 
 const PdfFilteredReportGenerator = ({
   title,
-  subtitle,
+  give,
+  get,
   columns,
   rows,
-  footer,
 }) => {
   return (
     <button
       className="btn btn-add"
-      onClick={() => generatePDF(title, subtitle, columns, rows, footer)}
+      onClick={() =>
+        generatePersonPDF(title, give, get, columns, rows)
+      }
     >
       <AiOutlineFilePdf />
     </button>

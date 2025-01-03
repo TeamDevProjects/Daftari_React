@@ -3,6 +3,7 @@ import { Form } from 'react-router-dom'
 import { SubmitBtn } from '../Buttons'
 import { FormTextarea, FormDatePicker } from '../UI'
 import { useReducer } from 'react'
+
 // Initial state for the form
 const initialState = {
   dateOfPayment: new Date(),
@@ -21,55 +22,62 @@ const reducer = (state, action) => {
       return state
   }
 }
+
 const AddEditPaymentDateForm = ({
   onSubmit,
   title,
   buttonText,
   mode,
-  clientId,
   currentPaymentDate,
 }) => {
-  const [state, dispatch] = useReducer(
-    reducer,
-    currentPaymentDate || initialState
-  )
+  // Initialize state with a proper merge of initialState and currentPaymentDate
+  const [state, dispatch] = useReducer(reducer, {
+    ...initialState,
+    ...currentPaymentDate,
+  })
 
+  // Handle input changes for text fields
   const handleChange = (e) => {
     const { name, value } = e.target
     dispatch({ type: 'SET_FIELD_VALUE', field: name, value })
   }
 
-  const handleSelect = (date) => {
-    dispatch({ type: 'SET_FIELD_VALUE', field: 'dateOfPayment', date })
+  // Handle date selection
+  const handleSelect = (value) => {
+    dispatch({ type: 'SET_FIELD_VALUE', field: 'dateOfPayment', value })
   }
 
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    const Person = {
-      dateOfPayment: state?.dateOfPayment,
-      notes: state?.notes.trim(),
-      clientId: clientId,
+    
+    const paymentDate = {
+      dateOfPayment: state.dateOfPayment,
+      notes: state?.notes ? state?.notes?.trim() : '',
     }
 
-    onSubmit(Person)
+    onSubmit(paymentDate) // Call the provided onSubmit handler
   }
+
   return (
     <>
-      <h4 className="form-title">{mode + ' ' + title}</h4>
+      <h4 className="form-title">{`${mode} ${title}`}</h4>
       <Form className="register-form" onSubmit={handleSubmit}>
+        {/* Controlled Date Picker */}
         <FormDatePicker
           onSelect={handleSelect}
-          defaultValue={state?.dateOfPayment}
+          defaultValue={state.dateOfPayment}
         />
+        {/* Controlled Textarea */}
         <FormTextarea
           label="Notes"
           name="notes"
-          defaultValue={state?.notes}
+          value={state.notes}
           onChange={handleChange}
         />
         <div className="submit-btn-container">
-          <SubmitBtn text={mode + ' ' + buttonText} />
+          <SubmitBtn text={`${mode} ${buttonText}`} />
         </div>
       </Form>
     </>

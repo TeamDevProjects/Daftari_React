@@ -95,7 +95,7 @@ function App() {
         {
           path: 'Clients/ClientsTransactions/:clientId',
           element: <ClientsTransactions />,
-          loader: LoaderClientsTransactions(),
+          loader: LoaderClientsTransactions,
           errorElement: <ErrorElement />,
         },
         {

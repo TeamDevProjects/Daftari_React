@@ -1,8 +1,7 @@
 import axios from 'axios'
 import authService from './authService'
 import { URL } from './constants'
-import { toast } from 'react-toastify'
-import { STATUS_CODES, STATUS_MESSAGES } from '../Constants/statusCodes'
+import { STATUS_CODES } from '../Constants/statusCodes'
 
 const apiService = axios.create({
   baseURL: URL,
@@ -13,11 +12,11 @@ apiService.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
 
-    // Handle 401 Unauthorized: attempt to refresh the access token
     if (
       error.response?.status === STATUS_CODES.UNAUTHORIZED &&
       !originalRequest._retry
     ) {
+      // Handle 401 Unauthorized: attempt to refresh the access token
       originalRequest._retry = true
       try {
         const newAccessToken = await authService.refreshAccessToken()
@@ -34,36 +33,36 @@ apiService.interceptors.response.use(
     }
 
     // Handle other errors based on status codes
-    const status = error.response?.status
-    let errorMessage = 'An error occurred'
+    // const status = error.response?.status
+    // let errorMessage = 'An error occurred'
 
     // Using switch-case to handle different status codes
-    switch (status) {
-      case STATUS_CODES.BAD_REQUEST:
-        errorMessage = STATUS_MESSAGES[STATUS_CODES.BAD_REQUEST]
-        break
-      case STATUS_CODES.UNAUTHORIZED:
-        errorMessage = STATUS_MESSAGES[STATUS_CODES.UNAUTHORIZED]
-        break
-      case STATUS_CODES.FORBIDDEN:
-        errorMessage = STATUS_MESSAGES[STATUS_CODES.FORBIDDEN]
-        break
-      case STATUS_CODES.NOT_FOUND:
-        // errorMessage = STATUS_MESSAGES[STATUS_CODES.NOT_FOUND]
-        break
-      case STATUS_CODES.INTERNAL_SERVER_ERROR:
-        // errorMessage = STATUS_MESSAGES[STATUS_CODES.INTERNAL_SERVER_ERROR]
-        break
-      case STATUS_CODES.SERVICE_UNAVAILABLE:
-        errorMessage = STATUS_MESSAGES[STATUS_CODES.SERVICE_UNAVAILABLE]
-        break
-      default:
-        errorMessage = 'Something went wrong. Please try again later.'
-        break
-    }
+    // switch (status) {
+    //   case STATUS_CODES.BAD_REQUEST:
+    //     errorMessage = STATUS_MESSAGES[STATUS_CODES.BAD_REQUEST]
+    //     break
+    //   case STATUS_CODES.UNAUTHORIZED:
+    //     errorMessage = STATUS_MESSAGES[STATUS_CODES.UNAUTHORIZED]
+    //     break
+    //   case STATUS_CODES.FORBIDDEN:
+    //     errorMessage = STATUS_MESSAGES[STATUS_CODES.FORBIDDEN]
+    //     break
+    //   case STATUS_CODES.NOT_FOUND:
+    //     // errorMessage = STATUS_MESSAGES[STATUS_CODES.NOT_FOUND]
+    //     break
+    //   case STATUS_CODES.INTERNAL_SERVER_ERROR:
+    //     // errorMessage = STATUS_MESSAGES[STATUS_CODES.INTERNAL_SERVER_ERROR]
+    //     break
+    //   case STATUS_CODES.SERVICE_UNAVAILABLE:
+    //     errorMessage = STATUS_MESSAGES[STATUS_CODES.SERVICE_UNAVAILABLE]
+    //     break
+    //   default:
+    //     errorMessage = 'Something went wrong. Please try again later.'
+    //     break
+    // }
 
     // Show a toast error message
-    toast.error(errorMessage)
+    // toast.error(errorMessage)
 
     return Promise.reject(error)
   }

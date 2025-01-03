@@ -6,19 +6,16 @@ import { CiCalendarDate } from 'react-icons/ci'
 import { IoIosAdd } from 'react-icons/io'
 import { toast } from 'react-toastify'
 import clientServices from '../Services/client.js'
-import {
-  handelDateFormate,
-  handelDateTimeFormate,
-} from '../assets/Utilities/date'
+import { handelDateFormate } from '../assets/Utilities/date'
 import clientImg from '../assets/client.png'
 import {
   PdfFilteredReportGenerator,
   PdfReportGenerator,
 } from '../components/Reports'
-import { FilterPersonForm, AddEditPersonForm } from '../components/Forms'
+import { OrderingPersonForm, AddEditPersonForm } from '../components/Forms'
 import { SearchForm, Modal } from '../components/UI/'
 import { useUser } from '../Context/userContext.jsx'
-import { MODE } from '../Constants/Variables'
+import { MODE, ORDER_PERSON_BY } from '../Constants/Variables'
 import { ReportPeopleColumns } from '../Constants/ReportColumns.js'
 import { PeopleColumns } from '../Constants/TablesColumns.js'
 import { ClientsTable } from '../components/Tables'
@@ -89,7 +86,7 @@ const Clients = () => {
   const [mode, setMode] = useState(MODE.ADD)
   const [isModalOpen, setModalOpen] = useState(false)
 
-  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
+  const [isOrderingModalOpen, setIsOrderingModalOpen] = useState(false)
   const [currentPerson, setCurrentPerson] = useState(null)
 
   const { user } = useUser()
@@ -166,12 +163,12 @@ const Clients = () => {
     setModalOpen(false)
   }
 
-  const handelOpenFilterModel = () => {
-    setIsFilterModalOpen(true)
+  const handelOpenOrderingModel = () => {
+    setIsOrderingModalOpen(true)
   }
 
-  const handelCloseFilterModel = () => {
-    setIsFilterModalOpen(false)
+  const handelCloseOrderingModel = () => {
+    setIsOrderingModalOpen(false)
   }
 
   // ==============[ Action Methods ]==================
@@ -194,7 +191,7 @@ const Clients = () => {
       await clientServices.Delete(clientId)
 
       setClients((prevClients) =>
-        prevClients.filter((client) => client.clientId !== clientId)
+        prevClients.Ordering((client) => client.clientId !== clientId)
       )
 
       // Refresh
@@ -208,24 +205,50 @@ const Clients = () => {
     }
   }
 
-  const handelSubmitFilter = async (filterBy) => {
-    console.log(filterBy)
+  const handelSubmitOrdering = async (orderBy) => {
+    console.log(orderBy)
+    let results
 
-    if (filterBy === 'orderByName') {
-      const results = await clientServices.GetAllOrderByName()
-      console.log(results)
-      if (Array.isArray(results) && results.length > 0) {
+    switch (orderBy) {
+      case ORDER_PERSON_BY.DEFAULT:
+        setClients(initialClients)
+        break
+      case ORDER_PERSON_BY.NAME:
+        results = await clientServices.GetAllOrderByName()
         setClients(results)
-        console.log('filtering')
-      }
-    } else if (filterBy === 'default') {
-      setClients(Clients)
+        break
+
+      case ORDER_PERSON_BY.CLOSER_PAYMENT_DATES:
+        results = await clientServices.GetAllOrderByCloserPaymentDates()
+        setClients(results)
+        break
+
+      case ORDER_PERSON_BY.OLDER_PAYMENT_DATES:
+        results = await clientServices.GetAllOrderByOldPaymentDates()
+        setClients(results)
+        break
+
+      case ORDER_PERSON_BY.LARGEST_AMOUNT:
+        results = await clientServices.GetAllOrderByLargestTotalAmount()
+        setClients(results)
+        break
+
+      case ORDER_PERSON_BY.SMALLEST_AMOUNT:
+        results = await clientServices.GetAllOrderBySmallestTotalAmount()
+        setClients(results)
+        break
+
+      default:
+        setClients(initialClients)
+        break
     }
+
+    queryClient.removeQueries(REACT_QUERY_NAME.CLIENTS)
   }
 
   const formatReportRows = (data) =>
-    data?.map((r) => [
-      r?.clientId || '-',
+    data?.map((r, index) => [
+      index + 1,
       r?.name || '-',
       r?.country || '-',
       r?.city || '-',
@@ -252,7 +275,7 @@ const Clients = () => {
   }
 
   const ReportRows = formatReportRows(initialClients)
-  const ReportFilterRows = formatReportRows(clients)
+  const ReportOrderingRows = formatReportRows(clients)
 
   return (
     <>
@@ -266,11 +289,11 @@ const Clients = () => {
           currentPerson={currentPerson}
         />
       </Modal>
-      {/* == [ Filter Clients]== */}
-      <Modal isOpen={isFilterModalOpen} onClose={handelCloseFilterModel}>
-        <FilterPersonForm
+      {/* == [ Ordering Clients]== */}
+      <Modal isOpen={isOrderingModalOpen} onClose={handelCloseOrderingModel}>
+        <OrderingPersonForm
           title={'Clients Ordering'}
-          onSubmit={handelSubmitFilter}
+          onSubmit={handelSubmitOrdering}
         />
       </Modal>
       <div className="page-section">
@@ -300,11 +323,11 @@ const Clients = () => {
         </div>
         <div className="flex center mb-1">
           <PdfReportGenerator
-            title={`Client Report`}
-            subtitle={`Generated on: ${handelDateTimeFormate(new Date())}`}
+            title={`Clients Report`}
+            get={totalPayment}
+            give={totalWithdraw}
             columns={ReportPeopleColumns}
             rows={ReportRows}
-            footer={'Generated by Daftari Management System'}
           />
           <Link to="ClientsPaymentDates">
             <button className="btn btn-paymentdate">
@@ -318,12 +341,12 @@ const Clients = () => {
         <div className="flex">
           <PdfFilteredReportGenerator
             title={`Client Report`}
-            subtitle={`Generated on: ${handelDateTimeFormate(new Date())}`}
+            get={totalPayment}
+            give={totalWithdraw}
             columns={ReportPeopleColumns}
-            rows={ReportFilterRows}
-            footer={'Generated by Daftari Management System'}
+            rows={ReportOrderingRows}
           />
-          <div className="btn btn-add" onClick={handelOpenFilterModel}>
+          <div className="btn btn-add" onClick={handelOpenOrderingModel}>
             <MdOutlineSettingsInputComponent />
           </div>
           <button className="btn btn-add" onClick={handelAddClientModal}>

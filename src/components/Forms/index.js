@@ -1,4 +1,4 @@
-export { default as FilterPersonForm } from './FilterPersonForm'
+export { default as OrderingPersonForm } from './OrderingPersonForm'
 export { default as AddEditPersonForm } from './AddEditPersonForm'
 export { default as AddEditPaymentDateForm } from './AddEditPaymentDateForm'
 export { default as AddEditUserTransactionForm } from './AddEditUserTransactionForm'

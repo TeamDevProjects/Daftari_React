@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { TransactionsColumns } from '../Constants/TablesColumns'
 import SupplierTransactionService from '../Services/supplierTransaction'
-import {SupplierTransactionsTable} from '../components/Tables'
+import { SupplierTransactionsTable } from '../components/Tables'
 import transactionImg from '../assets/cash-flow.png'
 import {
   MODE,
@@ -15,6 +15,9 @@ import {
 } from '../Constants/Variables'
 import { useCallback } from 'react'
 import AddEditSupplierTransactionForm from '../components/Forms/AddEditSupplierTransactionForm'
+import { handelDateFormate } from '../assets/Utilities/date'
+import { ReportTransactionsColumns } from '../Constants/ReportColumns'
+import PdfSupplierTransactionReportGenerator from '../components/Reports/PdfSupplierTransactionReportGenerator'
 
 const SuppliersTransactions = () => {
   const { supplierId } = useParams()
@@ -132,7 +135,13 @@ const SuppliersTransactions = () => {
     handleOpenModal()
     setCurrentTransaction(transaction)
   }
-
+  const TransactionsReportRows = transactions.map((r, index) => [
+    index + 1,
+    handelDateFormate(r?.transactionDate) || '-',
+    r?.transactionTypeName || '-',
+    r?.amount || '-',
+    r?.notes || '-',
+  ])
   return (
     <>
       <div className="page-section">
@@ -156,6 +165,17 @@ const SuppliersTransactions = () => {
           transactionTypeId={transactionTypeId}
         />
       </Modal>
+      <div className="page-section">
+        <PdfSupplierTransactionReportGenerator
+          title={`Supplier transactions Report`}
+          columns={ReportTransactionsColumns}
+          get={totalPayment}
+          give={totalWithdraw}
+          rows={TransactionsReportRows}
+          supplierName={supplierId}
+          supplierPhone={supplierId}
+        />
+      </div>
       <div className="page-section">
         <div className="flex center amount-container">
           <div className="red-box">

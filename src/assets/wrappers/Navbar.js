@@ -24,7 +24,7 @@ const Wrapper = styled.nav`
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    margin-top: 1rem;
+    margin-top: 0rem;
     font-size: 1rem;
     overflow: hidden;
   }

@@ -91,7 +91,7 @@ const ClientTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
                     {row.amount}
                   </div>
                 </td>
-                <td>
+                <td className='td-date'>
                   {handelDateTimeFormate(row.transactionDate || new Date()) ||
                     '-'}
                 </td>
@@ -104,7 +104,7 @@ const ClientTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
                     })
                   }
                 >
-                  {(row.imageType && (
+                  {(row?.imageType && row?.imageType != 'None' && (
                     <img
                       style={{ width: '4rem' }}
                       src={`data:${row.imageType};base64,${row.imageData}`}
@@ -112,18 +112,19 @@ const ClientTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
                   )) ||
                     '-'}
                 </td>
-                {(onEdit ||
-                onDelete )&&(<td>
-                  <div className="flex">
-                    {onEdit && <EditBtn onEdit={onEdit} row={row} />}
-                    {onDelete && (
-                      <DeleteBtn
-                        onDelete={onDelete}
-                        rowId={row.clientTransactionId}
-                      />
-                    )}
-                  </div>
-                </td>)}
+                {(onEdit || onDelete) && (
+                  <td>
+                    <div className="flex">
+                      {onEdit && <EditBtn onEdit={onEdit} row={row} />}
+                      {onDelete && (
+                        <DeleteBtn
+                          onDelete={onDelete}
+                          rowId={row.clientTransactionId}
+                        />
+                      )}
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

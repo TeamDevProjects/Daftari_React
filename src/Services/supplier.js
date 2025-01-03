@@ -19,11 +19,75 @@ const SupplierServices = {
   GetAllOrderByName: async () => {
     try {
       const token = authService.getAccessToken()
-      const response = await apiService.get(`/api/Suppliers/orderByName`, {
+      const response = await apiService.get(`/api/Suppliers/orderBy/Name`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+  GetAllOrderByOldPaymentDates: async () => {
+    try {
+      const token = authService.getAccessToken()
+      const response = await apiService.get(
+        `/api/Suppliers/orderBy/OlderPaymentDates`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+  GetAllOrderByCloserPaymentDates: async () => {
+    try {
+      const token = authService.getAccessToken()
+      const response = await apiService.get(
+        `/api/Suppliers/orderBy/CloserPaymentDates`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+  GetAllOrderByLargestTotalAmount: async () => {
+    try {
+      const token = authService.getAccessToken()
+      const response = await apiService.get(
+        `/api/Suppliers/orderBy/LargestTotalAmount`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+  GetAllOrderBySmallestTotalAmount: async () => {
+    try {
+      const token = authService.getAccessToken()
+      const response = await apiService.get(
+        `/api/Suppliers/orderBy/SmallestTotalAmount`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
       return response.data
     } catch (error) {
       throw error
