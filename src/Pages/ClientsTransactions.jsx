@@ -15,13 +15,10 @@ import {
 } from '../Constants/Variables'
 import AddEditClientTransactionForm from '../components/Forms/AddEditClientTransactionForm'
 
-export const loader = async () => {
+export const loader = async ({ params }) => {
+  const { clientId } = params
   try {
-    const url = window.location.pathname
-    const segments = url.split('/')
-    const id = segments[segments.length - 1]
-
-    const transactionsResults = await clientTransactionService.GetAll(id)
+    const transactionsResults = await clientTransactionService.GetAll(clientId)
 
     if (!transactionsResults) {
       throw new Error("Can't load client transactions")
@@ -57,8 +54,6 @@ export const loader = async () => {
     }
   }
 }
-
-
 
 const ClientsTransactions = () => {
   const { clientId } = useParams()
@@ -103,60 +98,63 @@ const ClientsTransactions = () => {
   }
 
   const handleSubmit = async (transaction) => {
-    if (mode === MODE.ADD) {
-      await clientTransactionService.Add(transaction)
-      setTransactions((prevTransactions) => [...prevTransactions, transaction])
-      toast.success('Client transaction added successfully')
-    } else if (mode === MODE.UPDATE) {
-      await clientTransactionService.Update(
-        transaction,
-        currentTransaction?.clientTransactionId
-      )
-      setTransactions((prevTransactions) =>
-        prevTransactions.map((t) =>
+    try {
+      let updatedTransactions
+
+      if (mode === MODE.ADD) {
+        // Add the transaction to the backend
+        await clientTransactionService.Add(transaction)
+
+        // Optimistically add the new transaction to the transactions list
+        updatedTransactions = [...transactions, transaction]
+
+        toast.success('Client transaction added successfully')
+      } else if (mode === MODE.UPDATE) {
+        // Update the transaction in the backend
+        await clientTransactionService.Update(
+          transaction,
+          currentTransaction?.clientTransactionId
+        )
+
+        // Update the transaction in the transactions list
+        updatedTransactions = transactions.map((t) =>
           t.clientTransactionId === currentTransaction?.clientTransactionId
             ? { ...t, ...transaction }
             : t
         )
-      )
-      toast.success('Client transaction updated successfully')
-    }
-    setModalOpen(false)
-  }
 
-/*   const fetchTransactions = async () => {
-    try {
-      // supplierId
-      const results = await clientTransactionService.GetAll(clientId)
-      if (!results) {
-        toast.error("Can't load client transactions")
-        return
+        toast.success('Client transaction updated successfully')
       }
-      setTransactions(results)
 
-      const totalPaymentResult = results.reduce(
-        (total, transaction) =>
-          transaction.transactionTypeName == TRANSACTION_TYPE_NAME.PAYMENT
-            ? total + transaction.amount
+      // Recalculate totals
+      const newTotalPayment = updatedTransactions.reduce(
+        (total, trans) =>
+          trans.transactionTypeName === TRANSACTION_TYPE_NAME.PAYMENT
+            ? total + trans.amount
             : total,
         0
       )
 
-      const totalWithdrawResult = results.reduce(
-        (total, transaction) =>
-          transaction.transactionTypeName == TRANSACTION_TYPE_NAME.WITHDRAW
-            ? total + transaction.amount
+      const newTotalWithdraw = updatedTransactions.reduce(
+        (total, trans) =>
+          trans.transactionTypeName === TRANSACTION_TYPE_NAME.WITHDRAW
+            ? total + trans.amount
             : total,
         0
       )
 
-      setTotalPayment(totalPaymentResult)
-      setTotalWithdraw(totalWithdrawResult)
+      // Update state
+      setTransactions(updatedTransactions)
+      setTotalPayment(newTotalPayment)
+      setTotalWithdraw(newTotalWithdraw)
+
+      // Close the modal
+      setModalOpen(false)
     } catch (error) {
-      console.log(error)
-      setTransactions([])
+      toast.error('Failed to submit client transaction')
+      console.error('Submission error:', error)
     }
-  } */
+  }
 
   const handelDeleteTransaction = async (transactionId) => {
     try {
@@ -166,12 +164,15 @@ const ClientsTransactions = () => {
           (transaction) => transaction.clientTransactionId !== transactionId
         )
       )
-      toast.success('Client transaction deleted successfully')
+
+      // Refresh
+      await _refresh()
+
+      toast.success('client transaction deleted Successfully')
     } catch (error) {
-      toast.error('Failed to delete client transaction', error.message)
+      toast.error('Failed to delete user transaction', error.message)
     }
   }
-
   const handelEditTransaction = (transaction) => {
     setMode(MODE.UPDATE)
     setCurrentTransaction(transaction)

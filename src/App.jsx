@@ -23,6 +23,7 @@ import { loader as LoaderSuppliersPaymentDates } from './Pages/SuppliersPaymentD
 import { loader as LoaderClientsPaymentDates } from './Pages/ClientsPaymentDates'
 import { loader as LoaderUser } from './Pages/User'
 import { loader as LoaderClientsTransactions } from './Pages/ClientsTransactions'
+import { loader as LoaderSuppliersTransactions } from './Pages/SuppliersTransactions'
 
 import authService from './Services/authService'
 import { useEffect, useState, useCallback } from 'react'
@@ -95,7 +96,7 @@ function App() {
         {
           path: 'Clients/ClientsTransactions/:clientId',
           element: <ClientsTransactions />,
-          loader: LoaderClientsTransactions(),
+          loader: LoaderClientsTransactions,
           errorElement: <ErrorElement />,
         },
         {
@@ -114,6 +115,7 @@ function App() {
         {
           path: 'Suppliers/SuppliersTransactions/:supplierId',
           element: <SuppliersTransactions />,
+          loader: LoaderSuppliersTransactions,
           errorElement: <ErrorElement />,
         },
         {
