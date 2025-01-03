@@ -42,7 +42,7 @@ const ClientPaymentDatesTable = ({ columns, rows, onDelete, onEdit }) => {
                 <Link onClick={goBackHandler}>{row.name || '-'}</Link>
               </td>
               <td>{row.phone || '-'}</td>
-              <td>{handelDateFormate(row.dateOfPayment) || '-'}</td>
+              <td className='td-date'>{handelDateFormate(row.dateOfPayment) || '-'}</td>
               <td>
                 <LuDollarSign />
                 {row.totalAmount}

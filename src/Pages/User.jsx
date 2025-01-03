@@ -16,6 +16,9 @@ import {
 } from '../Constants/Variables'
 import { queryClient } from '../App'
 import { REACT_QUERY_NAME } from '../Constants/Variables'
+import PdfUserTransactionReportGenerator from '../components/Reports/PdfUserTransactionReportGenerator'
+import { ReportTransactionsColumns } from '../Constants/ReportColumns'
+import { handelDateFormate } from '../assets/Utilities/date'
 
 const _getAllUserTransactions = async () => {
   return await userTransactionServices.GetAll()
@@ -217,6 +220,14 @@ const User = () => {
     setCurrentTransaction(transaction)
   }
 
+  const TransactionsReportRows = transactions.map((r, index) => [
+    index + 1,
+    handelDateFormate(r?.transactionDate) || '-',
+    r?.transactionTypeName || '-',
+    r?.amount || '-',
+    r?.notes || '-',
+  ])
+
   return (
     <>
       <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
@@ -235,6 +246,17 @@ const User = () => {
           <img src={transactionImg} alt="supplierImg!!!" />
           <p>My Transaction</p>
         </div>
+      </div>
+      <div className="page-section">
+        <PdfUserTransactionReportGenerator
+          title={`User transactions Report`}
+          columns={ReportTransactionsColumns}
+          get={totalPayment}
+          give={totalWithdraw}
+          rows={TransactionsReportRows}
+          userName={0}
+          userPhone={0}
+        />
       </div>
       <div className="page-section">
         <div className="flex center amount-container">

@@ -90,7 +90,7 @@ const SupplierTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
                     {row.amount}
                   </div>
                 </td>
-                <td>{handelDateTimeFormate(row.transactionDate) || '-'}</td>
+                <td className='td-date'>{handelDateTimeFormate(row.transactionDate) || '-'}</td>
                 <td className="td-notes">{row.notes || '-'}</td>
                 <td
                   onClick={() =>
@@ -100,7 +100,7 @@ const SupplierTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
                     })
                   }
                 >
-                  {(row.imageType && (
+                  {(row?.imageType && row?.imageType != 'None' && (
                     <img
                       style={{ width: '4rem' }}
                       src={`data:${row.imageType};base64,${row.imageData}`}

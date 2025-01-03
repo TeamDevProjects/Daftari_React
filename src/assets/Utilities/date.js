@@ -1,17 +1,24 @@
-import { format } from 'date-fns'
-export const handelDateTimeFormate = (dateTime) => {
-  // const date = new Date()
-  const formattedDate = format(dateTime, 'dd MMM HH:mm:ss')
+export const handelDateTimeFormate = (datetimeString) => {
+  const dateTime = new Date(datetimeString)
+  const formattedDate = new Intl.DateTimeFormat('en-US', {
+    day: 'numeric',
+    month: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric', // Include seconds
+    hour12: true, // Ensures AM/PM format
+  }).format(dateTime) // output :. "1/3/2025, 12:45:21 MP"
 
   return formattedDate
-  // Example Output: "05 Dec 14:15:22"
 }
 
-export const handelDateFormate = (dateTime) => {
-  // const date = new Date()
-  if (!dateTime) return ''
-  const formattedDate = format(dateTime, 'dd MMM')
-
+export const handelDateFormate = (datetimeString) => {
+  const dateTime = new Date(datetimeString)
+  const formattedDate = new Intl.DateTimeFormat('en-US', {
+    day: 'numeric',
+    month: 'numeric',
+    year: 'numeric',
+  }).format(dateTime) // output :. "1/3/2025"
   return formattedDate
-  // Example Output: "05 Dec 14:15:22"
 }

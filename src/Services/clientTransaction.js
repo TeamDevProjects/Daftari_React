@@ -50,7 +50,7 @@ const clientTransactionService = {
       if (file) {
         formData.append('formImage', file)
       } else {
-        formData.append('imageType', 'None')
+        formData.append('imageType', null)
       }
 
       const response = await apiService.post(
@@ -70,7 +70,7 @@ const clientTransactionService = {
   },
 
   Update: async (
-    { amount, notes, TransactionTypeId, file },
+    { amount, notes, file },
     clientTransactionId
   ) => {
     try {
@@ -80,13 +80,8 @@ const clientTransactionService = {
       formData.append('amount', amount)
       formData.append('notes', notes)
       formData.append('clientTransactionId', clientTransactionId)
-      formData.append('TransactionTypeId', TransactionTypeId)
 
-      if (file) {
-        formData.append('FormImage', file)
-      } else {
-        formData.append('ImageType', 'None')
-      }
+      formData.append('FormImage', file)
 
       const response = await apiService.put(
         `/api/ClientTransactions`,

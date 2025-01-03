@@ -33,7 +33,7 @@ const ClientsTable = ({ columns, rows, onEdit, onDelete }) => {
                   <td>{row?.city || '-'}</td>
                   <td>{row?.address || '-'}</td>
                   <td>{row?.phone || '-'}</td>
-                  <td>{handelDateFormate(row?.dateOfPayment) || '-'}</td>
+                  <td className='td-date'>{handelDateFormate(row?.dateOfPayment) || '-'}</td>
                   <td>{row?.totalAmount || '-'}</td>
                   <td>{row?.paymentMethodName || '-'}</td>
                   {(onEdit || onDelete) && (

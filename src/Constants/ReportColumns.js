@@ -9,3 +9,11 @@ export const ReportPeopleColumns = [
   'Amount',
   'Payment Method',
 ]
+
+export const ReportTransactionsColumns = [
+  'ID',
+  'Date',
+  'Transaction Type',
+  'Amount',
+  'Notes',
+]

@@ -47,9 +47,10 @@ const AddEditPersonForm = ({
       city: state?.city?.trim(),
       country: state?.country?.trim(),
       address: state?.address?.trim(),
-      notes: state?.notes?.trim(),
+      notes: state?.notes ? state?.notes?.trim() : '',
     }
 
+    console.log(Person)
     onSubmit(Person)
   }
   return (

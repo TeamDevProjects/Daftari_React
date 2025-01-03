@@ -2,10 +2,7 @@
 import { useState } from 'react'
 import { Link, useLoaderData } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import {
-  handelDateFormate,
-  handelDateTimeFormate,
-} from '../assets/Utilities/date'
+import { handelDateFormate } from '../assets/Utilities/date'
 import supplierImg from '../assets/supplier.png'
 import { LuDollarSign } from 'react-icons/lu'
 import {
@@ -16,11 +13,11 @@ import { CiCalendarDate } from 'react-icons/ci'
 import { IoIosAdd } from 'react-icons/io'
 import { ReportPeopleColumns } from '../Constants/ReportColumns'
 import { PeopleColumns } from '../Constants/TablesColumns'
-import { MODE } from '../Constants/Variables'
+import { MODE, ORDER_PERSON_BY } from '../Constants/Variables'
 import { useUser } from '../Context/userContext'
 import SupplierServices from '../Services/supplier'
 import { Modal, SearchForm } from '../components/UI'
-import { AddEditPersonForm, FilterPersonForm } from '../components/Forms'
+import { AddEditPersonForm, OrderingPersonForm } from '../components/Forms'
 import { SuppliersTable } from '../components/Tables'
 import { MdOutlineSettingsInputComponent } from 'react-icons/md'
 import { REACT_QUERY_NAME } from '../Constants/Variables'
@@ -78,7 +75,7 @@ const Suppliers = () => {
   const [isModalOpen, setModalOpen] = useState(false)
   const [mode, setMode] = useState(MODE.ADD)
 
-  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
+  const [isOrderingModalOpen, setIsOrderingModalOpen] = useState(false)
   const [currentPerson, setCurrentPerson] = useState(null)
 
   const { user } = useUser()
@@ -155,12 +152,12 @@ const Suppliers = () => {
     setModalOpen(false)
   }
 
-  const handelOpenFilterModel = () => {
-    setIsFilterModalOpen(true)
+  const handelOpenOrderingModel = () => {
+    setIsOrderingModalOpen(true)
   }
 
-  const handelCloseFilterModel = () => {
-    setIsFilterModalOpen(false)
+  const handelCloseOrderingModel = () => {
+    setIsOrderingModalOpen(false)
   }
 
   // ==============[ Action Methods ]==================
@@ -180,20 +177,47 @@ const Suppliers = () => {
     }
   }
 
-  const handelSubmitFilter = async (filterBy) => {
-    console.log(filterBy)
+  const handelSubmitOrdering = async (orderBy) => {
+    console.log(orderBy)
+    let results
 
-    if (filterBy == 'orderByName') {
-      const results = await SupplierServices.GetAllOrderByName()
-      console.log(results)
-      if (Array.isArray(results) && results.length > 0) {
+    switch (orderBy) {
+      case ORDER_PERSON_BY.DEFAULT:
+        setSuppliers(initialSuppliers)
+        break
+      case ORDER_PERSON_BY.NAME:
+        results = await SupplierServices.GetAllOrderByName()
         setSuppliers(results)
-        console.log('filtering')
-      }
-    } else if (filterBy == 'default') {
-      setSuppliers(suppliers)
+        break
+
+      case ORDER_PERSON_BY.CLOSER_PAYMENT_DATES:
+        results = await SupplierServices.GetAllOrderByCloserPaymentDates()
+        setSuppliers(results)
+        break
+
+      case ORDER_PERSON_BY.OLDER_PAYMENT_DATES:
+        results = await SupplierServices.GetAllOrderByOldPaymentDates()
+        setSuppliers(results)
+        break
+
+      case ORDER_PERSON_BY.LARGEST_AMOUNT:
+        results = await SupplierServices.GetAllOrderByLargestTotalAmount()
+        setSuppliers(results)
+        break
+
+      case ORDER_PERSON_BY.SMALLEST_AMOUNT:
+        results = await SupplierServices.GetAllOrderBySmallestTotalAmount()
+        setSuppliers(results)
+        break
+
+      default:
+        setSuppliers(initialSuppliers)
+        break
     }
+
+    queryClient.removeQueries(REACT_QUERY_NAME.CLIENTS)
   }
+
 
   const handleSubmit = async (supplier) => {
     if (mode === MODE.ADD) {
@@ -213,7 +237,7 @@ const Suppliers = () => {
       await SupplierServices.Delete(supplierId)
 
       setSuppliers((prevSuppliers) =>
-        prevSuppliers.filter((supplier) => supplier.supplierId !== supplierId)
+        prevSuppliers.Ordering((supplier) => supplier.supplierId !== supplierId)
       )
 
       // Refresh
@@ -226,10 +250,10 @@ const Suppliers = () => {
       toast.error('Failed to delete Supplier.')
     }
   }
-  
+
   const formatReportRows = (data) =>
-    data.map((r) => [
-      r.supplierId || '-', // ID
+    data.map((r, index) => [
+      index + 1, // ID
       r.name || '-', // Name
       r.country || '-', // Country
       r.city || '-', // City
@@ -242,7 +266,7 @@ const Suppliers = () => {
 
   const ReportRows = formatReportRows(initialSuppliers)
 
-  const ReportFilterRows = formatReportRows(suppliers)
+  const ReportOrderingRows = formatReportRows(suppliers)
 
   return (
     <>
@@ -264,11 +288,11 @@ const Suppliers = () => {
           <p>Suppliers</p>
         </div>
       </div>
-      {/* == [ Filter Clients]== */}
-      <Modal isOpen={isFilterModalOpen} onClose={handelCloseFilterModel}>
-        <FilterPersonForm
+      {/* == [ Ordering Clients]== */}
+      <Modal isOpen={isOrderingModalOpen} onClose={handelCloseOrderingModel}>
+        <OrderingPersonForm
           title={'Suppliers Ordering'}
-          onSubmit={handelSubmitFilter}
+          onSubmit={handelSubmitOrdering}
         />
       </Modal>
       <div className="page-section">
@@ -291,11 +315,11 @@ const Suppliers = () => {
         </div>
         <div className="flex center mb-1">
           <PdfReportGenerator
-            title={`Supplier Report`}
-            subtitle={`Generated on: ${handelDateTimeFormate(new Date())}`}
+            title={`Suppliers Report`}
             columns={ReportPeopleColumns}
+            get={totalPayment}
+            give={totalWithdraw}
             rows={ReportRows}
-            footer={'Generated by Daftari Management System'}
           />
           <Link to="SuppliersPaymentDates">
             <button className="btn btn-paymentdate">
@@ -309,19 +333,19 @@ const Suppliers = () => {
         <div className="flex">
           <PdfFilteredReportGenerator
             title={`Supplier Report`}
-            subtitle={`Generated on: ${handelDateTimeFormate(new Date())}`}
+            get={totalPayment}
+            give={totalWithdraw}
             columns={ReportPeopleColumns}
-            rows={ReportFilterRows}
-            footer={'Generated by Daftari Management System'}
+            rows={ReportOrderingRows}
           />
-          <div className="btn btn-add" onClick={handelOpenFilterModel}>
+          <div className="btn btn-add" onClick={handelOpenOrderingModel}>
             <MdOutlineSettingsInputComponent />
           </div>
           <button className="btn btn-add" onClick={handelAddSupplierModal}>
             <IoIosAdd />
             <span>Add Supplier</span>
           </button>
-          <div className="" style={{ flex: 4 }}>
+          <div style={{ flex: 4 }}>
             <SearchForm onSubmit={handleSearch} />
           </div>
         </div>

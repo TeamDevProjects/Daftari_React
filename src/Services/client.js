@@ -20,11 +20,75 @@ const clientServices = {
   GetAllOrderByName: async () => {
     try {
       const token = authService.getAccessToken()
-      const response = await apiService.get(`/api/Clients/orderByName`, {
+      const response = await apiService.get(`/api/Clients/orderBy/Name`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+  GetAllOrderByOldPaymentDates: async () => {
+    try {
+      const token = authService.getAccessToken()
+      const response = await apiService.get(
+        `/api/Clients/orderBy/OlderPaymentDates`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+  GetAllOrderByCloserPaymentDates: async () => {
+    try {
+      const token = authService.getAccessToken()
+      const response = await apiService.get(
+        `/api/Clients/orderBy/CloserPaymentDates`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+  GetAllOrderByLargestTotalAmount: async () => {
+    try {
+      const token = authService.getAccessToken()
+      const response = await apiService.get(
+        `/api/Clients/orderBy/LargestTotalAmount`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+  GetAllOrderBySmallestTotalAmount: async () => {
+    try {
+      const token = authService.getAccessToken()
+      const response = await apiService.get(
+        `/api/Clients/orderBy/SmallestTotalAmount`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
       return response.data
     } catch (error) {
       throw error

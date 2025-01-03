@@ -12,43 +12,80 @@ import {
   MODE,
   TRANSACTION_TYPE_NAME,
   TRANSACTION_TYPE_ID,
+  REACT_QUERY_NAME,
 } from '../Constants/Variables'
 import AddEditClientTransactionForm from '../components/Forms/AddEditClientTransactionForm'
+import { queryClient } from '../App'
+import { ReportTransactionsColumns } from '../Constants/ReportColumns'
+import { handelDateFormate } from '../assets/Utilities/date'
+import PdfClientTransactionReportGenerator from '../components/Reports/PdfClientTransactionReportGenerator'
+
+const _getAllClientTransactions = async (clientId) => {
+  return await clientTransactionService.GetAll(clientId)
+}
+
+const _calcTotalPayment = (transactions) => {
+  if (!transactions || transactions.length == 0) return 0
+
+  const totalPayment = transactions.reduce(
+    (total, transaction) =>
+      transaction.transactionTypeName == TRANSACTION_TYPE_NAME.PAYMENT
+        ? total + transaction.amount
+        : total,
+    0
+  )
+  return totalPayment
+}
+
+const _calcTotalWithdraw = (transactions) => {
+  if (!transactions || transactions.length == 0) return 0
+
+  const totalWithdraw = transactions.reduce(
+    (total, transaction) =>
+      transaction.transactionTypeName === TRANSACTION_TYPE_NAME.WITHDRAW
+        ? total + transaction.amount
+        : total,
+    0
+  )
+  return totalWithdraw
+}
 
 export const loader = async ({ params }) => {
-  const { clientId } = params
   try {
-    const transactionsResults = await clientTransactionService.GetAll(clientId)
+    const id = params.clientId // استخدم الـ id من الـ params
+    console.log(id)
 
-    if (!transactionsResults) {
+    const initialTransactions = await _getAllClientTransactions(id)
+
+    if (!initialTransactions) {
       throw new Error("Can't load client transactions")
     }
 
-    const totalPaymentResult = transactionsResults.reduce(
+    const totalPaymentResult = initialTransactions.reduce(
       (total, transaction) =>
-        transaction.transactionTypeName == TRANSACTION_TYPE_NAME.PAYMENT
+        transaction.transactionTypeName === TRANSACTION_TYPE_NAME.PAYMENT
           ? total + transaction.amount
           : total,
       0
     )
 
-    const totalWithdrawResult = transactionsResults.reduce(
+    const totalWithdrawResult = initialTransactions.reduce(
       (total, transaction) =>
-        transaction.transactionTypeName == TRANSACTION_TYPE_NAME.WITHDRAW
+        transaction.transactionTypeName === TRANSACTION_TYPE_NAME.WITHDRAW
           ? total + transaction.amount
           : total,
       0
     )
 
     return {
-      transactionsResults,
+      initialTransactions,
       totalPaymentResult,
       totalWithdrawResult,
     }
   } catch (error) {
     console.error(error)
     return {
-      transactionsResults: [],
+      initialTransactions: [],
       totalPaymentResult: 0,
       totalWithdrawResult: 0,
     }
@@ -59,9 +96,9 @@ const ClientsTransactions = () => {
   const { clientId } = useParams()
 
   // Use loader data
-  const { transactionsResults, totalPaymentResult, totalWithdrawResult } =
+  const { initialTransactions, totalPaymentResult, totalWithdrawResult } =
     useLoaderData()
-  const [transactions, setTransactions] = useState(transactionsResults)
+  const [transactions, setTransactions] = useState(initialTransactions)
   const [isModalOpen, setModalOpen] = useState(false)
   const [transactionTypeId, setTransactionTypeId] = useState(0)
   const [mode, setMode] = useState(MODE.ADD)
@@ -71,8 +108,66 @@ const ClientsTransactions = () => {
 
   const navigate = useNavigate()
   // ==============[ Privet Methods ]==================
+  const _refreshTransactions = async () => {
+    try {
+      const newTransactions = await _getAllClientTransactions(clientId)
+
+      if (!newTransactions) {
+        toast.error("Can't load user transactions")
+        return
+      }
+      setTransactions(newTransactions)
+      //
+      queryClient.removeQueries(REACT_QUERY_NAME.USER_TRANSACTIONS)
+      return newTransactions
+    } catch {
+      setTransactions(initialTransactions)
+      return initialTransactions
+    }
+  }
+
+  const _refreshTotalPayment = (newTransactions) => {
+    const totalPaymentResult = _calcTotalPayment(newTransactions)
+
+    setTotalPayment(totalPaymentResult)
+  }
+
+  const _refreshTotalWithdraw = (newTransactions) => {
+    const totalWithdrawResult = _calcTotalWithdraw(newTransactions)
+
+    setTotalWithdraw(totalWithdrawResult)
+  }
+
+  const _refresh = async () => {
+    // Refresh
+    const newTransactions = await _refreshTransactions()
+    _refreshTotalPayment(newTransactions)
+    _refreshTotalWithdraw(newTransactions)
+  }
+
+  const _addTransaction = async (transaction) => {
+    try {
+      console.log('Add user transaction', transaction)
+      await clientTransactionService.Add(transaction)
+      toast.success('user transaction Added Successfully')
+    } catch (error) {
+      toast.error(error?.message)
+    }
+  }
+
+  const _updateTransaction = async (transaction) => {
+    try {
+      console.log('Edit user transaction', transaction)
+      await clientTransactionService.Update(
+        transaction,
+        currentTransaction?.clientTransactionId
+      )
+      toast.success('user transaction Updated Successfully')
+    } catch (error) {
+      toast.error(error?.message)
+    }
+  }
   // ================[ Handel UI ]=====================
-  // ==============[ Action Methods ]==================
   const goBack = () => {
     navigate(-1)
   }
@@ -96,64 +191,22 @@ const ClientsTransactions = () => {
   const handleCloseModal = () => {
     setModalOpen(false)
   }
+  // ==============[ Action Methods ]==================
 
   const handleSubmit = async (transaction) => {
-    try {
-      let updatedTransactions
-
-      if (mode === MODE.ADD) {
-        // Add the transaction to the backend
-        await clientTransactionService.Add(transaction)
-
-        // Optimistically add the new transaction to the transactions list
-        updatedTransactions = [...transactions, transaction]
-
-        toast.success('Client transaction added successfully')
-      } else if (mode === MODE.UPDATE) {
-        // Update the transaction in the backend
-        await clientTransactionService.Update(
-          transaction,
-          currentTransaction?.clientTransactionId
-        )
-
-        // Update the transaction in the transactions list
-        updatedTransactions = transactions.map((t) =>
-          t.clientTransactionId === currentTransaction?.clientTransactionId
-            ? { ...t, ...transaction }
-            : t
-        )
-
-        toast.success('Client transaction updated successfully')
-      }
-
-      // Recalculate totals
-      const newTotalPayment = updatedTransactions.reduce(
-        (total, trans) =>
-          trans.transactionTypeName === TRANSACTION_TYPE_NAME.PAYMENT
-            ? total + trans.amount
-            : total,
-        0
-      )
-
-      const newTotalWithdraw = updatedTransactions.reduce(
-        (total, trans) =>
-          trans.transactionTypeName === TRANSACTION_TYPE_NAME.WITHDRAW
-            ? total + trans.amount
-            : total,
-        0
-      )
-
-      // Update state
-      setTransactions(updatedTransactions)
-      setTotalPayment(newTotalPayment)
-      setTotalWithdraw(newTotalWithdraw)
-
-      // Close the modal
-      setModalOpen(false)
-    } catch (error) {
-      toast.error('Failed to submit client transaction')
-      console.error('Submission error:', error)
+    if (mode == MODE.ADD) {
+      await _addTransaction(transaction)
     }
+
+    // Update
+    else if (mode == MODE.UPDATE) {
+      await _updateTransaction(transaction)
+    }
+
+    // Refresh
+    await _refresh()
+
+    setModalOpen(false)
   }
 
   const handelDeleteTransaction = async (transactionId) => {
@@ -174,11 +227,19 @@ const ClientsTransactions = () => {
     }
   }
   const handelEditTransaction = (transaction) => {
+    // console.log(transaction)
     setMode(MODE.UPDATE)
-    setCurrentTransaction(transaction)
     handleOpenModal()
+    setCurrentTransaction(transaction)
   }
 
+  const TransactionsReportRows = transactions.map((r, index) => [
+    index + 1,
+    handelDateFormate(r?.transactionDate) || '-',
+    r?.transactionTypeName || '-',
+    r?.amount || '-',
+    r?.notes || '-',
+  ])
   return (
     <>
       <div className="page-section">
@@ -202,7 +263,17 @@ const ClientsTransactions = () => {
           transactionTypeId={transactionTypeId}
         />
       </Modal>
-
+      <div className="page-section">
+        <PdfClientTransactionReportGenerator
+          title={`Client transactions Report`}
+          columns={ReportTransactionsColumns}
+          get={totalPayment}
+          give={totalWithdraw}
+          rows={TransactionsReportRows}
+          clientName={clientId}
+          clientPhone={clientId}
+        />
+      </div>
       <div className="page-section">
         <div className="flex center amount-container">
           <div className="red-box">
