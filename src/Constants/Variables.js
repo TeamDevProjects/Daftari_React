@@ -1,4 +1,4 @@
-export const URL = 'http://debtmanagement.runasp.net'
+export const URL = 'https://debtmanagement.runasp.net'
 // 'https://localhost:7264'
 
 export const MODE = {
