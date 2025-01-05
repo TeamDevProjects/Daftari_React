@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import { IoIosArrowBack } from 'react-icons/io'
-import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
+import {
+  useLoaderData,
+  useLocation,
+  useNavigate,
+  useParams,
+} from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { Modal } from '../components/UI'
 import { LuDollarSign } from 'react-icons/lu'
@@ -13,6 +18,7 @@ import {
   TRANSACTION_TYPE_NAME,
   TRANSACTION_TYPE_ID,
   REACT_QUERY_NAME,
+  UI,
 } from '../Constants/Variables'
 import AddEditClientTransactionForm from '../components/Forms/AddEditClientTransactionForm'
 import { queryClient } from '../App'
@@ -20,8 +26,13 @@ import { ReportTransactionsColumns } from '../Constants/ReportColumns'
 import { handelDateFormate } from '../assets/Utilities/date'
 import PdfClientTransactionReportGenerator from '../components/Reports/PdfClientTransactionReportGenerator'
 
-const _getAllClientTransactions = async (clientId) => {
-  return await clientTransactionService.GetAll(clientId)
+const _gotAllClientTransactions = async (clientId) => {
+  try {
+    return await clientTransactionService.GetAll(clientId)
+  } catch (error) {
+    toast.error(error.message)
+    return
+  }
 }
 
 const _calcTotalPayment = (transactions) => {
@@ -52,30 +63,18 @@ const _calcTotalWithdraw = (transactions) => {
 
 export const loader = async ({ params }) => {
   try {
-    const id = params.clientId // استخدم الـ id من الـ params
-    console.log(id)
+    const { clientId } = params // استخدم الـ id من الـ params
+    console.log(clientId)
 
-    const initialTransactions = await _getAllClientTransactions(id)
+    const initialTransactions = await _gotAllClientTransactions(clientId)
 
     if (!initialTransactions) {
       throw new Error("Can't load client transactions")
     }
 
-    const totalPaymentResult = initialTransactions.reduce(
-      (total, transaction) =>
-        transaction.transactionTypeName === TRANSACTION_TYPE_NAME.PAYMENT
-          ? total + transaction.amount
-          : total,
-      0
-    )
+    const totalPaymentResult = _calcTotalPayment(initialTransactions)
 
-    const totalWithdrawResult = initialTransactions.reduce(
-      (total, transaction) =>
-        transaction.transactionTypeName === TRANSACTION_TYPE_NAME.WITHDRAW
-          ? total + transaction.amount
-          : total,
-      0
-    )
+    const totalWithdrawResult = _calcTotalWithdraw(initialTransactions)
 
     return {
       initialTransactions,
@@ -93,7 +92,11 @@ export const loader = async ({ params }) => {
 }
 
 const ClientsTransactions = () => {
+  const location = useLocation()
+  const navigate = useNavigate()
+
   const { clientId } = useParams()
+  const { clientName, clientPhone } = location.state || {} // Destructure the state
 
   // Use loader data
   const { initialTransactions, totalPaymentResult, totalWithdrawResult } =
@@ -106,11 +109,10 @@ const ClientsTransactions = () => {
   const [totalWithdraw, setTotalWithdraw] = useState(totalWithdrawResult)
   const [currentTransaction, setCurrentTransaction] = useState(null)
 
-  const navigate = useNavigate()
   // ==============[ Privet Methods ]==================
   const _refreshTransactions = async () => {
     try {
-      const newTransactions = await _getAllClientTransactions(clientId)
+      const newTransactions = await _gotAllClientTransactions(clientId)
 
       if (!newTransactions) {
         toast.error("Can't load user transactions")
@@ -118,7 +120,7 @@ const ClientsTransactions = () => {
       }
       setTransactions(newTransactions)
       //
-      queryClient.removeQueries(REACT_QUERY_NAME.USER_TRANSACTIONS)
+      queryClient.removeQueries(REACT_QUERY_NAME.CLIENT_TRANSACTIONS)
       return newTransactions
     } catch {
       setTransactions(initialTransactions)
@@ -167,6 +169,7 @@ const ClientsTransactions = () => {
       toast.error(error?.message)
     }
   }
+
   // ================[ Handel UI ]=====================
   const goBack = () => {
     navigate(-1)
@@ -220,7 +223,6 @@ const ClientsTransactions = () => {
 
       // Refresh
       await _refresh()
-
       toast.success('client transaction deleted Successfully')
     } catch (error) {
       toast.error('Failed to delete user transaction', error.message)
@@ -233,13 +235,18 @@ const ClientsTransactions = () => {
     setCurrentTransaction(transaction)
   }
 
-  const TransactionsReportRows = transactions.map((r, index) => [
-    index + 1,
-    handelDateFormate(r?.transactionDate) || '-',
-    r?.transactionTypeName || '-',
-    r?.amount || '-',
-    r?.notes || '-',
-  ])
+  const TransactionsReportRows =
+    Array.isArray(transactions) &&
+    transactions.length > 0 &&
+    transactions.map((r, index) => [
+      index + 1,
+      handelDateFormate(r?.transactionDate) || '-',
+      r?.transactionTypeName || '-',
+      r?.amount || '-',
+      r?.notes || '-',
+    ])
+
+  const balance = totalWithdraw - totalPayment
   return (
     <>
       <div className="page-section">
@@ -248,7 +255,7 @@ const ClientsTransactions = () => {
         </button>
         <div className="center section-logo">
           <img src={transactionImg} alt="transactionImg" />
-          <p>Client Transaction</p>
+          <p>{UI.HEADER.CLIENTS_TRANSACTIONS}</p>
         </div>
       </div>
 
@@ -267,36 +274,37 @@ const ClientsTransactions = () => {
         <PdfClientTransactionReportGenerator
           title={`Client transactions Report`}
           columns={ReportTransactionsColumns}
-          get={totalPayment}
-          give={totalWithdraw}
+          got={totalPayment}
+          gave={totalWithdraw}
+          balance={balance}
           rows={TransactionsReportRows}
-          clientName={clientId}
-          clientPhone={clientId}
+          clientName={clientName}
+          clientPhone={clientPhone}
         />
       </div>
       <div className="page-section">
         <div className="flex center amount-container">
           <div className="red-box">
-            <span className="amount-message">I Give</span>
+            <span className="amount-message">{UI.TEXT.I_GAVE}</span>
             <div className="amount red">
               <LuDollarSign />
-              <span className="red">{totalPayment || '00'}</span>
+              <span className="red">{totalWithdraw || '00'}</span>
             </div>
           </div>
           <div className="line"></div>
           <div className="green-box">
-            <span className="amount-message">I Get</span>
+            <span className="amount-message">{UI.TEXT.I_GOT}</span>
             <div className="amount green">
               <LuDollarSign />
-              <span>{totalWithdraw || '00'}</span>
+              <span>{totalPayment || '00'}</span>
             </div>
           </div>
         </div>
         <span className="center fs-1">
-          <span className="total-amount-title">Total Amount: </span>
+          <span className="total-amount-title">{`${UI.TEXT.GLOBAL_BALANCE} : `}</span>
           <span className="total-amount">
             <LuDollarSign />
-            {totalWithdraw - totalPayment}
+            {balance}
           </span>
         </span>
       </div>
@@ -310,16 +318,16 @@ const ClientsTransactions = () => {
         />
         <div className="flex">
           <div
-            className="btn btn-payment"
-            onClick={handelAddPaymentTransactionModal}
-          >
-            I Gave
-          </div>
-          <div
-            className="btn btn-withdraw"
+            className="btn btn-red"
             onClick={handelAddWithdrawTransactionModal}
           >
-            I Get
+            {UI.TEXT.I_GAVE}
+          </div>
+          <div
+            className="btn btn-green"
+            onClick={handelAddPaymentTransactionModal}
+          >
+            {UI.TEXT.I_GOT}
           </div>
         </div>
       </div>

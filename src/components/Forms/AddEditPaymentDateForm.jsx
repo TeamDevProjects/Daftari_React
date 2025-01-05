@@ -59,7 +59,7 @@ const AddEditPaymentDateForm = ({
 
     onSubmit(paymentDate) // Call the provided onSubmit handler
   }
-
+  
   return (
     <>
       <h4 className="form-title">{`${mode} ${title}`}</h4>

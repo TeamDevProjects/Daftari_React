@@ -1,18 +1,18 @@
 import autoTable from 'jspdf-autotable'
 import { PDF } from '../../../Constants/Variables'
 
-export const pdfGenerateTable = (pdf, position, columns,rows) => {
+export const pdfGenerateTable = (pdf, position, columns, rows) => {
   let finalY = 0
 
-   pdf.setTextColor(0, 0, 0)
-   position.positionY += PDF.marginTop_10 // 39
-   pdf.text(
-     `Rows count : ${(rows && rows.length) || 0} `,
-     PDF.marginLeft,
-     position.positionY
-   )
-   
-  position.positionY += PDF.marginTop_5
+  pdf.setTextColor(0, 0, 0)
+  position.positionY += PDF.MARGIN.TOP_10 // 39
+  pdf.text(
+    `Rows count : ${(rows && rows.length) || 0} `,
+    PDF.MARGIN.LEFT,
+    position.positionY
+  )
+
+  position.positionY += PDF.MARGIN.TOP_5
   autoTable(pdf, {
     head: [columns],
     body: rows,
@@ -26,10 +26,8 @@ export const pdfGenerateTable = (pdf, position, columns,rows) => {
       finalY = data.cursor.y // Update finalY to the current cursor position
 
       // Add footer text
-      if (PDF.footer) {
-        pdf.setFontSize(10)
-        pdf.text(PDF.footer, PDF.marginLeft, finalY + 10) // Adjust position
-      }
+      pdf.setFontSize(10)
+      pdf.text(PDF.TEXT.FOOTER, PDF.MARGIN.LEFT, finalY + 10) // Adjust position
 
       // page number
       pdf.setFontSize(10)

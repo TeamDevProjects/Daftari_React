@@ -1,7 +1,7 @@
 import axios from 'axios'
 import authService from './authService'
-import { URL } from './constants'
 import { STATUS_CODES } from '../Constants/statusCodes'
+import { URL } from '../Constants/Variables'
 
 const apiService = axios.create({
   baseURL: URL,

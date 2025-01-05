@@ -1,4 +1,3 @@
-import Wrapper from '../assets/wrappers/ErrorPage'
 import { Link, useRouteError } from 'react-router-dom'
 import img from '../assets/not-found.svg'
 const Error = () => {
@@ -6,23 +5,23 @@ const Error = () => {
   console.log(error)
   if (error.status === 404) {
     return (
-      <Wrapper>
+      <div className="error-page">
         <div>
           <img src={img} alt="not found" />
           <h3>Ohh!</h3>
           <p>We can&apos;t seem to find page you are looking for</p>
           <Link to="/">back home</Link>
         </div>
-      </Wrapper>
+      </div>
     )
   }
   return (
-    <Wrapper>
+    <div className="error-page">
       <div>
         <h3>something went wrong </h3>
         <Link to="/">back home</Link>
       </div>
-    </Wrapper>
+    </div>
   )
 }
 export default Error

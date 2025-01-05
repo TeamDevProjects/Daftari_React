@@ -1,11 +1,22 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { NoContent } from '../Common'
 import { handelDateFormate } from '../../assets/Utilities/date'
 import { DeleteBtn, EditBtn } from '../Buttons'
 
 const ClientsTable = ({ columns, rows, onEdit, onDelete }) => {
+  const navigate = useNavigate()
+  const handelNavigation = (clientId, name, phone) => {
+    // navigate to ClientsTransactions and send Date to this path
+    navigate(`ClientsTransactions/${clientId}`, {
+      state: {
+        clientName: name,
+        clientPhone: phone,
+      },
+    })
+  }
+
   if (rows?.length == 0) return <NoContent text="No Clients found." />
 
   return (
@@ -24,16 +35,22 @@ const ClientsTable = ({ columns, rows, onEdit, onDelete }) => {
               {rows?.map((row, index) => (
                 <tr key={row?.clientId || '-'}>
                   <td>{index + 1 || '-'}</td>
-                  <td>
-                    <Link to={`ClientsTransactions/${row?.clientId}`}>
+                  <td className="td-name">
+                    <span
+                      onClick={() =>
+                        handelNavigation(row?.clientId, row?.name, row?.phone)
+                      }
+                    >
                       {row?.name || '-'}
-                    </Link>
+                    </span>
                   </td>
                   <td>{row?.country || '-'}</td>
                   <td>{row?.city || '-'}</td>
                   <td>{row?.address || '-'}</td>
                   <td>{row?.phone || '-'}</td>
-                  <td className='td-date'>{handelDateFormate(row?.dateOfPayment) || '-'}</td>
+                  <td className="td-date">
+                    {handelDateFormate(row?.dateOfPayment) || '-'}
+                  </td>
                   <td>{row?.totalAmount || '-'}</td>
                   <td>{row?.paymentMethodName || '-'}</td>
                   {(onEdit || onDelete) && (

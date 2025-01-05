@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 /* eslint-disable react/prop-types */
-import {useState } from 'react'
+import { useState } from 'react'
 
 import { format, isValid, parse } from 'date-fns'
 import { DayPicker } from 'react-day-picker'
@@ -8,7 +8,6 @@ import 'react-day-picker/style.css'
 
 /** Render an input field bound to a DayPicker calendar. */
 const FormDatePicker = ({ onSelect, defaultValue }) => {
-
   // Hold the month in state to control the calendar when the input changes
   const [month, setMonth] = useState(new Date(defaultValue))
 
@@ -31,7 +30,7 @@ const FormDatePicker = ({ onSelect, defaultValue }) => {
       setSelectedDate(normalizedDate)
       setMonth(normalizedDate)
       setInputValue(format(normalizedDate, 'MM/dd/yyyy'))
-      onSelect(format(normalizedDate, 'yyyy-MM-dd')) 
+      onSelect(format(normalizedDate, 'yyyy-MM-dd'))
     }
   }
 
@@ -52,23 +51,23 @@ const FormDatePicker = ({ onSelect, defaultValue }) => {
       setSelectedDate(undefined)
     }
   }
-
+  // mb - 2
+  // fs - 2
   return (
     <div>
-      <div className="flex">
-
-      <label htmlFor="dateOfPayment">
-        <strong>Date: </strong>
-      </label>
-      <input
-        className="input input-bordered"
-        id={'dateOfPayment'}
-        type="text"
-        value={inputValue}
-        placeholder="MM/dd/yyyy"
-        onChange={handleInputChange}
+      <div className="flex mb-2">
+        <label htmlFor="dateOfPayment">
+          <strong className="fs-2">Date: </strong>
+        </label>
+        <input
+          className="input input-bordered"
+          id={'dateOfPayment'}
+          type="text"
+          value={inputValue}
+          placeholder="MM/dd/yyyy"
+          onChange={handleInputChange}
         />
-        </div>
+      </div>
       <DayPicker
         month={month}
         onMonthChange={setMonth}

@@ -1,5 +1,4 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import Wrapper from '../assets/wrappers/Navbar'
 import authService from '../Services/authService'
 import { useUser } from '../Context/userContext'
 import { FiLogOut } from 'react-icons/fi'
@@ -28,7 +27,7 @@ const Navbar = () => {
     setIsOpenNav(false)
   }
   return (
-    <Wrapper>
+    <nav className="navbar">
       <div className="nav-center">
         <span className="logo">
           <span>
@@ -62,7 +61,7 @@ const Navbar = () => {
           </button>
         </div>
       </div>
-    </Wrapper>
+    </nav>
   )
 }
 

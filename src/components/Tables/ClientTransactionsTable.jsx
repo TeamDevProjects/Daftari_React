@@ -66,19 +66,19 @@ const ClientTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
                     <span
                       className={`${
                         row?.transactionTypeName == 'Withdrawal'
-                          ? 'circle-withdrawal'
-                          : 'circle-payment'
+                          ? 'circle-red'
+                          : 'circle-green'
                       }`}
                     >
                       <span>
-                        {row?.transactionTypeName === 'Withdrawal' ? '+' : '-'}
+                        {row?.transactionTypeName === 'Withdrawal' ? '-' : '+'}
                       </span>
                     </span>
                     <span
                       className={`${
                         row?.transactionTypeName == 'Withdrawal'
-                          ? 'green'
-                          : 'red'
+                          ? 'red'
+                          : 'green'
                       }`}
                     >
                       {row.transactionTypeName}
@@ -91,7 +91,7 @@ const ClientTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
                     {row.amount}
                   </div>
                 </td>
-                <td className='td-date'>
+                <td className="td-date">
                   {handelDateTimeFormate(row.transactionDate || new Date()) ||
                     '-'}
                 </td>

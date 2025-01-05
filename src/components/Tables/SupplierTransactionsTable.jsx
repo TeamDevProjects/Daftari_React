@@ -28,7 +28,6 @@ const SupplierTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
     setCurrentImg({ imageType, imageData })
   }
 
-  
   if (!columns || !rows || rows.length == 0)
     return <NoContent text="no Transactions yet !" />
 
@@ -65,8 +64,8 @@ const SupplierTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
                     <span
                       className={`${
                         row?.transactionTypeName == 'Withdrawal'
-                          ? 'circle-withdrawal'
-                          : 'circle-payment'
+                          ? 'circle-green'
+                          : 'circle-red'
                       }`}
                     >
                       <span>
@@ -90,7 +89,9 @@ const SupplierTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
                     {row.amount}
                   </div>
                 </td>
-                <td className='td-date'>{handelDateTimeFormate(row.transactionDate) || '-'}</td>
+                <td className="td-date">
+                  {handelDateTimeFormate(row.transactionDate) || '-'}
+                </td>
                 <td className="td-notes">{row.notes || '-'}</td>
                 <td
                   onClick={() =>

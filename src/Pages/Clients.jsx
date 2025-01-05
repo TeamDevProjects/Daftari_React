@@ -15,7 +15,7 @@ import {
 import { OrderingPersonForm, AddEditPersonForm } from '../components/Forms'
 import { SearchForm, Modal } from '../components/UI/'
 import { useUser } from '../Context/userContext.jsx'
-import { MODE, ORDER_PERSON_BY } from '../Constants/Variables'
+import { MODE, ORDER_PERSON_BY, UI } from '../Constants/Variables'
 import { ReportPeopleColumns } from '../Constants/ReportColumns.js'
 import { PeopleColumns } from '../Constants/TablesColumns.js'
 import { ClientsTable } from '../components/Tables'
@@ -25,28 +25,34 @@ import { REACT_QUERY_NAME } from '../Constants/Variables'
 // eslint-disable-next-line react-refresh/only-export-components
 
 const _getAllClients = async () => {
-  return await clientServices.GetAll()
+  try {
+    return await clientServices.GetAll()
+  } catch (error) {
+    toast.error(error.message)
+    return
+  }
 }
-const _calcTotalPayment = (clients) => {
+
+const _calcTotal_Gave = (clients) => {
   if (!clients || clients.length == 0) return 0
 
-  const totalPayment = clients.reduce(
+  const total_Gave = clients.reduce(
     (total, client) =>
       client.totalAmount >= 0 ? total + client.totalAmount : total,
     0
   )
-  return totalPayment
+  return total_Gave
 }
 
-const _calcTotalWithdraw = (clients) => {
+const _calcTotal_got = (clients) => {
   if (!clients || clients.length == 0) return 0
 
-  const totalWithdraw = clients.reduce(
+  const total_got = clients.reduce(
     (total, client) =>
       client.totalAmount < 0 ? total + client.totalAmount : total,
     0
   )
-  return totalWithdraw
+  return total_got
 }
 
 const ClientsQuery = {
@@ -58,30 +64,28 @@ export const loader = (queryClient) => async () => {
   try {
     const initialClients = await queryClient.ensureQueryData(ClientsQuery)
 
-    if (!initialClients || initialClients.length == 0) return
+    //set default total_GaveDate & total_got
+    const initialTotal_Gave = _calcTotal_Gave(initialClients)
 
-    //set default totalPaymentDate & totalWithdraw
-    const initialTotalPayment = _calcTotalPayment(initialClients)
+    const initialTotal_got = _calcTotal_got(initialClients)
 
-    const initialTotalWithdraw = _calcTotalWithdraw(initialClients)
-
-    return { initialClients, initialTotalPayment, initialTotalWithdraw }
+    return { initialClients, initialTotal_Gave, initialTotal_got }
   } catch {
     return {
       initialClients: [],
-      initialTotalPayment: 0,
-      initialTotalWithdraw: 0,
+      initialTotal_Gave: 0,
+      initialTotal_got: 0,
     }
   }
 }
 
 const Clients = () => {
-  const { initialClients, initialTotalPayment, initialTotalWithdraw } =
+  const { initialClients, initialTotal_Gave, initialTotal_got } =
     useLoaderData()
 
   const [clients, setClients] = useState(initialClients || [])
-  const [totalPayment, setTotalPayment] = useState(initialTotalPayment || 0)
-  const [totalWithdraw, setTotalWithdraw] = useState(initialTotalWithdraw || 0)
+  const [total_Gave, setTotal_Gave] = useState(initialTotal_Gave || 0)
+  const [total_got, setTotal_got] = useState(initialTotal_got || 0)
 
   const [mode, setMode] = useState(MODE.ADD)
   const [isModalOpen, setModalOpen] = useState(false)
@@ -92,26 +96,26 @@ const Clients = () => {
   const { user } = useUser()
 
   // ==============[ Privet Methods ]==================
-  const _refreshTotalPayment = (newClients) => {
+  const _refreshTotal_Gave = (newClients) => {
     if (!newClients) return
 
-    const totalPaymentResult = _calcTotalPayment(newClients)
+    const total_GaveResult = _calcTotal_Gave(newClients)
 
-    setTotalPayment(totalPaymentResult)
+    setTotal_Gave(total_GaveResult)
   }
 
-  const _refreshTotalWithdraw = (newClients) => {
+  const _refreshTotal_got = (newClients) => {
     if (!newClients) return
 
-    const totalWithdrawResult = _calcTotalWithdraw(newClients)
+    const total_gotResult = _calcTotal_got(newClients)
 
-    setTotalWithdraw(totalWithdrawResult)
+    setTotal_got(total_gotResult)
   }
 
   const _refresh = async () => {
     // Refresh
-    _refreshTotalPayment(clients)
-    _refreshTotalWithdraw(clients)
+    _refreshTotal_Gave(clients)
+    _refreshTotal_got(clients)
   }
 
   const _addClient = async (client) => {
@@ -132,7 +136,7 @@ const Clients = () => {
       setClients((prevClients) =>
         prevClients.map((c) =>
           c.clientId === currentPerson.clientId
-            ? { ...client, clientId: currentPerson?.clientId }
+            ? { ...c, ...client, clientId: currentPerson?.clientId }
             : c
         )
       )
@@ -191,7 +195,7 @@ const Clients = () => {
       await clientServices.Delete(clientId)
 
       setClients((prevClients) =>
-        prevClients.Ordering((client) => client.clientId !== clientId)
+        prevClients.filter((client) => client.clientId !== clientId)
       )
 
       // Refresh
@@ -247,6 +251,8 @@ const Clients = () => {
   }
 
   const formatReportRows = (data) =>
+    Array.isArray(data) &&
+    data.length > 0 &&
     data?.map((r, index) => [
       index + 1,
       r?.name || '-',
@@ -277,6 +283,8 @@ const Clients = () => {
   const ReportRows = formatReportRows(initialClients)
   const ReportOrderingRows = formatReportRows(clients)
 
+  const balance = total_Gave - total_got
+
   return (
     <>
       {/* ==[ Add / Edit Clients]== */}
@@ -300,32 +308,33 @@ const Clients = () => {
         <h4 className="header-title">store : {user?.storeName}</h4>
         <div className="center section-logo">
           <img src={clientImg} alt="clientImg!!!" />
-          <p>Clients</p>
+          <p>{UI.HEADER.CLIENTS}</p>
         </div>
       </div>
       <div className="page-section">
         <div className="flex center amount-container">
           <div className="red-box">
-            <span className="amount-message">I Gave</span>
+            <span className="amount-message">{UI.TEXT.I_GAVE}</span>
             <div className="amount red">
               <LuDollarSign />
-              <span className="red">{totalWithdraw || '00'}</span>
+              <span className="red">{total_Gave || '00'}</span>
             </div>
           </div>
           <div className="line"></div>
           <div className="green-box">
-            <span className="amount-message">I Get</span>
+            <span className="amount-message">{UI.TEXT.I_GOT}</span>
             <div className="amount green">
               <LuDollarSign />
-              <span className="">{totalPayment || '00'}</span>
+              <span className="">{total_got || '00'}</span>
             </div>
           </div>
         </div>
         <div className="flex center mb-1">
           <PdfReportGenerator
             title={`Clients Report`}
-            get={totalPayment}
-            give={totalWithdraw}
+            gave={total_Gave}
+            got={total_got}
+            balance={balance}
             columns={ReportPeopleColumns}
             rows={ReportRows}
           />
@@ -341,8 +350,9 @@ const Clients = () => {
         <div className="flex">
           <PdfFilteredReportGenerator
             title={`Client Report`}
-            get={totalPayment}
-            give={totalWithdraw}
+            gave={total_Gave}
+            got={total_got}
+            balance={balance}
             columns={ReportPeopleColumns}
             rows={ReportOrderingRows}
           />

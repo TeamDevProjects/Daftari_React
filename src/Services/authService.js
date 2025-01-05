@@ -1,6 +1,5 @@
 import axios from 'axios'
-
-import { URL } from './constants'
+import { URL } from '../Constants/Variables'
 
 const authService = {
   saveTokens: (accessToken, refreshToken, IsLogin = true) => {

@@ -4,6 +4,7 @@ const FormInput = ({
   label,
   name,
   type,
+  value,
   defaultValue,
   size,
   TextError,
@@ -21,6 +22,7 @@ const FormInput = ({
         type={type}
         name={name}
         id={name}
+        value={value}
         defaultValue={defaultValue}
         className={`input input-bordered ${Error && 'input-error'} ${size}`}
         onChange={onChange}

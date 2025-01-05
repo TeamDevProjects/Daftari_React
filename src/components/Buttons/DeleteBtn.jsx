@@ -4,13 +4,7 @@ import { MdDelete } from 'react-icons/md'
 const DeleteBtn = ({ onDelete, rowId }) => {
   return (
     <button
-      style={{
-        backgroundColor: '#d63031',
-        color: 'white',
-        border: 'none',
-        padding: '5px 10px',
-        borderRadius: '.25rem'
-      }}
+      className='btn-delete'
       onClick={() => onDelete(rowId)}
     >
       <MdDelete />

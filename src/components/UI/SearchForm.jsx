@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 import { useNavigation, Form } from 'react-router-dom'
-import Wrapper from '../../assets/wrappers/SearchForm'
 import { CiSearch } from 'react-icons/ci'
 import { useReducer } from 'react'
 
@@ -41,7 +40,6 @@ const SearchForm = ({ onSubmit }) => {
   const navigation = useNavigation()
   const isSubmitting = navigation.state === 'submitting'
   return (
-    <Wrapper>
       <Form className="search-form " onSubmit={handleSubmit}>
         <input
           type="search"
@@ -54,7 +52,6 @@ const SearchForm = ({ onSubmit }) => {
           <CiSearch className="fs-1" />
         </button>
       </Form>
-    </Wrapper>
   )
 }
 export default SearchForm

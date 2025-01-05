@@ -6,9 +6,11 @@ import { pdfGenerateTable } from './pdf/pdfGenerateTable'
 import { pdfGenerateUserTransactionInfo } from './pdf/pdfGenerateUserTransactionInfo'
 
 export const generateUserTransactionPDF = (
+  storeName,
   title,
-  give,
-  get,
+  gave,
+  got,
+  balance,
   columns,
   rows,
   userName,
@@ -23,13 +25,13 @@ export const generateUserTransactionPDF = (
   }
 
   //===============[  Logo  ]====================
-  pdfGenerateLogo(pdf, position)
+  pdfGenerateLogo(pdf, position, storeName)
 
   //===============[ Header ]====================
   pdfGenerateHeader(pdf, position, title)
 
   //===============[PDF Info]====================
-  pdfGenerateUserTransactionInfo(pdf, position, give, get,userName,userPhone)
+  pdfGenerateUserTransactionInfo(pdf, position, gave, got,balance, userName, userPhone)
 
   //================[ Table & Footer ]====================
   pdfGenerateTable(pdf, position, columns, rows)

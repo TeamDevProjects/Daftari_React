@@ -6,7 +6,7 @@ import { useState } from 'react'
 import clientPaymentDateService from '../Services/clientPaymentDateService'
 import { toast } from 'react-toastify'
 import PaymentDateImg from '../assets/payroll.png'
-import { MODE, PAYMENT_Date } from '../Constants/Variables'
+import { MODE, PAYMENT_Date, UI } from '../Constants/Variables'
 import { REACT_QUERY_NAME } from '../Constants/Variables'
 import { Modal } from '../components/UI'
 import { AddEditPaymentDateForm } from '../components/Forms'
@@ -171,7 +171,7 @@ const ClientsPaymentDates = () => {
         </button>
         <div className="center section-logo">
           <img src={PaymentDateImg} alt="supplierImg!!!" />
-          <p>Suppliers PaymentDates</p>
+          <p>{UI.HEADER.CLIENTS_PAYMENTDATE}</p>
         </div>
       </div>
       <div className="page-section">

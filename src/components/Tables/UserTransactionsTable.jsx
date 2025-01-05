@@ -67,8 +67,8 @@ const UserTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
                     <span
                       className={`${
                         row?.transactionTypeName == 'Withdrawal'
-                          ? 'circle-withdrawal'
-                          : 'circle-payment'
+                        ? 'circle-red'
+                        : 'circle-green'
                       }`}
                     >
                       <span>
@@ -78,8 +78,8 @@ const UserTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
                     <span
                       className={`${
                         row?.transactionTypeName == 'Withdrawal'
-                          ? 'green'
-                          : 'red'
+                        ? 'red'
+                        : 'green'
                       }`}
                     >
                       {row.transactionTypeName}

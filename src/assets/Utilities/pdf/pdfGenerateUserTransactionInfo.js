@@ -3,38 +3,44 @@ import { PDF } from '../../../Constants/Variables'
 export const pdfGenerateUserTransactionInfo = (
   pdf,
   position,
-  give,
-  get,
+  gave,
+  got,
+  balance,
   userName,
   userPhone
 ) => {
   const pageWidth = pdf.internal.pageSize.width
   const pageMeddle = pageWidth / 2
-  pdf.setTextColor(132, 32, 41)
-  position.positionY += PDF.marginTop_10 // 30
-  pdf.text(`I Give  : ${give}`, PDF.marginLeft, position.positionY)
+  pdf.setTextColor(15, 81, 50)
+
+  position.positionY += PDF.MARGIN.TOP_10 // 30
+  pdf.text(`${PDF.TEXT.I_GAVE}  : ${gave}`, PDF.MARGIN.LEFT, position.positionY)
 
   pdf.setTextColor(0, 0, 0)
-  pdf.text(`user : ${userName}`, pageMeddle, position.positionY)
+  pdf.text(`${PDF.TEXT.USER} : ${userName}`, pageMeddle, position.positionY)
 
   //---------------------------------------
-  pdf.setTextColor(15, 81, 50)
-  position.positionY += PDF.marginTop_7 // 33
-  pdf.text(`I Get   : ${get}`, PDF.marginLeft, position.positionY)
+  pdf.setTextColor(132, 32, 41)
+
+  position.positionY += PDF.MARGIN.TOP_7 // 33
+  pdf.text(`${PDF.TEXT.I_GOT}   : ${got}`, PDF.MARGIN.LEFT, position.positionY)
 
   pdf.setTextColor(0, 0, 0)
-  pdf.text(`Phone  : ${userPhone}`, pageMeddle, position.positionY)
+  pdf.text(`${PDF.TEXT.PHONE}  : ${userPhone}`, pageMeddle, position.positionY)
   //--------------------------------------
-  position.positionY += PDF.marginTop_7 // 36
-  const total = give - get
-  if (total < 0) {
-    pdf.setTextColor(15, 81, 50)
-    pdf.text(`Balance  : ${get || 0}`, PDF.marginLeft, position.positionY)
-  } else {
+  position.positionY += PDF.MARGIN.TOP_7 // 36
+  if (balance < 0) {
     pdf.setTextColor(132, 32, 41)
     pdf.text(
-      `Balance  : ${give - get || 0}`,
-      PDF.marginLeft,
+      `${PDF.TEXT.GLOBAL_BALANCE}  : ${got || 0}`,
+      PDF.MARGIN.LEFT,
+      position.positionY
+    )
+  } else {
+    pdf.setTextColor(15, 81, 50)
+    pdf.text(
+      `${PDF.TEXT.GLOBAL_BALANCE}  : ${balance || 0}`,
+      PDF.MARGIN.LEFT,
       position.positionY
     )
   }

@@ -6,7 +6,7 @@ import supplierPaymentDateService from '../Services/supplierPaymentDate'
 import { PaymentDatesColumns } from '../Constants/TablesColumns'
 import { SupplierPaymentDatesTable } from '../components/Tables'
 import PaymentDateImg from '../assets/payroll.png'
-import { MODE, PAYMENT_Date } from '../Constants/Variables'
+import { MODE, PAYMENT_Date, UI } from '../Constants/Variables'
 import { REACT_QUERY_NAME } from '../Constants/Variables'
 import { Modal } from '../components/UI'
 import { AddEditPaymentDateForm } from '../components/Forms'
@@ -175,7 +175,7 @@ const SuppliersPaymentDates = () => {
         </button>
         <div className="center section-logo">
           <img src={PaymentDateImg} alt="supplierImg!!!" />
-          <p>Suppliers PaymentDates</p>
+          <p>{UI.HEADER.SUPPLIERS_PAYMENTDATE}</p>
         </div>
       </div>
       <div className="page-section">

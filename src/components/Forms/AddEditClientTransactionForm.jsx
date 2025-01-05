@@ -84,6 +84,7 @@ const AddEditClientTransactionForm = ({
           type="number"
           label="Amount"
           name="amount"
+          required={true}
           defaultValue={state?.amount}
           onChange={handleChange}
         />

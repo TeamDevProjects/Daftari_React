@@ -3,6 +3,7 @@ import { Form } from 'react-router-dom'
 import SubmitBtn from '../Buttons/SubmitBtn'
 import { FormTextarea, FormInput } from '../UI'
 import { useReducer, useState } from 'react'
+import { MODE } from '../../Constants/Variables'
 
 // Initial state for the form
 const initialState = {
@@ -64,10 +65,13 @@ const AddEditSupplierTransactionForm = ({
 
     const tarnsaction = {
       amount: state?.amount,
-      notes: state?.notes?.trim(),
-      supplierId,
-      transactionTypeId: transactionTypeId,
+      notes: state?.notes ? state?.notes?.trim() : '',
+      supplierId: supplierId,
       file: selectedFile,
+    }
+
+    if (mode == MODE.ADD) {
+      tarnsaction.transactionTypeId = transactionTypeId
     }
 
     onSubmit(tarnsaction)
@@ -80,6 +84,7 @@ const AddEditSupplierTransactionForm = ({
           type="number"
           label="Amount"
           name="amount"
+          required={true}
           defaultValue={state?.amount}
           onChange={handleChange}
         />

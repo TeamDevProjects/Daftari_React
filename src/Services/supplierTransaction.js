@@ -50,7 +50,7 @@ const SupplierTransactionService = {
       if (file) {
         formData.append('FormImage', file)
       } else {
-        formData.append('ImageType', 'None')
+        formData.append('ImageType', null)
       }
 
       const response = await apiService.post(
@@ -69,10 +69,7 @@ const SupplierTransactionService = {
     }
   },
 
-  Update: async (
-    { amount, notes, transactionTypeId, file },
-    supplierTransactionId
-  ) => {
+  Update: async ({ amount, notes, file }, supplierTransactionId) => {
     try {
       const token = authService.getAccessToken()
       const formData = new FormData()
@@ -80,13 +77,8 @@ const SupplierTransactionService = {
       formData.append('amount', amount)
       formData.append('notes', notes)
       formData.append('supplierTransactionId', supplierTransactionId)
-      formData.append('transactionTypeId', transactionTypeId)
 
-      if (file) {
-        formData.append('FormImage', file)
-      } else {
-        formData.append('ImageType', 'None')
-      }
+      formData.append('FormImage', file)
 
       const response = await apiService.put(
         `/api/SupplierTransactions`,

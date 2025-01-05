@@ -1,6 +1,11 @@
 import { IoIosArrowBack } from 'react-icons/io'
 import { LuDollarSign } from 'react-icons/lu'
-import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
+import {
+  useLoaderData,
+  useLocation,
+  useNavigate,
+  useParams,
+} from 'react-router-dom'
 import { Modal } from '../components/UI'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
@@ -12,48 +17,71 @@ import {
   MODE,
   TRANSACTION_TYPE_NAME,
   TRANSACTION_TYPE_ID,
+  REACT_QUERY_NAME,
+  UI,
 } from '../Constants/Variables'
 import AddEditSupplierTransactionForm from '../components/Forms/AddEditSupplierTransactionForm'
 import { handelDateFormate } from '../assets/Utilities/date'
 import { ReportTransactionsColumns } from '../Constants/ReportColumns'
 import PdfSupplierTransactionReportGenerator from '../components/Reports/PdfSupplierTransactionReportGenerator'
+import { queryClient } from '../App'
 
+const _gotAllSupplierTransactions = async (supplierId) => {
+  try {
+    return await SupplierTransactionService.GetAll(supplierId)
+  } catch (error) {
+    toast.error(error.message)
+    return
+  }
+}
+
+const _calcTotalPayment = (transactions) => {
+  if (!transactions || transactions.length == 0) return 0
+
+  const totalPayment = transactions.reduce(
+    (total, transaction) =>
+      transaction.transactionTypeName == TRANSACTION_TYPE_NAME.PAYMENT
+        ? total + transaction.amount
+        : total,
+    0
+  )
+  return totalPayment
+}
+
+const _calcTotalWithdraw = (transactions) => {
+  if (!transactions || transactions.length == 0) return 0
+
+  const totalWithdraw = transactions.reduce(
+    (total, transaction) =>
+      transaction.transactionTypeName === TRANSACTION_TYPE_NAME.WITHDRAW
+        ? total + transaction.amount
+        : total,
+    0
+  )
+  return totalWithdraw
+}
 export const loader = async ({ params }) => {
   const { supplierId } = params
 
   try {
-    const transactionsResults = await SupplierTransactionService.GetAll(
-      supplierId
-    )
-    if (!transactionsResults) {
+    const initialTransactions = await _gotAllSupplierTransactions(supplierId)
+
+    if (!initialTransactions) {
       throw new Response("Can't load supplier transactions", { status: 404 })
     }
 
-    const totalPaymentResult = transactionsResults.reduce(
-      (total, transaction) =>
-        transaction.transactionTypeName === TRANSACTION_TYPE_NAME.PAYMENT
-          ? total + transaction.amount
-          : total,
-      0
-    )
+    const totalPaymentResult = _calcTotalPayment(initialTransactions)
 
-    const totalWithdrawResult = transactionsResults.reduce(
-      (total, transaction) =>
-        transaction.transactionTypeName === TRANSACTION_TYPE_NAME.WITHDRAW
-          ? total + transaction.amount
-          : total,
-      0
-    )
+    const totalWithdrawResult = _calcTotalWithdraw(initialTransactions)
 
     return {
-      transactionsResults,
+      initialTransactions,
       totalPaymentResult,
       totalWithdrawResult,
     }
-  } catch (error) {
-    console.error(error)
+  } catch {
     return {
-      transactionsResults: [],
+      initialTransactions: [],
       totalPaymentResult: 0,
       totalWithdrawResult: 0,
     }
@@ -61,12 +89,16 @@ export const loader = async ({ params }) => {
 }
 
 const SuppliersTransactions = () => {
+  const location = useLocation()
+  const navigate = useNavigate()
+
   const { supplierId } = useParams()
-  const { transactionsResults, totalPaymentResult, totalWithdrawResult } =
+  const { supplierName, supplierPhone } = location.state || {} // Destructure the state
+  const { initialTransactions, totalPaymentResult, totalWithdrawResult } =
     useLoaderData()
 
   // State management
-  const [transactions, setTransactions] = useState(transactionsResults)
+  const [transactions, setTransactions] = useState(initialTransactions)
   const [isModalOpen, setModalOpen] = useState(false)
   const [transactionTypeId, setTransactionTypeId] = useState(0)
   const [mode, setMode] = useState(MODE.ADD)
@@ -74,128 +106,123 @@ const SuppliersTransactions = () => {
   const [totalWithdraw, setTotalWithdraw] = useState(totalWithdrawResult)
   const [currentTransaction, setCurrentTransaction] = useState(null)
 
-  const navigate = useNavigate()
+  // ==============[ Privet Methods ]==================
+  const _refreshTransactions = async () => {
+    try {
+      const newTransactions = await _gotAllSupplierTransactions(supplierId)
 
-  // ===================[ Private Methods ]===================
-  // Navigate back to the previous page
+      if (!newTransactions) {
+        toast.error("Can't load user transactions")
+        return
+      }
+      setTransactions(newTransactions)
+      //
+      queryClient.removeQueries(REACT_QUERY_NAME.SUPPLIER_TRANSACTIONS)
+      return newTransactions
+    } catch {
+      setTransactions(initialTransactions)
+      return initialTransactions
+    }
+  }
+
+  const _refreshTotalPayment = (newTransactions) => {
+    const totalPaymentResult = _calcTotalPayment(newTransactions)
+
+    setTotalPayment(totalPaymentResult)
+  }
+
+  const _refreshTotalWithdraw = (newTransactions) => {
+    const totalWithdrawResult = _calcTotalWithdraw(newTransactions)
+
+    setTotalWithdraw(totalWithdrawResult)
+  }
+
+  const _refresh = async () => {
+    // Refresh
+    const newTransactions = await _refreshTransactions()
+    _refreshTotalPayment(newTransactions)
+    _refreshTotalWithdraw(newTransactions)
+  }
+
+  const _addTransaction = async (transaction) => {
+    try {
+      console.log('Add user transaction', transaction)
+      await SupplierTransactionService.Add(transaction)
+      toast.success('user transaction Added Successfully')
+    } catch (error) {
+      toast.error(error?.message)
+    }
+  }
+
+  const _updateTransaction = async (transaction) => {
+    try {
+      console.log('Edit user transaction', transaction)
+      await SupplierTransactionService.Update(
+        transaction,
+        currentTransaction?.supplierTransactionId
+      )
+      toast.success('user transaction Updated Successfully')
+    } catch (error) {
+      toast.error(error?.message)
+    }
+  }
+
+  // ================[ Handel UI ]=====================
   const goBack = () => {
     navigate(-1)
   }
 
-  // Open modal for adding payment transaction
-  const handleAddPaymentTransactionModal = () => {
+  const handelAddPaymentTransactionModal = () => {
     setMode(MODE.ADD)
     setTransactionTypeId(TRANSACTION_TYPE_ID.PAYMENT)
     handleOpenModal()
   }
 
-  // Open modal for adding withdraw transaction
-  const handleAddWithdrawTransactionModal = () => {
+  const handelAddWithdrawTransactionModal = () => {
     setMode(MODE.ADD)
     setTransactionTypeId(TRANSACTION_TYPE_ID.WITHDRAW)
     handleOpenModal()
   }
 
-  // Open the modal
   const handleOpenModal = () => {
     setModalOpen(true)
   }
 
-  // Close the modal
   const handleCloseModal = () => {
     setModalOpen(false)
   }
+  // ==============[ Action Methods ]==================
 
-  // Handle form submission (Add or Update)
   const handleSubmit = async (transaction) => {
-    try {
-      let updatedTransactions
-
-      // Adding a new transaction
-      if (mode === MODE.ADD) {
-        console.log('Add Supplier', transaction)
-        await SupplierTransactionService.Add(transaction)
-        toast.success('Supplier transaction Added Successfully')
-
-        updatedTransactions = [...transactions, transaction] // Optimistic update
-      } else if (mode === MODE.UPDATE) {
-        // Updating an existing transaction
-        await SupplierTransactionService.Update(
-          transaction,
-          currentTransaction?.supplierTransactionId
-        )
-        toast.success('Supplier transaction Updated Successfully')
-
-        updatedTransactions = transactions.map((t) =>
-          t.supplierTransactionId === currentTransaction?.supplierTransactionId
-            ? { ...t, ...transaction }
-            : t
-        )
-      }
-
-      // Recalculate totals after the update
-      const newTotalPayment = updatedTransactions.reduce(
-        (total, trans) =>
-          trans.transactionTypeName === TRANSACTION_TYPE_NAME.PAYMENT
-            ? total + trans.amount
-            : total,
-        0
-      )
-      const newTotalWithdraw = updatedTransactions.reduce(
-        (total, trans) =>
-          trans.transactionTypeName === TRANSACTION_TYPE_NAME.WITHDRAW
-            ? total + trans.amount
-            : total,
-        0
-      )
-
-      // Update state with the new transaction list and recalculated totals
-      setTransactions(updatedTransactions)
-      setTotalPayment(newTotalPayment)
-      setTotalWithdraw(newTotalWithdraw)
-    } catch (error) {
-      console.error('Failed to submit transaction:', error)
-      toast.error('Failed to submit transaction')
-    } finally {
-      setModalOpen(false)
+    if (mode == MODE.ADD) {
+      await _addTransaction(transaction)
     }
+
+    // Update
+    else if (mode == MODE.UPDATE) {
+      await _updateTransaction(transaction)
+    }
+
+    // Refresh
+    await _refresh()
+
+    setModalOpen(false)
   }
 
-  // Handle deleting a transaction
-  const handleDeleteTransaction = async (transactionId) => {
+  const handelDeleteTransaction = async (transactionId) => {
     try {
       await SupplierTransactionService.Delete(transactionId)
-
-      // Filter out the deleted transaction
-      const updatedTransactions = transactions.filter(
-        (transaction) => transaction.supplierTransactionId !== transactionId
+      setTransactions((prevTransactions) =>
+        prevTransactions.filter(
+          (transaction) => transaction.clientTransactionId !== transactionId
+        )
       )
 
-      // Recalculate totals based on updated transactions
-      const newTotalPayment = updatedTransactions.reduce(
-        (total, trans) =>
-          trans.transactionTypeName === TRANSACTION_TYPE_NAME.PAYMENT
-            ? total + trans.amount
-            : total,
-        0
-      )
-      const newTotalWithdraw = updatedTransactions.reduce(
-        (total, trans) =>
-          trans.transactionTypeName === TRANSACTION_TYPE_NAME.WITHDRAW
-            ? total + trans.amount
-            : total,
-        0
-      )
-
-      // Update state with the new transaction list and recalculated totals
-      setTransactions(updatedTransactions)
-      setTotalPayment(newTotalPayment)
-      setTotalWithdraw(newTotalWithdraw)
-
-      toast.success('Supplier transaction deleted Successfully')
+      // Refresh
+      await _refresh()
+      toast.success('client transaction deleted Successfully')
     } catch (error) {
-      toast.error('Failed to delete supplier transaction')
-      console.error('Deletion error:', error)
+      toast.error('Failed to delete user transaction', error.message)
     }
   }
 
@@ -205,13 +232,19 @@ const SuppliersTransactions = () => {
     setCurrentTransaction(transaction)
     handleOpenModal()
   }
-  const TransactionsReportRows = transactions.map((r, index) => [
-    index + 1,
-    handelDateFormate(r?.transactionDate) || '-',
-    r?.transactionTypeName || '-',
-    r?.amount || '-',
-    r?.notes || '-',
-  ])
+
+  const TransactionsReportRows =
+    Array.isArray(transactions) &&
+    transactions.length > 0 &&
+    transactions.map((r, index) => [
+      index + 1,
+      handelDateFormate(r?.transactionDate) || '-',
+      r?.transactionTypeName || '-',
+      r?.amount || '-',
+      r?.notes || '-',
+    ])
+
+  const balance = totalWithdraw - totalPayment
   return (
     <>
       <div className="page-section">
@@ -220,7 +253,7 @@ const SuppliersTransactions = () => {
         </button>
         <div className="center section-logo">
           <img src={transactionImg} alt="supplierImg" />
-          <p>Supplier Transaction</p>
+          <p>{UI.HEADER.SUPPLIERS_TRANSACTIONS}</p>
         </div>
       </div>
 
@@ -240,17 +273,18 @@ const SuppliersTransactions = () => {
         <PdfSupplierTransactionReportGenerator
           title={`Supplier transactions Report`}
           columns={ReportTransactionsColumns}
-          get={totalPayment}
-          give={totalWithdraw}
+          got={totalWithdraw}
+          gave={totalPayment}
+          balance={balance}
           rows={TransactionsReportRows}
-          supplierName={supplierId}
-          supplierPhone={supplierId}
+          supplierName={supplierName}
+          supplierPhone={supplierPhone}
         />
       </div>
       <div className="page-section">
         <div className="flex center amount-container">
           <div className="red-box">
-            <span className="amount-message">I Gave</span>
+            <span className="amount-message">{UI.TEXT.I_GAVE}</span>
             <div className="amount red">
               <LuDollarSign />
               <span className="red">{totalPayment || '00'}</span>
@@ -258,7 +292,7 @@ const SuppliersTransactions = () => {
           </div>
           <div className="line"></div>
           <div className="green-box">
-            <span className="amount-message">I Get</span>
+            <span className="amount-message">{UI.TEXT.I_GOT}</span>
             <div className="amount green">
               <LuDollarSign />
               <span>{totalWithdraw || '00'}</span>
@@ -266,10 +300,10 @@ const SuppliersTransactions = () => {
           </div>
         </div>
         <span className="center fs-1">
-          <span className="total-amount-title">Total Amount: </span>
+          <span className="total-amount-title">{`${UI.TEXT.GLOBAL_BALANCE} : `}</span>
           <span className="total-amount">
             <LuDollarSign />
-            {totalWithdraw - totalPayment}
+            {balance}
           </span>
         </span>
       </div>
@@ -278,21 +312,21 @@ const SuppliersTransactions = () => {
         <SupplierTransactionsTable
           columns={TransactionsColumns}
           rows={transactions}
-          onDelete={handleDeleteTransaction}
+          onDelete={handelDeleteTransaction}
           onEdit={handleEditTransaction}
         />
         <div className="flex">
           <div
-            className="btn btn-payment"
-            onClick={handleAddPaymentTransactionModal}
+            className="btn btn-red"
+            onClick={handelAddPaymentTransactionModal}
           >
-            I Gave
+            {UI.TEXT.I_GAVE}
           </div>
           <div
-            className="btn btn-withdraw"
-            onClick={handleAddWithdrawTransactionModal}
+            className="btn btn-green"
+            onClick={handelAddWithdrawTransactionModal}
           >
-            I Get
+            {UI.TEXT.I_GOT}
           </div>
         </div>
       </div>

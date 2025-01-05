@@ -33,11 +33,18 @@ const AddEditPersonForm = ({
   currentPerson,
 }) => {
   const [state, dispatch] = useReducer(reducer, currentPerson || initialState)
+
   const handleChange = (e) => {
     const { name, value } = e.target
     dispatch({ type: 'SET_FIELD_VALUE', field: name, value })
   }
 
+  const handlePhoneOnkeyDown = (e) => {
+    const charCode = e.charCode
+    if (charCode < 48 || charCode > 57) {
+      e.preventDefault()
+    }
+  }
   const handleSubmit = (e) => {
     e.preventDefault()
 
@@ -62,16 +69,19 @@ const AddEditPersonForm = ({
             type="text"
             label="name"
             name="name"
+            required={true}
             defaultValue={state?.name}
             onChange={handleChange}
           />
 
           <FormInput
-            type="text"
+            type="tel"
             label="phone"
             name="phone"
+            required={true}
             defaultValue={state?.phone}
             onChange={handleChange}
+            onKeyPress={handlePhoneOnkeyDown}
           />
         </div>
         <div className="flex">
@@ -79,6 +89,7 @@ const AddEditPersonForm = ({
             type="text"
             label="city"
             name="city"
+            required={true}
             defaultValue={state?.city}
             onChange={handleChange}
           />
@@ -86,6 +97,7 @@ const AddEditPersonForm = ({
             type="text"
             label="country"
             name="country"
+            required={true}
             defaultValue={state?.country}
             onChange={handleChange}
           />
@@ -94,6 +106,7 @@ const AddEditPersonForm = ({
           type="text"
           label="address"
           name="address"
+          required={true}
           defaultValue={state?.address}
           onChange={handleChange}
         />

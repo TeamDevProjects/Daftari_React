@@ -13,6 +13,7 @@ import {
   MODE,
   TRANSACTION_TYPE_NAME,
   TRANSACTION_TYPE_ID,
+  UI,
 } from '../Constants/Variables'
 import { queryClient } from '../App'
 import { REACT_QUERY_NAME } from '../Constants/Variables'
@@ -21,7 +22,12 @@ import { ReportTransactionsColumns } from '../Constants/ReportColumns'
 import { handelDateFormate } from '../assets/Utilities/date'
 
 const _getAllUserTransactions = async () => {
-  return await userTransactionServices.GetAll()
+  try {
+    return await userTransactionServices.GetAll()
+  } catch (error) {
+    toast.error(error.message)
+    return
+  }
 }
 
 const _calcTotalPayment = (transactions) => {
@@ -220,14 +226,17 @@ const User = () => {
     setCurrentTransaction(transaction)
   }
 
-  const TransactionsReportRows = transactions.map((r, index) => [
-    index + 1,
-    handelDateFormate(r?.transactionDate) || '-',
-    r?.transactionTypeName || '-',
-    r?.amount || '-',
-    r?.notes || '-',
-  ])
-
+  const TransactionsReportRows =
+    Array.isArray(transactions) &&
+    transactions.length > 0 &&
+    transactions.map((r, index) => [
+      index + 1,
+      handelDateFormate(r?.transactionDate) || '-',
+      r?.transactionTypeName || '-',
+      r?.amount || '-',
+      r?.notes || '-',
+    ])
+  const balance = totalPayment - totalWithdraw
   return (
     <>
       <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
@@ -244,43 +253,46 @@ const User = () => {
         <h4 className="header-title">store : {user?.storeName}</h4>
         <div className="center section-logo">
           <img src={transactionImg} alt="supplierImg!!!" />
-          <p>My Transaction</p>
+          <p>{UI.HEADER.USERS_TRANSACTIONS}</p>
         </div>
       </div>
       <div className="page-section">
         <PdfUserTransactionReportGenerator
           title={`User transactions Report`}
           columns={ReportTransactionsColumns}
-          get={totalPayment}
-          give={totalWithdraw}
+          got={totalWithdraw}
+          gave={totalPayment}
+          balance={balance}
           rows={TransactionsReportRows}
-          userName={0}
-          userPhone={0}
+          userName={user?.name}
+          userPhone={user?.phone}
         />
       </div>
       <div className="page-section">
         <div className="flex center amount-container">
           <div className="red-box">
-            <span className="amount-message">I Gave</span>
+            <span className="amount-message">{UI.TEXT.I_GOT}</span>
             <div className="amount red">
-              <LuDollarSign />
-              <span className="red">{totalPayment || '00'}</span>
-            </div>
-          </div>
-          <div className="line"></div>
-          <div className="green-box">
-            <span className="amount-message">I Get</span>
-            <div className="amount green">
               <LuDollarSign />
               <span className="">{totalWithdraw || '00'}</span>
             </div>
           </div>
+          <div className="line"></div>
+          <div className="green-box">
+            <span className="amount-message">{UI.TEXT.I_GAVE}</span>
+            <div className="amount green">
+              <LuDollarSign />
+              <span className="">{totalPayment || '00'}</span>
+            </div>
+          </div>
         </div>
         <span className="center fs-1">
-          <span className="total-amount-title">Total Amount : </span>
+          <span className="total-amount-title">
+            {`${UI.TEXT.GLOBAL_BALANCE} : `}
+          </span>
           <span className="total-amount">
             <LuDollarSign />
-            {totalWithdraw - totalPayment}
+            {balance}
           </span>
         </span>
       </div>
@@ -293,16 +305,17 @@ const User = () => {
         />
         <div className="flex">
           <div
-            className="btn btn-payment"
-            onClick={handelAddPaymentTransactionModal}
-          >
-            I Give
-          </div>
-          <div
-            className="btn btn-withdraw"
+            className="btn btn-red"
             onClick={handelAddWithdrawTransactionModal}
           >
-            I Get
+            {UI.TEXT.I_GOT}
+          </div>
+
+          <div
+            className="btn btn-green"
+            onClick={handelAddPaymentTransactionModal}
+          >
+            {UI.TEXT.I_GAVE}
           </div>
         </div>
       </div>

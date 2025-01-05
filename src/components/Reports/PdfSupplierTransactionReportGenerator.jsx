@@ -2,23 +2,27 @@
 /* eslint-disable react/prop-types */
 import { AiOutlineFilePdf } from 'react-icons/ai'
 import { generateSupplierTransactionPDF } from '../../assets/Utilities/generateSupplierTransactionPDF'
+import { useUser } from '../../Context/userContext'
 
 const PdfSupplierTransactionReportGenerator = ({
   title,
-  give,
-  get,
+  gave,
+  got,
+  balance,
   columns,
   rows,
   supplierName,
   supplierPhone,
 }) => {
+  const { user } = useUser()
   return (
     <button
       onClick={() =>
         generateSupplierTransactionPDF(
+          user?.storeName,
           title,
-          give,
-          get,
+          gave,
+          got,balance,
           columns,
           rows,
           supplierName,

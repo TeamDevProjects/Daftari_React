@@ -1,6 +1,6 @@
 /* eslint-disable no-useless-catch */
 import axios from 'axios'
-import { URL } from './constants'
+import { URL } from '../Constants/Variables'
 import apiService from './apiService'
 import authService from './authService'
 
