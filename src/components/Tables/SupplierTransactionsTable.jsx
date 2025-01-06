@@ -103,7 +103,7 @@ const SupplierTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
                 >
                   {(row?.imageType && row?.imageType != 'None' && (
                     <img
-                      style={{ width: '4rem' }}
+                      className="td-img"
                       src={`data:${row.imageType};base64,${row.imageData}`}
                     />
                   )) ||

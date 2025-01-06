@@ -292,6 +292,7 @@ ul {
 
 .logo {
   font-size: clamp(2.5rem, 3vw, 2.5rem);
+  user-select: none;
   color: var(--primary-500);
   font-weight: 700;
   letter-spacing: 2px;
@@ -306,7 +307,7 @@ ul {
   flex-direction: column;
   gap: 0.5rem;
   margin-top: 1rem;
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   overflow: hidden;
 }
 
@@ -315,7 +316,7 @@ ul {
   padding: 0.5rem 0.5rem 0.5rem 0;
   transition: var(--transition);
   letter-spacing: 2px;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
 }
 
 .nav-link:hover {
@@ -552,7 +553,7 @@ option {
   margin: auto;
   color: var(--primary-400);
   font-weight: 500;
-  font-size: 1.4rem;
+  font-size: 1rem;
 }
 .table-wrapper {
   margin: 1.25rem auto;
@@ -623,6 +624,10 @@ td.td-notes {
   display: flex;
   justify-content: start;
   align-items: center;
+}
+.td-img {
+  width: 4rem;
+  height: 4rem;
 }
 .btn-delete {
   background: var(--red-light);
@@ -704,7 +709,7 @@ td.td-notes {
 
 @media screen and (max-width: 768px) {
   .table-wrapper table {
-    font-size: 14px;
+    font-size: 1rem;
   }
 }
 
@@ -877,7 +882,7 @@ td.td-notes {
 .header-title {
   color: #1e3a8a; /* equivalent to text-indigo-800 */
   font-weight: 400;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   background: #e0e7ff; /* equivalent to bg-indigo-100 */
   padding: 0.7rem 1.7rem;
   width: fit-content;
@@ -1095,6 +1100,7 @@ td.td-notes {
   padding: 0.5rem 0.7rem;
   border-radius: 0.5rem;
   cursor: pointer;
+  user-select: none;
   box-shadow: var(--shadow-1);
   transition: var(--transition);
 }
@@ -1201,10 +1207,6 @@ td.td-notes {
 @media (max-width: 768px) {
   .page {
     width: 100%;
-  }
-
-  .header-title {
-    font-size: 0.9rem;
   }
   .nav-actions {
     display: block !important;

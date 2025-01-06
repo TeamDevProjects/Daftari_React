@@ -63,7 +63,7 @@ const AddEditUserTransactionForm = ({
 
     const tarnsaction = {
       amount: state?.amount,
-      notes: state?.notes?.trim(),
+      notes: state?.notes ? state?.notes?.trim() : '',
       transactionTypeId: transactionTypeId,
       file: selectedFile,
     }

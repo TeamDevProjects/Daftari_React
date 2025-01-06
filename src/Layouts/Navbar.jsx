@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import authService from '../Services/authService'
 import { useUser } from '../Context/userContext'
 import { FiLogOut } from 'react-icons/fi'
@@ -32,7 +32,7 @@ const Navbar = () => {
         <span className="logo">
           <span>
             <FaBookOpen style={{ transform: 'translateY(.2rem)' }} />
-            <span>Daftari</span>
+            <Link to="/User">Daftari</Link>
           </span>
           <div className="nav-actions">
             {isOpenNav ? (

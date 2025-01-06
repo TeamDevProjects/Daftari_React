@@ -16,7 +16,6 @@ import { EditBtn, DeleteBtn } from '../Buttons'
 // ImageType
 
 const UserTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
-  
   const [isModalOpen, setModalOpen] = useState(false)
   const [currentImg, setCurrentImg] = useState(false)
   const handleOpenModal = () => {
@@ -67,8 +66,8 @@ const UserTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
                     <span
                       className={`${
                         row?.transactionTypeName == 'Withdrawal'
-                        ? 'circle-red'
-                        : 'circle-green'
+                          ? 'circle-red'
+                          : 'circle-green'
                       }`}
                     >
                       <span>
@@ -78,8 +77,8 @@ const UserTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
                     <span
                       className={`${
                         row?.transactionTypeName == 'Withdrawal'
-                        ? 'red'
-                        : 'green'
+                          ? 'red'
+                          : 'green'
                       }`}
                     >
                       {row.transactionTypeName}
@@ -92,7 +91,9 @@ const UserTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
                     {row.amount}
                   </div>
                 </td>
-                <td className='td-date'>{handelDateTimeFormate(row.transactionDate) || '-'}</td>
+                <td className="td-date">
+                  {handelDateTimeFormate(row.transactionDate) || '-'}
+                </td>
                 <td className="td-notes">{row.notes || '-'}</td>
                 <td
                   onClick={() =>
@@ -104,7 +105,7 @@ const UserTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
                 >
                   {(row?.imageType && row?.imageType != 'None' && (
                     <img
-                      style={{ width: '4rem' }}
+                      className="td-img"
                       src={`data:${row.imageType};base64,${row.imageData}`}
                     />
                   )) ||
