@@ -9,17 +9,13 @@ import { TransactionsColumns } from '../Constants/TablesColumns'
 import { Modal } from '../components/UI'
 import { UserTransactionsTable } from '../components/Tables'
 import { AddEditUserTransactionForm } from '../components/Forms'
-import {
-  MODE,
-  TRANSACTION_TYPE_NAME,
-  TRANSACTION_TYPE_ID,
-  UI,
-} from '../Constants/Variables'
+import { MODE, TRANSACTION_TYPE_ID, UI } from '../Constants/Variables'
 import { queryClient } from '../App'
 import { REACT_QUERY_NAME } from '../Constants/Variables'
 import PdfUserTransactionReportGenerator from '../components/Reports/PdfUserTransactionReportGenerator'
 import { ReportTransactionsColumns } from '../Constants/ReportColumns'
-import { handelDateFormate } from '../assets/Utilities/date'
+import { calcTotalPayment, calcTotalWithdraw } from '../lib/helpers'
+import { handelDateFormate } from '../lib/date'
 
 const _getAllUserTransactions = async () => {
   try {
@@ -28,32 +24,6 @@ const _getAllUserTransactions = async () => {
     toast.error(error.message)
     return
   }
-}
-
-const _calcTotalPayment = (transactions) => {
-  if (!transactions || transactions.length == 0) return 0
-
-  const totalPayment = transactions.reduce(
-    (total, transaction) =>
-      transaction.transactionTypeName == TRANSACTION_TYPE_NAME.PAYMENT
-        ? total + transaction.amount
-        : total,
-    0
-  )
-  return totalPayment
-}
-
-const _calcTotalWithdraw = (transactions) => {
-  if (!transactions || transactions.length == 0) return 0
-
-  const totalWithdraw = transactions.reduce(
-    (total, transaction) =>
-      transaction.transactionTypeName === TRANSACTION_TYPE_NAME.WITHDRAW
-        ? total + transaction.amount
-        : total,
-    0
-  )
-  return totalWithdraw
 }
 
 const UserQuery = {
@@ -68,9 +38,9 @@ export const loader = (queryClient) => async () => {
       throw new Error("Can't load user transactions")
     }
 
-    const initialTotalPayment = _calcTotalPayment(initialTransactions)
+    const initialTotalPayment = calcTotalPayment(initialTransactions)
 
-    const initialTotalWithdraw = _calcTotalWithdraw(initialTransactions)
+    const initialTotalWithdraw = calcTotalWithdraw(initialTransactions)
 
     return {
       initialTransactions,
@@ -121,13 +91,13 @@ const User = () => {
   }
 
   const _refreshTotalPayment = (newTransactions) => {
-    const totalPaymentResult = _calcTotalPayment(newTransactions)
+    const totalPaymentResult = calcTotalPayment(newTransactions)
 
     setTotalPayment(totalPaymentResult)
   }
 
   const _refreshTotalWithdraw = (newTransactions) => {
-    const totalWithdrawResult = _calcTotalWithdraw(newTransactions)
+    const totalWithdrawResult = calcTotalWithdraw(newTransactions)
 
     setTotalWithdraw(totalWithdrawResult)
   }
@@ -186,6 +156,8 @@ const User = () => {
   // ==============[ Action Methods ]==================
 
   const handleSubmit = async (transaction) => {
+    if (transaction.amount <= 0) return // check right amount
+
     if (mode == MODE.ADD) {
       await _addTransaction(transaction)
     }

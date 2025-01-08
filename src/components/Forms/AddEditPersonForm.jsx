@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
-import { Form } from 'react-router-dom'
 import { FormInput } from '../UI'
 import SubmitBtn from '../Buttons/SubmitBtn'
 import { useReducer } from 'react'
+import { MODE } from '../../Constants/Variables'
 // Initial state for the form
 const initialState = {
   name: '',
@@ -32,7 +32,12 @@ const AddEditPersonForm = ({
   mode,
   currentPerson,
 }) => {
-  const [state, dispatch] = useReducer(reducer, currentPerson || initialState)
+  const isMode_Update = mode == MODE.UPDATE
+
+  const [state, dispatch] = useReducer(
+    reducer,
+    isMode_Update ? currentPerson : initialState
+  )
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -63,14 +68,14 @@ const AddEditPersonForm = ({
   return (
     <>
       <h4 className="form-title">{mode + ' ' + title}</h4>
-      <Form className="register-form" onSubmit={handleSubmit}>
+      <form className="register-form" onSubmit={handleSubmit}>
         <div className="flex">
           <FormInput
             type="text"
             label="name"
             name="name"
             required={true}
-            defaultValue={state?.name}
+            defaultValue={isMode_Update ? state?.name : ''}
             onChange={handleChange}
           />
 
@@ -79,7 +84,7 @@ const AddEditPersonForm = ({
             label="phone"
             name="phone"
             required={true}
-            defaultValue={state?.phone}
+            defaultValue={isMode_Update ? state?.phone : ''}
             onChange={handleChange}
             onKeyPress={handlePhoneOnkeyDown}
           />
@@ -90,7 +95,7 @@ const AddEditPersonForm = ({
             label="city"
             name="city"
             required={true}
-            defaultValue={state?.city}
+            defaultValue={isMode_Update ? state?.city : ''}
             onChange={handleChange}
           />
           <FormInput
@@ -98,7 +103,7 @@ const AddEditPersonForm = ({
             label="country"
             name="country"
             required={true}
-            defaultValue={state?.country}
+            defaultValue={isMode_Update ? state?.country : ''}
             onChange={handleChange}
           />
         </div>
@@ -107,20 +112,20 @@ const AddEditPersonForm = ({
           label="address"
           name="address"
           required={true}
-          defaultValue={state?.address}
+          defaultValue={isMode_Update ? state?.address : ''}
           onChange={handleChange}
         />
         <FormInput
           type="text"
           label="notes"
           name="notes"
-          defaultValue={state?.notes}
+          defaultValue={isMode_Update ? state?.notes : ''}
           onChange={handleChange}
         />
         <div className="submit-btn-container">
           <SubmitBtn text={mode + ' ' + buttonText} />
         </div>
-      </Form>
+      </form>
     </>
   )
 }

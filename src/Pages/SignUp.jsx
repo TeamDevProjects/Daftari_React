@@ -1,7 +1,7 @@
 import { useEffect, useState, useReducer, useCallback } from 'react'
 import { FormInput, FormSelect } from '../components/UI'
 import { SubmitBtn } from '../components/Buttons'
-import { Form, Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { GetBusinessTypes } from '../Services/businessType'
 import { GetSectors } from '../Services/sector'
 import userServices from '../Services/user'
@@ -184,7 +184,7 @@ const SignUp = () => {
 
   return (
     <section className="register-container">
-      <Form method="POST" className="register-form" onSubmit={handleSubmit}>
+      <form className="register-form" onSubmit={handleSubmit}>
         <h4 className="form-title">Register</h4>
         <div className="flex">
           <FormInput
@@ -281,7 +281,7 @@ const SignUp = () => {
             SignIn
           </Link>
         </p>
-      </Form>
+      </form>
     </section>
   )
 }

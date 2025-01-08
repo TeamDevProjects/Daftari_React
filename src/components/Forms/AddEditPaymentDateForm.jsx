@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
-import { Form } from 'react-router-dom'
 import { SubmitBtn } from '../Buttons'
 import { FormTextarea, FormDatePicker } from '../UI'
 import { useReducer } from 'react'
+import { MODE } from '../../Constants/Variables'
 
 // Initial state for the form
 const initialState = {
@@ -35,8 +35,9 @@ const AddEditPaymentDateForm = ({
     ...initialState,
     ...currentPaymentDate,
   })
+    const isMode_Update = mode == MODE.UPDATE
 
-  // Handle input changes for text fields
+    // Handle input changes for text fields
   const handleChange = (e) => {
     const { name, value } = e.target
     dispatch({ type: 'SET_FIELD_VALUE', field: name, value })
@@ -63,23 +64,23 @@ const AddEditPaymentDateForm = ({
   return (
     <>
       <h4 className="form-title">{`${mode} ${title}`}</h4>
-      <Form className="register-form" onSubmit={handleSubmit}>
+      <form className="register-form" onSubmit={handleSubmit}>
         {/* Controlled Date Picker */}
         <FormDatePicker
           onSelect={handleSelect}
-          defaultValue={state.dateOfPayment}
+          defaultValue={isMode_Update ? state.dateOfPayment:null}
         />
         {/* Controlled Textarea */}
         <FormTextarea
           label="Notes"
           name="notes"
-          value={state.notes}
+          value={isMode_Update ? state.notes:''}
           onChange={handleChange}
         />
         <div className="submit-btn-container">
           <SubmitBtn text={`${mode} ${buttonText}`} />
         </div>
-      </Form>
+      </form>
     </>
   )
 }

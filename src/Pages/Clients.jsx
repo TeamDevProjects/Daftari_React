@@ -6,7 +6,6 @@ import { CiCalendarDate } from 'react-icons/ci'
 import { IoIosAdd } from 'react-icons/io'
 import { toast } from 'react-toastify'
 import clientServices from '../Services/client.js'
-import { handelDateFormate } from '../assets/Utilities/date'
 import clientImg from '../assets/client.png'
 import {
   PdfFilteredReportGenerator,
@@ -21,6 +20,8 @@ import { PeopleColumns } from '../Constants/TablesColumns.js'
 import { ClientsTable } from '../components/Tables'
 import { queryClient } from '../App'
 import { REACT_QUERY_NAME } from '../Constants/Variables'
+import { calcTotal_Gave, calcTotal_got } from '../lib/helpers.js'
+import { handelDateFormate } from '../lib/date.js'
 
 // eslint-disable-next-line react-refresh/only-export-components
 
@@ -33,27 +34,7 @@ const _getAllClients = async () => {
   }
 }
 
-const _calcTotal_Gave = (clients) => {
-  if (!clients || clients.length == 0) return 0
 
-  const total_Gave = clients.reduce(
-    (total, client) =>
-      client.totalAmount >= 0 ? total + client.totalAmount : total,
-    0
-  )
-  return total_Gave
-}
-
-const _calcTotal_got = (clients) => {
-  if (!clients || clients.length == 0) return 0
-
-  const total_got = clients.reduce(
-    (total, client) =>
-      client.totalAmount < 0 ? total + client.totalAmount : total,
-    0
-  )
-  return total_got
-}
 
 const ClientsQuery = {
   queryKey: [REACT_QUERY_NAME.CLIENTS],
@@ -65,9 +46,9 @@ export const loader = (queryClient) => async () => {
     const initialClients = await queryClient.ensureQueryData(ClientsQuery)
 
     //set default total_GaveDate & total_got
-    const initialTotal_Gave = _calcTotal_Gave(initialClients)
+    const initialTotal_Gave = calcTotal_Gave(initialClients)
 
-    const initialTotal_got = _calcTotal_got(initialClients)
+    const initialTotal_got = calcTotal_got(initialClients)
 
     return { initialClients, initialTotal_Gave, initialTotal_got }
   } catch {
@@ -99,7 +80,7 @@ const Clients = () => {
   const _refreshTotal_Gave = (newClients) => {
     if (!newClients) return
 
-    const total_GaveResult = _calcTotal_Gave(newClients)
+    const total_GaveResult = calcTotal_Gave(newClients)
 
     setTotal_Gave(total_GaveResult)
   }
@@ -107,7 +88,7 @@ const Clients = () => {
   const _refreshTotal_got = (newClients) => {
     if (!newClients) return
 
-    const total_gotResult = _calcTotal_got(newClients)
+    const total_gotResult = calcTotal_got(newClients)
 
     setTotal_got(total_gotResult)
   }

@@ -1,10 +1,10 @@
 /* eslint-disable react/prop-types */
 
 import { Link, useNavigate } from 'react-router-dom'
-import { handelDateFormate } from '../../assets/Utilities/date'
 import { LuDollarSign } from 'react-icons/lu'
 import { NoPaymentDates } from '../Common'
 import { DeleteBtn, EditBtn } from '../Buttons'
+import { handelDateFormate } from '../../lib/date'
 
 const ClientPaymentDatesTable = ({ columns, rows, onDelete, onEdit }) => {
   // rowPaymentDateId

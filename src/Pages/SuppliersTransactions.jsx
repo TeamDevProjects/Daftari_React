@@ -15,16 +15,17 @@ import { SupplierTransactionsTable } from '../components/Tables'
 import transactionImg from '../assets/cash-flow.png'
 import {
   MODE,
-  TRANSACTION_TYPE_NAME,
   TRANSACTION_TYPE_ID,
   REACT_QUERY_NAME,
   UI,
 } from '../Constants/Variables'
 import AddEditSupplierTransactionForm from '../components/Forms/AddEditSupplierTransactionForm'
-import { handelDateFormate } from '../assets/Utilities/date'
 import { ReportTransactionsColumns } from '../Constants/ReportColumns'
 import PdfSupplierTransactionReportGenerator from '../components/Reports/PdfSupplierTransactionReportGenerator'
 import { queryClient } from '../App'
+import { calcTotalPayment, calcTotalWithdraw } from '../lib/helpers'
+import { handelDateFormate } from '../lib/date'
+import Info from '../components/Info'
 
 const _gotAllSupplierTransactions = async (supplierId) => {
   try {
@@ -35,31 +36,6 @@ const _gotAllSupplierTransactions = async (supplierId) => {
   }
 }
 
-const _calcTotalPayment = (transactions) => {
-  if (!transactions || transactions.length == 0) return 0
-
-  const totalPayment = transactions.reduce(
-    (total, transaction) =>
-      transaction.transactionTypeName == TRANSACTION_TYPE_NAME.PAYMENT
-        ? total + transaction.amount
-        : total,
-    0
-  )
-  return totalPayment
-}
-
-const _calcTotalWithdraw = (transactions) => {
-  if (!transactions || transactions.length == 0) return 0
-
-  const totalWithdraw = transactions.reduce(
-    (total, transaction) =>
-      transaction.transactionTypeName === TRANSACTION_TYPE_NAME.WITHDRAW
-        ? total + transaction.amount
-        : total,
-    0
-  )
-  return totalWithdraw
-}
 export const loader = async ({ params }) => {
   const { supplierId } = params
 
@@ -70,9 +46,9 @@ export const loader = async ({ params }) => {
       throw new Response("Can't load supplier transactions", { status: 404 })
     }
 
-    const totalPaymentResult = _calcTotalPayment(initialTransactions)
+    const totalPaymentResult = calcTotalPayment(initialTransactions)
 
-    const totalWithdrawResult = _calcTotalWithdraw(initialTransactions)
+    const totalWithdrawResult = calcTotalWithdraw(initialTransactions)
 
     return {
       initialTransactions,
@@ -126,13 +102,13 @@ const SuppliersTransactions = () => {
   }
 
   const _refreshTotalPayment = (newTransactions) => {
-    const totalPaymentResult = _calcTotalPayment(newTransactions)
+    const totalPaymentResult = calcTotalPayment(newTransactions)
 
     setTotalPayment(totalPaymentResult)
   }
 
   const _refreshTotalWithdraw = (newTransactions) => {
-    const totalWithdrawResult = _calcTotalWithdraw(newTransactions)
+    const totalWithdrawResult = calcTotalWithdraw(newTransactions)
 
     setTotalWithdraw(totalWithdrawResult)
   }
@@ -194,6 +170,8 @@ const SuppliersTransactions = () => {
   // ==============[ Action Methods ]==================
 
   const handleSubmit = async (transaction) => {
+    if (transaction.amount <= 0) return // check right amount
+
     if (mode == MODE.ADD) {
       await _addTransaction(transaction)
     }
@@ -269,7 +247,7 @@ const SuppliersTransactions = () => {
         />
       </Modal>
 
-      <div className="page-section">
+      <div className="page-section flex-between">
         <PdfSupplierTransactionReportGenerator
           title={`Supplier transactions Report`}
           columns={ReportTransactionsColumns}
@@ -280,6 +258,7 @@ const SuppliersTransactions = () => {
           supplierName={supplierName}
           supplierPhone={supplierPhone}
         />
+        <Info name={supplierName} phone={supplierPhone} />
       </div>
       <div className="page-section">
         <div className="flex center amount-container">

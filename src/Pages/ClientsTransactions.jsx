@@ -15,7 +15,6 @@ import { ClientTransactionsTable } from '../components/Tables'
 import transactionImg from '../assets/cash-flow.png'
 import {
   MODE,
-  TRANSACTION_TYPE_NAME,
   TRANSACTION_TYPE_ID,
   REACT_QUERY_NAME,
   UI,
@@ -23,8 +22,10 @@ import {
 import AddEditClientTransactionForm from '../components/Forms/AddEditClientTransactionForm'
 import { queryClient } from '../App'
 import { ReportTransactionsColumns } from '../Constants/ReportColumns'
-import { handelDateFormate } from '../assets/Utilities/date'
 import PdfClientTransactionReportGenerator from '../components/Reports/PdfClientTransactionReportGenerator'
+import { calcTotalPayment, calcTotalWithdraw } from '../lib/helpers'
+import { handelDateFormate } from '../lib/date'
+import Info from '../components/Info'
 
 const _gotAllClientTransactions = async (clientId) => {
   try {
@@ -33,32 +34,6 @@ const _gotAllClientTransactions = async (clientId) => {
     toast.error(error.message)
     return
   }
-}
-
-const _calcTotalPayment = (transactions) => {
-  if (!transactions || transactions.length == 0) return 0
-
-  const totalPayment = transactions.reduce(
-    (total, transaction) =>
-      transaction.transactionTypeName == TRANSACTION_TYPE_NAME.PAYMENT
-        ? total + transaction.amount
-        : total,
-    0
-  )
-  return totalPayment
-}
-
-const _calcTotalWithdraw = (transactions) => {
-  if (!transactions || transactions.length == 0) return 0
-
-  const totalWithdraw = transactions.reduce(
-    (total, transaction) =>
-      transaction.transactionTypeName === TRANSACTION_TYPE_NAME.WITHDRAW
-        ? total + transaction.amount
-        : total,
-    0
-  )
-  return totalWithdraw
 }
 
 export const loader = async ({ params }) => {
@@ -72,9 +47,9 @@ export const loader = async ({ params }) => {
       throw new Error("Can't load client transactions")
     }
 
-    const totalPaymentResult = _calcTotalPayment(initialTransactions)
+    const totalPaymentResult = calcTotalPayment(initialTransactions)
 
-    const totalWithdrawResult = _calcTotalWithdraw(initialTransactions)
+    const totalWithdrawResult = calcTotalWithdraw(initialTransactions)
 
     return {
       initialTransactions,
@@ -129,13 +104,13 @@ const ClientsTransactions = () => {
   }
 
   const _refreshTotalPayment = (newTransactions) => {
-    const totalPaymentResult = _calcTotalPayment(newTransactions)
+    const totalPaymentResult = calcTotalPayment(newTransactions)
 
     setTotalPayment(totalPaymentResult)
   }
 
   const _refreshTotalWithdraw = (newTransactions) => {
-    const totalWithdrawResult = _calcTotalWithdraw(newTransactions)
+    const totalWithdrawResult = calcTotalWithdraw(newTransactions)
 
     setTotalWithdraw(totalWithdrawResult)
   }
@@ -197,6 +172,8 @@ const ClientsTransactions = () => {
   // ==============[ Action Methods ]==================
 
   const handleSubmit = async (transaction) => {
+    if (transaction.amount <= 0) return // check right amount
+
     if (mode == MODE.ADD) {
       await _addTransaction(transaction)
     }
@@ -270,7 +247,7 @@ const ClientsTransactions = () => {
           transactionTypeId={transactionTypeId}
         />
       </Modal>
-      <div className="page-section">
+      <div className="page-section flex-between">
         <PdfClientTransactionReportGenerator
           title={`Client transactions Report`}
           columns={ReportTransactionsColumns}
@@ -281,6 +258,7 @@ const ClientsTransactions = () => {
           clientName={clientName}
           clientPhone={clientPhone}
         />
+        <Info name={clientName} phone={clientPhone} />
       </div>
       <div className="page-section">
         <div className="flex center amount-container">

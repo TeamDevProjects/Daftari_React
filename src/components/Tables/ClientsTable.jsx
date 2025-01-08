@@ -2,8 +2,8 @@
 /* eslint-disable react/prop-types */
 import { Link, useNavigate } from 'react-router-dom'
 import { NoContent } from '../Common'
-import { handelDateFormate } from '../../assets/Utilities/date'
 import { DeleteBtn, EditBtn } from '../Buttons'
+import { handelDateFormate } from '../../lib/date'
 
 const ClientsTable = ({ columns, rows, onEdit, onDelete }) => {
   const navigate = useNavigate()

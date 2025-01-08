@@ -7,7 +7,7 @@ const SubmitBtn = ({ text, disabled }) => {
   return (
     <button
       type="submit"
-      className="submit-btn"
+      className="btn-submit"
       disabled={disabled || isSubmitting}
     >
       {isSubmitting ? (

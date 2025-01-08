@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-import { Form } from 'react-router-dom'
 import SubmitBtn from '../Buttons/SubmitBtn'
 import { FormTextarea, FormInput } from '../UI'
 import { useReducer, useState } from 'react'
@@ -35,10 +34,12 @@ const AddEditSupplierTransactionForm = ({
 }) => {
   const [selectedFile, setSelectedFile] = useState(null)
 
+  const isMode_Update = mode == MODE.UPDATE
   const [state, dispatch] = useReducer(
     reducer,
-    currentTransaction || initialState
+   isMode_Update? currentTransaction : initialState
   )
+
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -63,36 +64,36 @@ const AddEditSupplierTransactionForm = ({
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    const tarnsaction = {
+    const transaction = {
       amount: state?.amount,
       notes: state?.notes ? state?.notes?.trim() : '',
       supplierId: supplierId,
       file: selectedFile,
     }
 
-    if (mode == MODE.ADD) {
-      tarnsaction.transactionTypeId = transactionTypeId
+    if (!isMode_Update) {
+      transaction.transactionTypeId = transactionTypeId
     }
 
-    onSubmit(tarnsaction)
+    onSubmit(transaction)
   }
   return (
     <>
       <h4 className="form-title">{mode + ' ' + title}</h4>
-      <Form className="register-form" onSubmit={handleSubmit}>
+      <form className="register-form" onSubmit={handleSubmit}>
         <FormInput
           type="number"
           label="Amount"
           name="amount"
           required={true}
-          defaultValue={state?.amount}
+          defaultValue={isMode_Update ? state?.amount:0}
           onChange={handleChange}
         />
 
         <FormTextarea
           label="Notes"
           name="notes"
-          defaultValue={state?.notes}
+          defaultValue={isMode_Update ? state?.notes:''}
           onChange={handleChange}
         />
 
@@ -126,7 +127,7 @@ const AddEditSupplierTransactionForm = ({
         <div className="submit-btn-container">
           <SubmitBtn text={mode + ' ' + buttonText} />
         </div>
-      </Form>
+      </form>
     </>
   )
 }

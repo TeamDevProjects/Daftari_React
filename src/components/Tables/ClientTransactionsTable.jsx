@@ -1,11 +1,11 @@
 /* eslint-disable react/prop-types */
 
 import { LuDollarSign } from 'react-icons/lu'
-import { handelDateTimeFormate } from '../../assets/Utilities/date'
 import { useState } from 'react'
 import { Modal } from '../UI'
 import { NoContent } from '../Common'
 import { DeleteBtn, EditBtn } from '../Buttons'
+import { handelDateTimeFormate } from '../../lib/date'
 
 const ClientTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
   // rowPaymentDateId

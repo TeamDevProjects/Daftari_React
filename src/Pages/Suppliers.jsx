@@ -2,7 +2,6 @@
 import { useState } from 'react'
 import { Link, useLoaderData } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { handelDateFormate } from '../assets/Utilities/date'
 import supplierImg from '../assets/supplier.png'
 import { LuDollarSign } from 'react-icons/lu'
 import {
@@ -22,6 +21,8 @@ import { SuppliersTable } from '../components/Tables'
 import { MdOutlineSettingsInputComponent } from 'react-icons/md'
 import { REACT_QUERY_NAME } from '../Constants/Variables'
 import { queryClient } from '../App'
+import { calcTotal_Gave, calcTotal_got } from '../lib/helpers'
+import { handelDateFormate } from '../lib/date'
 
 const _GotAllSuppliers = async () => {
   try {
@@ -62,9 +63,9 @@ export const loader = (queryClient) => async () => {
     const initialSuppliers = await queryClient.ensureQueryData(SuppliersQuery)
 
     //set default total_GotDate & total_Gave
-    const initialTotal_Got = _calcTotal_Got(initialSuppliers)
+    const initialTotal_Got = calcTotal_got(initialSuppliers)
 
-    const initialTotal_Gave = _calcTotal_Gave(initialSuppliers)
+    const initialTotal_Gave = calcTotal_Gave(initialSuppliers)
 
     return { initialSuppliers, initialTotal_Got, initialTotal_Gave }
   } catch {

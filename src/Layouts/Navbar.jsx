@@ -57,7 +57,7 @@ const Navbar = () => {
           </NavLink>
           <button className="nav-link logout-btn" onClick={handelLogout}>
             Logout
-            <FiLogOut className="fs-1" />
+            <FiLogOut />
           </button>
         </div>
       </div>
