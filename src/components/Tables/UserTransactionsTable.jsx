@@ -71,7 +71,7 @@ const UserTransactionsTable = ({ columns, rows, onEdit, onDelete }) => {
                       }`}
                     >
                       <span>
-                        {row?.transactionTypeName === 'Withdrawal' ? '+' : '-'}
+                        {row?.transactionTypeName === 'Withdrawal' ? '-' : '+'}
                       </span>
                     </span>
                     <span
