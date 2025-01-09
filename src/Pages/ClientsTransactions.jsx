@@ -26,6 +26,7 @@ import PdfClientTransactionReportGenerator from '../components/Reports/PdfClient
 import { calcTotalPayment, calcTotalWithdraw } from '../lib/helpers'
 import { handelDateFormate } from '../lib/date'
 import Info from '../components/Info'
+import AddTransactionBtn from '../components/Buttons/AddTransactionBtn'
 
 const _gotAllClientTransactions = async (clientId) => {
   try {
@@ -38,8 +39,7 @@ const _gotAllClientTransactions = async (clientId) => {
 
 export const loader = async ({ params }) => {
   try {
-    const { clientId } = params // استخدم الـ id من الـ params
-    console.log(clientId)
+    const { clientId } = params
 
     const initialTransactions = await _gotAllClientTransactions(clientId)
 
@@ -56,8 +56,7 @@ export const loader = async ({ params }) => {
       totalPaymentResult,
       totalWithdrawResult,
     }
-  } catch (error) {
-    console.error(error)
+  } catch {
     return {
       initialTransactions: [],
       totalPaymentResult: 0,
@@ -124,7 +123,6 @@ const ClientsTransactions = () => {
 
   const _addTransaction = async (transaction) => {
     try {
-      console.log('Add user transaction', transaction)
       await clientTransactionService.Add(transaction)
       toast.success('user transaction Added Successfully')
     } catch (error) {
@@ -134,7 +132,6 @@ const ClientsTransactions = () => {
 
   const _updateTransaction = async (transaction) => {
     try {
-      console.log('Edit user transaction', transaction)
       await clientTransactionService.Update(
         transaction,
         currentTransaction?.clientTransactionId
@@ -206,7 +203,6 @@ const ClientsTransactions = () => {
     }
   }
   const handelEditTransaction = (transaction) => {
-    // console.log(transaction)
     setMode(MODE.UPDATE)
     handleOpenModal()
     setCurrentTransaction(transaction)
@@ -226,16 +222,6 @@ const ClientsTransactions = () => {
   const balance = totalWithdraw - totalPayment
   return (
     <>
-      <div className="page-section">
-        <button className="btn-back" onClick={goBack}>
-          <IoIosArrowBack />
-        </button>
-        <div className="center section-logo">
-          <img src={transactionImg} alt="transactionImg" />
-          <p>{UI.HEADER.CLIENTS_TRANSACTIONS}</p>
-        </div>
-      </div>
-
       <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
         <AddEditClientTransactionForm
           onSubmit={handleSubmit}
@@ -247,9 +233,20 @@ const ClientsTransactions = () => {
           transactionTypeId={transactionTypeId}
         />
       </Modal>
+
+      <div className="page-section">
+        <button className="btn-back" onClick={goBack}>
+          <IoIosArrowBack />
+        </button>
+        <div className="center section-logo">
+          <img src={transactionImg} alt="transactionImg" />
+          <p>{UI.HEADER.CLIENTS_TRANSACTIONS}</p>
+        </div>
+      </div>
+
       <div className="page-section flex-between">
         <PdfClientTransactionReportGenerator
-          title={`Client transactions Report`}
+          title={`Client Transactions Report`}
           columns={ReportTransactionsColumns}
           got={totalPayment}
           gave={totalWithdraw}
@@ -295,18 +292,18 @@ const ClientsTransactions = () => {
           onEdit={handelEditTransaction}
         />
         <div className="flex">
-          <div
-            className="btn btn-red"
+          <AddTransactionBtn
+            buttonType="red"
             onClick={handelAddWithdrawTransactionModal}
           >
             {UI.TEXT.I_GAVE}
-          </div>
-          <div
-            className="btn btn-green"
+          </AddTransactionBtn>
+          <AddTransactionBtn
+            buttonType="green"
             onClick={handelAddPaymentTransactionModal}
           >
             {UI.TEXT.I_GOT}
-          </div>
+          </AddTransactionBtn>
         </div>
       </div>
     </>

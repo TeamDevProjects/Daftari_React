@@ -34,8 +34,6 @@ const _getAllClients = async () => {
   }
 }
 
-
-
 const ClientsQuery = {
   queryKey: [REACT_QUERY_NAME.CLIENTS],
   queryFn: async () => await _getAllClients(),
@@ -67,6 +65,8 @@ const Clients = () => {
   const [clients, setClients] = useState(initialClients || [])
   const [total_Gave, setTotal_Gave] = useState(initialTotal_Gave || 0)
   const [total_got, setTotal_got] = useState(initialTotal_got || 0)
+
+  const balance = total_Gave - total_got
 
   const [mode, setMode] = useState(MODE.ADD)
   const [isModalOpen, setModalOpen] = useState(false)
@@ -102,6 +102,8 @@ const Clients = () => {
   const _addClient = async (client) => {
     try {
       const newClient = await clientServices.Add(client)
+
+      // update Clients
       setClients((prevClients) => [...prevClients, newClient])
 
       toast.success('New Client Added Successfully')
@@ -114,6 +116,7 @@ const Clients = () => {
     try {
       await clientServices.Update(client, currentPerson?.clientId)
 
+      // update Clients
       setClients((prevClients) =>
         prevClients.map((c) =>
           c.clientId === currentPerson.clientId
@@ -121,7 +124,6 @@ const Clients = () => {
             : c
         )
       )
-      console.log(client)
       toast.success('Client Updated Successfully')
     } catch (error) {
       toast.error(error?.message)
@@ -130,6 +132,13 @@ const Clients = () => {
 
   // ================[ Handel UI ]=====================
 
+  const handleOpenModal = () => {
+    setModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setModalOpen(false)
+  }
   const handelAddClientModal = () => {
     setMode(MODE.ADD)
     handleOpenModal()
@@ -139,13 +148,6 @@ const Clients = () => {
     setMode(MODE.UPDATE)
     setCurrentPerson(person)
     handleOpenModal()
-  }
-  const handleOpenModal = () => {
-    setModalOpen(true)
-  }
-
-  const handleCloseModal = () => {
-    setModalOpen(false)
   }
 
   const handelOpenOrderingModel = () => {
@@ -167,7 +169,10 @@ const Clients = () => {
     // Refresh
     await _refresh()
 
+    // close Model
     setModalOpen(false)
+
+    // remove clients from cash
     queryClient.removeQueries(REACT_QUERY_NAME.CLIENTS)
   }
 
@@ -175,25 +180,28 @@ const Clients = () => {
     try {
       await clientServices.Delete(clientId)
 
+      // update Clients
       setClients((prevClients) =>
         prevClients.filter((client) => client.clientId !== clientId)
       )
 
       // Refresh
       await _refresh()
+
+      // remove clients from cash
       queryClient.removeQueries(REACT_QUERY_NAME.CLIENTS)
 
       toast.success('Client deleted successfully.')
-    } catch (error) {
-      console.error('Error deleting client:', error)
+    } catch {
       toast.error('Failed to delete client.')
     }
   }
 
   const handelSubmitOrdering = async (orderBy) => {
-    console.log(orderBy)
     let results
 
+    // based on order type get same type of ordered data and
+    // update Clients
     switch (orderBy) {
       case ORDER_PERSON_BY.DEFAULT:
         setClients(initialClients)
@@ -231,6 +239,7 @@ const Clients = () => {
     queryClient.removeQueries(REACT_QUERY_NAME.CLIENTS)
   }
 
+  // handel data that will use to create pdf
   const formatReportRows = (data) =>
     Array.isArray(data) &&
     data.length > 0 &&
@@ -249,22 +258,25 @@ const Clients = () => {
   const handleSearch = async (temp) => {
     try {
       if (!temp || temp == '') {
+        // reset clients
         setClients(initialClients)
         return
       }
 
       const results = await clientServices.SearchByName(temp) // Call API to search by name
 
+      // update Clients
       setClients(results)
     } catch {
-      setClients([])
+      setClients(initialClients)
     }
   }
 
+  // data that will use to create global pdf
   const ReportRows = formatReportRows(initialClients)
-  const ReportOrderingRows = formatReportRows(clients)
 
-  const balance = total_Gave - total_got
+  // data that will use to create special pdf
+  const ReportOrderingRows = formatReportRows(clients)
 
   return (
     <>
@@ -286,7 +298,7 @@ const Clients = () => {
         />
       </Modal>
       <div className="page-section">
-        <h4 className="header-title">store : {user?.storeName}</h4>
+        <h4 className="header-title">Store : {user?.storeName}</h4>
         <div className="center section-logo">
           <img src={clientImg} alt="clientImg!!!" />
           <p>{UI.HEADER.CLIENTS}</p>

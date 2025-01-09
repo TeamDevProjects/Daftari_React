@@ -47,6 +47,7 @@ const SearchForm = ({ onSubmit }) => {
           className="input-bordered form-input"
           disabled={isSubmitting}
           onChange={handleChange}
+          placeholder='Search by name or phone'
         />
         <button className="btn">
           <CiSearch className="fs-1" />

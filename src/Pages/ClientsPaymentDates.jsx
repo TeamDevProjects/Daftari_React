@@ -68,11 +68,12 @@ const ClientsPaymentDates = () => {
 
   const _updatePaymentDate = async (paymentDate) => {
     try {
-      console.log('Edit payment date', paymentDate)
       await clientPaymentDateService.Update(
         { ...paymentDate, clientId: currentPaymentDate?.clientId },
         currentPaymentDate?.clientPaymentDateId
       )
+
+      // update setActivePaymentDate
       setActivePaymentDate((prevPaymentDates) =>
         prevPaymentDates.map((c) =>
           c.clientPaymentDateId === currentPaymentDate.clientPaymentDateId
@@ -118,9 +119,7 @@ const ClientsPaymentDates = () => {
   const handleSubmit = async (paymentdate) => {
     if (mode == MODE.UPDATE) {
       await _updatePaymentDate(paymentdate)
-      console.log(paymentdate)
     }
-    // refresh
     setModalOpen(false)
 
     queryClient.removeQueries(REACT_QUERY_NAME.CLIENTS_PAYMENTDATE)
@@ -131,7 +130,6 @@ const ClientsPaymentDates = () => {
 
     handleOpenModal()
     setCurrentPaymentDate(paymentDate)
-    console.log(paymentDate)
   }
 
   const handelDelete = async (paymentDateId) => {

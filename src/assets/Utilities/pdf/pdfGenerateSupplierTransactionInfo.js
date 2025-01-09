@@ -14,7 +14,11 @@ export const pdfGenerateSupplierTransactionInfo = (
 
   pdf.setTextColor(15, 81, 50)
   position.positionY += PDF.MARGIN.TOP_10 // 33
-  pdf.text(`${PDF.TEXT.I_GOT}   : ${got}`, PDF.MARGIN.LEFT, position.positionY)
+  pdf.text(
+    `${PDF.TEXT.I_GOT}   : $ ${got}`,
+    PDF.MARGIN.LEFT,
+    position.positionY
+  )
 
   pdf.setTextColor(0, 0, 0)
   pdf.text(
@@ -26,7 +30,11 @@ export const pdfGenerateSupplierTransactionInfo = (
   //---------------------------------------
   pdf.setTextColor(132, 32, 41)
   position.positionY += PDF.MARGIN.TOP_7 // 30
-  pdf.text(`${PDF.TEXT.I_GAVE}  : ${gave}`, PDF.MARGIN.LEFT, position.positionY)
+  pdf.text(
+    `${PDF.TEXT.I_GAVE}  : $ ${gave}`,
+    PDF.MARGIN.LEFT,
+    position.positionY
+  )
 
   pdf.setTextColor(0, 0, 0)
   pdf.text(
@@ -39,14 +47,14 @@ export const pdfGenerateSupplierTransactionInfo = (
   if (balance < 0) {
     pdf.setTextColor(132, 32, 41)
     pdf.text(
-      `${PDF.TEXT.GLOBAL_BALANCE}  : ${got || 0}`,
+      `${PDF.TEXT.GLOBAL_BALANCE}  : $ ${got || 0}`,
       PDF.MARGIN.LEFT,
       position.positionY
     )
   } else {
     pdf.setTextColor(15, 81, 50)
     pdf.text(
-      `${PDF.TEXT.GLOBAL_BALANCE}  : ${balance || 0}`,
+      `${PDF.TEXT.GLOBAL_BALANCE}  : $ ${balance || 0}`,
       PDF.MARGIN.LEFT,
       position.positionY
     )

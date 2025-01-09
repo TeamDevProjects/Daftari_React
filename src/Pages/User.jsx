@@ -16,6 +16,7 @@ import PdfUserTransactionReportGenerator from '../components/Reports/PdfUserTran
 import { ReportTransactionsColumns } from '../Constants/ReportColumns'
 import { calcTotalPayment, calcTotalWithdraw } from '../lib/helpers'
 import { handelDateFormate } from '../lib/date'
+import AddTransactionBtn from '../components/Buttons/AddTransactionBtn'
 
 const _getAllUserTransactions = async () => {
   try {
@@ -111,7 +112,6 @@ const User = () => {
 
   const _addTransaction = async (transaction) => {
     try {
-      console.log('Add user transaction', transaction)
       await userTransactionServices.Add(transaction)
       toast.success('user transaction Added Successfully')
     } catch (error) {
@@ -121,7 +121,6 @@ const User = () => {
 
   const _updateTransaction = async (transaction) => {
     try {
-      console.log('Edit user transaction', transaction)
       await userTransactionServices.Update(
         transaction,
         currentTransaction?.userTransactionId
@@ -156,6 +155,7 @@ const User = () => {
   // ==============[ Action Methods ]==================
 
   const handleSubmit = async (transaction) => {
+    // console.log(transaction)
     if (transaction.amount <= 0) return // check right amount
 
     if (mode == MODE.ADD) {
@@ -192,7 +192,6 @@ const User = () => {
   }
 
   const handelEditTransaction = (transaction) => {
-    // console.log(transaction)
     setMode(MODE.UPDATE)
     handleOpenModal()
     setCurrentTransaction(transaction)
@@ -222,7 +221,7 @@ const User = () => {
         />
       </Modal>
       <div className="page-section">
-        <h4 className="header-title">store : {user?.storeName}</h4>
+        <h4 className="header-title">Store : {user?.storeName}</h4>
         <div className="center section-logo">
           <img src={transactionImg} alt="supplierImg!!!" />
           <p>{UI.HEADER.USERS_TRANSACTIONS}</p>
@@ -230,7 +229,7 @@ const User = () => {
       </div>
       <div className="page-section">
         <PdfUserTransactionReportGenerator
-          title={`User transactions Report`}
+          title={`User Transactions Report`}
           columns={ReportTransactionsColumns}
           got={totalWithdraw}
           gave={totalPayment}
@@ -276,19 +275,19 @@ const User = () => {
           onEdit={handelEditTransaction}
         />
         <div className="flex">
-          <div
-            className="btn btn-red"
+          <AddTransactionBtn
+            buttonType="red"
             onClick={handelAddWithdrawTransactionModal}
           >
             {UI.TEXT.I_GOT}
-          </div>
+          </AddTransactionBtn>
 
-          <div
-            className="btn btn-green"
+          <AddTransactionBtn
+            buttonType="green"
             onClick={handelAddPaymentTransactionModal}
           >
             {UI.TEXT.I_GAVE}
-          </div>
+          </AddTransactionBtn>
         </div>
       </div>
     </>

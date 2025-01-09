@@ -26,6 +26,7 @@ import { queryClient } from '../App'
 import { calcTotalPayment, calcTotalWithdraw } from '../lib/helpers'
 import { handelDateFormate } from '../lib/date'
 import Info from '../components/Info'
+import AddTransactionBtn from '../components/Buttons/AddTransactionBtn'
 
 const _gotAllSupplierTransactions = async (supplierId) => {
   try {
@@ -122,7 +123,6 @@ const SuppliersTransactions = () => {
 
   const _addTransaction = async (transaction) => {
     try {
-      console.log('Add user transaction', transaction)
       await SupplierTransactionService.Add(transaction)
       toast.success('user transaction Added Successfully')
     } catch (error) {
@@ -132,7 +132,6 @@ const SuppliersTransactions = () => {
 
   const _updateTransaction = async (transaction) => {
     try {
-      console.log('Edit user transaction', transaction)
       await SupplierTransactionService.Update(
         transaction,
         currentTransaction?.supplierTransactionId
@@ -249,7 +248,7 @@ const SuppliersTransactions = () => {
 
       <div className="page-section flex-between">
         <PdfSupplierTransactionReportGenerator
-          title={`Supplier transactions Report`}
+          title={`Supplier Transactions Report`}
           columns={ReportTransactionsColumns}
           got={totalWithdraw}
           gave={totalPayment}
@@ -295,18 +294,18 @@ const SuppliersTransactions = () => {
           onEdit={handleEditTransaction}
         />
         <div className="flex">
-          <div
-            className="btn btn-red"
+          <AddTransactionBtn
+            buttonType="red"
             onClick={handelAddPaymentTransactionModal}
           >
             {UI.TEXT.I_GAVE}
-          </div>
-          <div
-            className="btn btn-green"
+          </AddTransactionBtn>
+          <AddTransactionBtn
+            buttonType="green"
             onClick={handelAddWithdrawTransactionModal}
           >
             {UI.TEXT.I_GOT}
-          </div>
+          </AddTransactionBtn>
         </div>
       </div>
     </>

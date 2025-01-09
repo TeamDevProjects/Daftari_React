@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { GetBusinessTypes } from '../Services/businessType'
 import { GetSectors } from '../Services/sector'
 import userServices from '../Services/user'
+import { FaBookOpen } from 'react-icons/fa'
 
 // Initial state for the form
 const initialState = {
@@ -140,10 +141,7 @@ const SignUp = () => {
       for (const field in errors) {
         dispatch({ type: 'SET_ERROR', field, error: errors[field] })
       }
-      console.log('Error', state.errors)
     } else {
-      console.log('Form submitted successfully', User)
-      //UserDispatch(signupUser(User))
       userServices.UserSignUp(User)
 
       // after Success Sign up navigate to Login Page
@@ -176,15 +174,20 @@ const SignUp = () => {
 
   useEffect(() => {
     checkIsValidForm()
-    /*     console.log(userServices.GetClients())
-     */ return () => {
+    return () => {
       false
     }
   }, [checkIsValidForm, state])
 
   return (
     <section className="register-container">
-      <form className="register-form" onSubmit={handleSubmit}>
+      <span className="logo mb-2">
+        <span>
+          <FaBookOpen style={{ transform: 'translateY(.2rem)' }} />
+          <span>Daftari</span>
+        </span>
+      </span>
+      <form className="register-form form-shadow" onSubmit={handleSubmit}>
         <h4 className="form-title">Register</h4>
         <div className="flex">
           <FormInput

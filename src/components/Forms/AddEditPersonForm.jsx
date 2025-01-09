@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { FormInput } from '../UI'
+import { FormInput, FormTextarea } from '../UI'
 import SubmitBtn from '../Buttons/SubmitBtn'
 import { useReducer } from 'react'
 import { MODE } from '../../Constants/Variables'
@@ -115,7 +115,7 @@ const AddEditPersonForm = ({
           defaultValue={isMode_Update ? state?.address : ''}
           onChange={handleChange}
         />
-        <FormInput
+        <FormTextarea
           type="text"
           label="notes"
           name="notes"

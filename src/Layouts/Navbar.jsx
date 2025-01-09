@@ -1,7 +1,7 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import authService from '../Services/authService'
 import { useUser } from '../Context/userContext'
-import { FiLogOut } from 'react-icons/fi'
+// import { FiLogOut } from 'react-icons/fi'
 import { FaBookOpen } from 'react-icons/fa'
 import { FaBarsStaggered } from 'react-icons/fa6'
 import { IoMdClose } from 'react-icons/io'
@@ -57,7 +57,7 @@ const Navbar = () => {
           </NavLink>
           <button className="nav-link logout-btn" onClick={handelLogout}>
             Logout
-            <FiLogOut />
+            {/* <FiLogOut /> */}
           </button>
         </div>
       </div>

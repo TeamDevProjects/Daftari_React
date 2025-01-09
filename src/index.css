@@ -9,7 +9,11 @@
 }
 
 html {
-  font-size: 62.5%; /* 1rem */
+  /* 10px => 1rem */
+  font-size: 62.5%;
+
+  /* 11px => 1rem */
+  /* font-size: 68.75%; */
 }
 
 :root {
@@ -124,6 +128,10 @@ ul {
   padding: 0;
 }
 
+input,
+textarea {
+  letter-spacing: 1.1px;
+}
 .flex-between {
   display: flex;
   justify-content: space-between;
@@ -311,7 +319,7 @@ ul {
 .modal {
   background: white;
   width: 80vw;
-  max-width: 30rem;
+  max-width: 35rem;
   border-radius: 0.5rem;
   padding: 2rem 1rem 0rem 1rem;
   text-align: center;
@@ -440,7 +448,7 @@ td.td-notes {
 }
 .td-amount {
   display: flex;
-  justify-content: start;
+  justify-content: center;
   align-items: center;
 }
 .td-img {
@@ -580,9 +588,13 @@ td.td-notes {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0.7rem;
+  padding: 1rem 0.7rem;
+  background: var(--grey-600) !important;
+  border-radius: 0.5rem !important;
 }
-
+.btn-upload:hover {
+  background: var(--grey-700) !important;
+}
 .btn-upload svg {
   margin-right: 1rem;
   width: 2rem;
@@ -696,13 +708,17 @@ td.td-notes {
   cursor: pointer;
   background: none;
   border: none;
-  color: #ddd !important;
+  color: var(--red-light) !important;
   display: flex;
   align-items: center;
+  transition: var(--transition);
   gap: 0.5rem;
 }
 .logout-btn svg {
   font-size: 1.5rem;
+}
+.logout-btn:hover {
+  color: var(--red-dark) !important;
 }
 /* -----------[Global Btns Style]-------- */
 
@@ -753,13 +769,18 @@ td.td-notes {
 }
 ::placeholder {
   color: var(--grey-400);
+  font-size: 1rem;
 }
 
 /* ============== Register ================ */
 
 .register-container {
-  height: 100vh;
-  max-width: 30rem;
+  position: fixed;
+  /* height: 100vh; */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  width: 35rem;
   margin: auto;
   display: grid;
   place-items: center;
@@ -779,11 +800,13 @@ td.td-notes {
   flex-direction: column;
   gap: 0.7rem;
 }
-
+.form-shadow {
+  box-shadow: var(--shadow-4);
+}
 .form-title {
   text-align: center;
   font-size: 1.5rem;
-  font-weight: 400;
+  font-weight: 700;
   color: var(--primary-500);
 }
 
@@ -850,6 +873,7 @@ td.td-notes {
   width: 100%;
   box-sizing: border-box;
   transition: var(--transition);
+  font-family: inherit;
 }
 
 .input:focus {
@@ -942,12 +966,14 @@ option {
 }
 
 .nav-center {
-  width: var(--view-width);
-  max-width: var(--max-width);
+  /* width: var(--view-width);
+  max-width: var(--max-width); */
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   padding: 1.5rem 2rem;
+  width: 80%;
+  margin: 0 auto;
 }
 
 .logo {
@@ -961,8 +987,15 @@ option {
   align-items: center;
   gap: 0.3rem;
 }
+.logo > span {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
 
-.logo a {
+.logo > span > span,
+.logo > span > a {
   color: var(--primary-800);
 }
 .nav-links {
@@ -1062,7 +1095,7 @@ option {
 }
 
 .page-section .info {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   letter-spacing: 1.1px;
   display: flex;
   flex-direction: column;
@@ -1102,6 +1135,9 @@ option {
   color: var(--primary-800);
   font-weight: 600;
   font-size: 1.2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .total-amount-title {
@@ -1238,7 +1274,7 @@ option {
   border-radius: 0.6rem;
 }
 
-/* Media queries */
+/* Media queries for small devices*/
 @media (max-width: 768px) {
   .page {
     width: 100%;
@@ -1246,6 +1282,10 @@ option {
   .nav-actions {
     display: block !important;
   }
+
+  /* .modal {
+    max-width: 30rem;
+  } */
 
   .flex {
     gap: 0.5rem;

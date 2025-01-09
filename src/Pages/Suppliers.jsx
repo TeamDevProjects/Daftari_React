@@ -81,6 +81,8 @@ const Suppliers = () => {
   const [total_Got, setTotal_Got] = useState(initialTotal_Got || 0)
   const [total_Gave, setTotal_Gave] = useState(initialTotal_Gave || 0)
 
+  const balance = total_Got - total_Gave
+
   const [isModalOpen, setModalOpen] = useState(false)
   const [mode, setMode] = useState(MODE.ADD)
 
@@ -134,7 +136,6 @@ const Suppliers = () => {
             : c
         )
       )
-      console.log(supplier)
       toast.success('Supplier Updated Successfully')
     } catch (error) {
       toast.error(error?.message)
@@ -187,7 +188,6 @@ const Suppliers = () => {
   }
 
   const handelSubmitOrdering = async (orderBy) => {
-    console.log(orderBy)
     let results
 
     switch (orderBy) {
@@ -253,8 +253,7 @@ const Suppliers = () => {
       queryClient.removeQueries(REACT_QUERY_NAME.SUPPLIERS)
 
       toast.success('Supplier deleted successfully.')
-    } catch (error) {
-      console.error('Error deleting Supplier:', error)
+    } catch {
       toast.error('Failed to delete Supplier.')
     }
   }
@@ -277,8 +276,6 @@ const Suppliers = () => {
   const ReportRows = formatReportRows(initialSuppliers)
   const ReportOrderingRows = formatReportRows(suppliers)
 
-  const balance = total_Got - total_Gave
-
   return (
     <>
       {/* ==[ Add / Edit Suppliers]== */}
@@ -293,7 +290,7 @@ const Suppliers = () => {
       </Modal>
 
       <div className="page-section">
-        <h4 className="header-title">store : {user?.storeName}</h4>
+        <h4 className="header-title">Store : {user?.storeName}</h4>
         <div className="center section-logo">
           <img src={supplierImg} alt="supplierImg!!!" />
           <p>{UI.HEADER.SUPPLIERS}</p>

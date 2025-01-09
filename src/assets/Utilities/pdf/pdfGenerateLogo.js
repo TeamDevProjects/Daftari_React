@@ -15,7 +15,7 @@ export const pdfGenerateLogo = (pdf, position, storeName) => {
 
   //-- storeName
   pdf.setFontSize(10)
-  pdf.setTextColor(229, 229, 229)
+  pdf.setTextColor(0, 0, 0)
   pdf.text(
     `${PDF.TEXT.STORE} : ${storeName}`,
     storeNamePosition,

@@ -68,7 +68,6 @@ const SuppliersPaymentDates = () => {
 
   const _updatePaymentDate = async (paymentDate) => {
     try {
-      console.log('Edit payment date', paymentDate)
       await supplierPaymentDateService.Update(
         { ...paymentDate, supplierId: currentPaymentDate?.supplierId },
         currentPaymentDate?.supplierPaymentDateId
@@ -121,7 +120,6 @@ const SuppliersPaymentDates = () => {
   const handleSubmit = async (paymentdate) => {
     if (mode == MODE.UPDATE) {
       await _updatePaymentDate(paymentdate)
-      console.log(paymentdate)
     }
     // refresh
     setModalOpen(false)
@@ -134,7 +132,6 @@ const SuppliersPaymentDates = () => {
 
     handleOpenModal()
     setCurrentPaymentDate(paymentDate)
-    console.log(paymentDate)
   }
 
   const handelDelete = async (paymentDateId) => {

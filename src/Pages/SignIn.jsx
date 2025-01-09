@@ -4,6 +4,7 @@ import userServices from '../Services/user'
 import authService from '../Services/authService'
 import { FormInput } from '../components/UI'
 import { SubmitBtn } from '../components/Buttons'
+import { FaBookOpen } from 'react-icons/fa'
 // Action function for form submission
 // eslint-disable-next-line react-refresh/only-export-components
 export const action = async ({ request }) => {
@@ -26,7 +27,10 @@ export const action = async ({ request }) => {
       return null
     }
 
-    toast.success(response.msg || 'Login successful!')
+    // Delay success login message
+    setTimeout(() => {
+      toast.success(response.msg || 'Login successful!')
+    }, 200)
     return redirect('/user')
   } catch (error) {
     if (error?.response?.data) {
@@ -41,7 +45,13 @@ export const action = async ({ request }) => {
 const SignIn = () => {
   return (
     <section className="register-container">
-      <Form method="POST" className="register-form">
+      <span className="logo mb-2">
+        <span>
+          <FaBookOpen style={{ transform: 'translateY(.2rem)' }} />
+          <span>Daftari</span>
+        </span>
+      </span>
+      <Form method="POST" className="register-form form-shadow">
         <h4 className="form-title">SignIn</h4>
         <FormInput
           type="text"

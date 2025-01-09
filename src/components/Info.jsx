@@ -10,13 +10,13 @@ const Info = ({ name, phone }) => {
   return (
     <div className="info">
       <span>
-        <span>name : </span>
+        <span>Name : </span>
         <span className="data name" onClick={goBack}>
           {name}
         </span>
       </span>
       <span>
-        <span>phone : </span>
+        <span>Phone : </span>
         <span className="data">{phone}</span>
       </span>
     </div>

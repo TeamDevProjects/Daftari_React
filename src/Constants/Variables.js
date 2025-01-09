@@ -1,5 +1,5 @@
-export const URL = 'https://debtmanagement.runasp.net'
-// export const URL = 'https://localhost:7264'
+// export const URL = 'https://debtmanagement.runasp.net'
+export const URL = 'https://localhost:7264'
 
 export const MODE = {
   ADD: 'Add',

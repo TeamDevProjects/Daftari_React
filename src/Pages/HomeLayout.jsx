@@ -34,9 +34,8 @@ const HomeLayout = () => {
         return
       }
       setUser(currentUserInf)
-    } catch (error) {
+    } catch  {
       setUser(null)
-      console.log(error)
       setIsServerError(true) // Set server error state when API fails
       setServerErrorStatus(true) // Update global error state using context
     }
